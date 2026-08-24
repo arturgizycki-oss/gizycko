@@ -1,0 +1,59 @@
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { requireProfile } from "@/lib/session";
+
+export default async function MatchesPage() {
+  const { session } = await requireProfile();
+  const me = session.user.id;
+
+  const matches = await prisma.match.findMany({
+    where: {
+      unmatchedAt: null,
+      OR: [{ userAId: me }, { userBId: me }],
+    },
+    orderBy: [{ lastMessageAt: "desc" }, { createdAt: "desc" }],
+    include: {
+      userA: { select: { id: true, name: true, profile: { select: { displayName: true } } } },
+      userB: { select: { id: true, name: true, profile: { select: { displayName: true } } } },
+      messages: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
+  });
+
+  return (
+    <div>
+      <h1 className="mb-6 text-xl font-semibold tracking-tight">Matches</h1>
+
+      {matches.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-neutral-300 p-10 text-center text-sm text-neutral-500 dark:border-neutral-700">
+          No matches yet. Keep swiping in Discover.
+        </p>
+      ) : (
+        <ul className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
+          {matches.map((match) => {
+            const other = match.userAId === me ? match.userB : match.userA;
+            const preview = match.messages[0];
+
+            return (
+              <li key={match.id}>
+                <Link
+                  href={`/matches/${match.id}`}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                >
+                  <div className="size-10 rounded-full bg-neutral-200 dark:bg-neutral-700" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">
+                      {other.profile?.displayName ?? other.name}
+                    </p>
+                    <p className="truncate text-sm text-neutral-500">
+                      {preview ? preview.body : "You matched. Say hello."}
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}

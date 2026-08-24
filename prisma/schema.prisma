@@ -1,0 +1,487 @@
+// gizycko.online — dating + social schema
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum Gender {
+  MAN
+  WOMAN
+  NONBINARY
+  OTHER
+}
+
+enum SwipeDirection {
+  LIKE
+  PASS
+  SUPERLIKE
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum PostVisibility {
+  PUBLIC
+  FRIENDS
+  MATCHES
+  PRIVATE
+}
+
+enum ReactionType {
+  LIKE
+  LOVE
+  HAHA
+  WOW
+  SAD
+  ANGRY
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  NUDITY
+  FAKE_PROFILE
+  UNDERAGE
+  HATE_SPEECH
+  SCAM
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWING
+  ACTIONED
+  DISMISSED
+}
+
+enum NotificationType {
+  MATCH
+  MESSAGE
+  PROFILE_LIKE
+  FRIEND_REQUEST
+  FRIEND_ACCEPTED
+  POST_REACTION
+  POST_COMMENT
+}
+
+// ---------------------------------------------------------------------------
+// Auth (Better Auth core tables - field names are fixed by the adapter)
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String   @id
+  name          String
+  email         String
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  role      UserRole  @default(USER)
+  bannedAt  DateTime?
+  banReason String?
+
+  sessions Session[]
+  accounts Account[]
+  profile  Profile?
+
+  swipesSent     Swipe[] @relation("SwipesSent")
+  swipesReceived Swipe[] @relation("SwipesReceived")
+
+  matchesAsA  Match[] @relation("MatchUserA")
+  matchesAsB  Match[] @relation("MatchUserB")
+  unmatchedBy Match[] @relation("UnmatchedBy")
+
+  messages Message[]
+
+  posts     Post[]
+  comments  Comment[]
+  reactions Reaction[]
+
+  friendRequestsSent     Friendship[] @relation("FriendRequester")
+  friendRequestsReceived Friendship[] @relation("FriendAddressee")
+
+  blocksMade     Block[] @relation("Blocker")
+  blocksReceived Block[] @relation("Blocked")
+
+  reportsMade     Report[] @relation("Reporter")
+  reportsAgainst  Report[] @relation("ReportedUser")
+  reportsResolved Report[] @relation("ReportResolver")
+
+  notifications      Notification[] @relation("NotificationRecipient")
+  notificationsActed Notification[] @relation("NotificationActor")
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  issuer                String
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([issuer, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ---------------------------------------------------------------------------
+// Dating profile
+// ---------------------------------------------------------------------------
+
+model Profile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName  String
+  birthDate    DateTime
+  gender       Gender
+  interestedIn Gender[]
+
+  bio        String? @db.VarChar(2000)
+  occupation String?
+  heightCm   Int?
+
+  city      String?
+  country   String?
+  latitude  Float?
+  longitude Float?
+
+  maxDistanceKm Int @default(50)
+  minAgePref    Int @default(18)
+  maxAgePref    Int @default(99)
+
+  isVisible    Boolean   @default(true)
+  completedAt  DateTime?
+  lastActiveAt DateTime  @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  photos Photo[]
+
+  @@index([latitude, longitude])
+  @@index([isVisible, lastActiveAt])
+  @@map("profile")
+}
+
+model Photo {
+  id        String  @id @default(cuid())
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  url        String
+  blurhash   String?
+  position   Int              @default(0)
+  isPrimary  Boolean          @default(false)
+  moderation ModerationStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  @@index([profileId, position])
+  @@map("photo")
+}
+
+// ---------------------------------------------------------------------------
+// Matching
+// ---------------------------------------------------------------------------
+
+model Swipe {
+  id String @id @default(cuid())
+
+  fromUserId String
+  fromUser   User   @relation("SwipesSent", fields: [fromUserId], references: [id], onDelete: Cascade)
+
+  toUserId String
+  toUser   User   @relation("SwipesReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  direction SwipeDirection
+  createdAt DateTime       @default(now())
+
+  @@unique([fromUserId, toUserId])
+  @@index([toUserId, direction])
+  @@map("swipe")
+}
+
+/// userAId is always the lexicographically smaller id, so each pair has one row.
+model Match {
+  id String @id @default(cuid())
+
+  userAId String
+  userA   User   @relation("MatchUserA", fields: [userAId], references: [id], onDelete: Cascade)
+
+  userBId String
+  userB   User   @relation("MatchUserB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime  @default(now())
+  unmatchedAt   DateTime?
+  unmatchedById String?
+  unmatchedBy   User?     @relation("UnmatchedBy", fields: [unmatchedById], references: [id], onDelete: SetNull)
+
+  lastMessageAt DateTime?
+  messages      Message[]
+
+  @@unique([userAId, userBId])
+  @@index([userAId, lastMessageAt])
+  @@index([userBId, lastMessageAt])
+  @@map("match")
+}
+
+model Message {
+  id      String @id @default(cuid())
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  body      String    @db.VarChar(4000)
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+  deletedAt DateTime?
+
+  reports Report[]
+
+  @@index([matchId, createdAt])
+  @@map("message")
+}
+
+// ---------------------------------------------------------------------------
+// Social feed
+// ---------------------------------------------------------------------------
+
+model Post {
+  id       String @id @default(cuid())
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  body       String         @db.VarChar(5000)
+  visibility PostVisibility @default(FRIENDS)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  images    PostImage[]
+  comments  Comment[]
+  reactions Reaction[]
+  reports   Report[]
+
+  @@index([authorId, createdAt])
+  @@index([visibility, createdAt])
+  @@map("post")
+}
+
+model PostImage {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  url      String
+  blurhash String?
+  position Int     @default(0)
+
+  @@index([postId, position])
+  @@map("post_image")
+}
+
+model Comment {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  body String @db.VarChar(2000)
+
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  reactions Reaction[]
+  reports   Report[]
+
+  @@index([postId, createdAt])
+  @@map("comment")
+}
+
+model Reaction {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type ReactionType @default(LIKE)
+
+  postId String?
+  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@index([postId])
+  @@index([commentId])
+  @@map("reaction")
+}
+
+model Friendship {
+  id String @id @default(cuid())
+
+  requesterId String
+  requester   User   @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+
+  addresseeId String
+  addressee   User   @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  respondedAt DateTime?
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@map("friendship")
+}
+
+// ---------------------------------------------------------------------------
+// Safety
+// ---------------------------------------------------------------------------
+
+model Block {
+  id String @id @default(cuid())
+
+  blockerId String
+  blocker   User   @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+
+  blockedId String
+  blocked   User   @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+  @@map("block")
+}
+
+model Report {
+  id String @id @default(cuid())
+
+  reporterId String
+  reporter   User   @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  reportedUserId String?
+  reportedUser   User?   @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+
+  postId String?
+  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  messageId String?
+  message   Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  reason  ReportReason
+  details String?      @db.VarChar(2000)
+
+  status       ReportStatus @default(OPEN)
+  createdAt    DateTime     @default(now())
+  resolvedAt   DateTime?
+  resolvedById String?
+  resolvedBy   User?        @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([reportedUserId])
+  @@map("report")
+}
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+
+  type NotificationType
+
+  actorId String?
+  actor   User?   @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  entityId String?
+  readAt   DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, readAt, createdAt])
+  @@map("notification")
+}
