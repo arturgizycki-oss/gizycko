@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { checkContent } from "@/lib/content-policy";
 import { isAdult, MIN_AGE } from "@/lib/age";
 import { Gender } from "@/generated/prisma/enums";
 
@@ -38,6 +39,9 @@ export async function completeOnboarding(
   if (!parsed.success) {
     return { error: "Please fill in every required field." };
   }
+
+  const allowed = checkContent(`${parsed.data.displayName} ${parsed.data.bio ?? ""}`);
+  if (!allowed.ok) return { error: allowed.message };
 
   const { birthDate } = parsed.data;
   if (!isAdult(birthDate)) {

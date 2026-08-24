@@ -118,6 +118,18 @@ all read. Inside a chat: an emoji keyboard that inserts at the caret, emoji
 reactions on any message, emoji-only messages rendered large without a bubble,
 and deleting your own messages.
 
+**House rules** — sexual and political content is refused wherever people can
+write: posts, comments, messages, bios, group names. `src/lib/content-policy.ts`
+holds the word lists. It is a blunt instrument by design — see the caveat below.
+
+**Groups** — create a public or private group, invite friends, post inside it.
+Group posts are scoped to the group and never reach the main feed. A private
+group is invisible to non-members rather than merely unjoinable.
+
+**Follows** — one-directional, unlike friendship. Follower and following counts
+appear on your profile and on everyone else's, with a Follow button. Blocking
+someone removes follows in both directions.
+
 **Safety** — block and report from any profile, post, comment, or message.
 Blocking hides both people from each other and ends any match. A moderation
 queue at `/moderation` handles reports, photo review, and bans; banned users are
@@ -159,6 +171,23 @@ cleanup never touches seeded or real rows.
 - Rate limiting on sign-up, swipes, and messages
 - Real-time chat (currently 5-second polling)
 - Cookie/consent banner
+
+## The content filter is a word list
+
+`checkContent` matches against a curated list of explicit sexual and political
+terms in English and Polish, after stripping diacritics and simple digit
+substitutions. Understand what that means:
+
+- **It misses things.** Anyone determined gets past a word list with spacing,
+  synonyms, or images. It stops casual breaches, not motivated ones.
+- **It will sometimes be wrong.** Ambiguous words are deliberately excluded —
+  "party", "date", "sexuality" all have ordinary meanings here — so the filter
+  errs towards letting things through.
+- **Images and video are not checked at all.** Only text is.
+
+The report queue and moderation are the real backstop. If this rule matters
+commercially, put a proper classifier behind it (an moderation API, or a hosted
+model) and keep the word list as a cheap first pass.
 
 ## Before this goes live
 

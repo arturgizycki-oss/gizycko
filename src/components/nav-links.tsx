@@ -9,6 +9,7 @@ const NAV = [
   { href: "/matches", label: "Matches" },
   { href: "/messages", label: "Messages", badge: true },
   { href: "/friends", label: "Friends" },
+  { href: "/groups", label: "Groups" },
 ] as const;
 
 /**

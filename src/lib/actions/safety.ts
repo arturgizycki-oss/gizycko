@@ -87,6 +87,15 @@ export async function blockUser(blockedId: string) {
     },
   });
 
+  await prisma.follow.deleteMany({
+    where: {
+      OR: [
+        { followerId: me, followingId: blockedId },
+        { followerId: blockedId, followingId: me },
+      ],
+    },
+  });
+
   revalidatePath("/matches");
   revalidatePath("/feed");
   revalidatePath("/discover");

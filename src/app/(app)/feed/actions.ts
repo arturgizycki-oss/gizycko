@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { checkContent } from "@/lib/content-policy";
 import { checkUploadedImage } from "@/lib/image";
 import { checkUploadedAudio, titleFromFileName } from "@/lib/audio";
 import { checkUploadedVideo } from "@/lib/video";
@@ -47,6 +48,9 @@ export async function createPost(
   if (parsed.data.body.length === 0 && images.length === 0 && !song && !video) {
     return { error: "Write something, or add a photo, a song, or a video." };
   }
+
+  const allowed = checkContent(parsed.data.body);
+  if (!allowed.ok) return { error: allowed.message };
 
   // Validate everything before writing any bytes, so a bad song does not leave
   // orphaned images sitting in storage.
@@ -143,6 +147,9 @@ export async function addComment(
 
   const parsed = commentSchema.safeParse({ body: formData.get("body") });
   if (!parsed.success) return { error: "Write something first." };
+
+  const allowed = checkContent(parsed.data.body);
+  if (!allowed.ok) return { error: allowed.message };
 
   const post = await prisma.post.findUnique({
     where: { id: postId },

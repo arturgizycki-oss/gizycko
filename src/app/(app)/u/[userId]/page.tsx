@@ -17,6 +17,8 @@ import { BlockButton } from "@/components/block-button";
 import { Avatar } from "@/components/avatar";
 import { CoverPhoto, PhotoGrid } from "@/components/photo-lightbox";
 import { FriendButton } from "@/components/friend-button";
+import { FollowButton } from "@/components/follow-button";
+import { followCounts, isFollowing } from "@/lib/follows";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { openConversation } from "@/lib/actions/conversations";
 
@@ -52,10 +54,12 @@ export default async function PublicProfilePage({
 
   if (!user?.profile || user.bannedAt) notFound();
 
-  const [friends, matches, mutuals, friendship, match] = await Promise.all([
+  const [friends, matches, mutuals, counts, following, friendship, match] = await Promise.all([
     friendIds(me),
     matchedUserIds(me),
     mutualFriendIds(me, userId),
+    followCounts(userId),
+    isFollowing(me, userId),
     prisma.friendship.findFirst({
       where: {
         OR: [
@@ -89,7 +93,7 @@ export default async function PublicProfilePage({
 
   const [posts, postCount, theirFriendships] = await Promise.all([
     prisma.post.findMany({
-      where: { authorId: userId, deletedAt: null, OR: postVisibility },
+      where: { authorId: userId, deletedAt: null, groupId: null, OR: postVisibility },
       orderBy: { createdAt: "desc" },
       take: 10,
       select: {
@@ -108,7 +112,7 @@ export default async function PublicProfilePage({
       },
     }),
     prisma.post.count({
-      where: { authorId: userId, deletedAt: null, OR: postVisibility },
+      where: { authorId: userId, deletedAt: null, groupId: null, OR: postVisibility },
     }),
     prisma.friendship.findMany({
       where: {
@@ -162,6 +166,8 @@ export default async function PublicProfilePage({
             )
           )}
 
+          <FollowButton userId={userId} following={following} />
+
           <FriendButton
             userId={userId}
             state={
@@ -183,12 +189,13 @@ export default async function PublicProfilePage({
         </div>
 
         {/* ---------- stats ---------- */}
-        <dl className="grid grid-cols-4 divide-x divide-[var(--line)] border-t border-[var(--line)] text-center">
+        <dl className="grid grid-cols-5 divide-x divide-[var(--line)] border-t border-[var(--line)] text-center">
           {[
+            { label: "Followers", value: counts.followers },
+            { label: "Following", value: counts.following },
             { label: "Posts", value: postCount },
             { label: "Friends", value: theirFriends.length },
             { label: "Mutual", value: mutuals.length },
-            { label: "Photos", value: photos.length },
           ].map((stat) => (
             <div key={stat.label} className="py-3">
               <dd className="text-lg font-semibold">{stat.value}</dd>

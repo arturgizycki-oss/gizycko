@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { checkContent } from "@/lib/content-policy";
 import { checkUploadedImage } from "@/lib/image";
 import { checkUploadedAudio, titleFromFileName } from "@/lib/audio";
 import { checkUploadedVideo } from "@/lib/video";
@@ -111,6 +112,9 @@ export async function sendMessage(
   if (parsed.data.body.length === 0 && !file) {
     return { error: "Write something, or attach a photo, video, or song." };
   }
+
+  const allowed = checkContent(parsed.data.body);
+  if (!allowed.ok) return { error: allowed.message };
 
   const otherId = match.userAId === session.user.id ? match.userBId : match.userAId;
 

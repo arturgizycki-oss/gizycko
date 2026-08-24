@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { checkContent } from "@/lib/content-policy";
 import { checkUploadedImage, MAX_PROFILE_PHOTOS } from "@/lib/image";
 import { deleteObject, keyFromMediaUrl, mediaUrl, putObject } from "@/lib/storage";
 
@@ -154,6 +155,11 @@ export async function updateProfile(
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Check the form." };
   }
+
+  const allowed = checkContent(
+    `${parsed.data.displayName} ${parsed.data.bio ?? ""} ${parsed.data.occupation ?? ""}`,
+  );
+  if (!allowed.ok) return { error: allowed.message };
 
   await prisma.profile.update({
     where: { userId: session.user.id },

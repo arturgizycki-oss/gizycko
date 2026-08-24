@@ -38,6 +38,8 @@ export default async function FeedPage({
   // What this user is allowed to see at all.
   const visibleToMe: Prisma.PostWhereInput = {
     deletedAt: null,
+    // Group posts belong to their group, not the main feed.
+    groupId: null,
     authorId: { notIn: hidden },
     OR: [
       { authorId: me },

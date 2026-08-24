@@ -94,6 +94,8 @@ enum ConversationOrigin {
 
 enum NotificationType {
   MATCH
+  NEW_FOLLOWER
+  GROUP_INVITE
   MESSAGE
   PROFILE_LIKE
   FRIEND_REQUEST
@@ -139,6 +141,14 @@ model User {
 
   friendRequestsSent     Friendship[] @relation("FriendRequester")
   friendRequestsReceived Friendship[] @relation("FriendAddressee")
+
+  groupsOwned  Group[]       @relation("GroupOwner")
+  groupMembers GroupMember[]
+  groupInvites GroupInvite[] @relation("GroupInvitee")
+  groupInvitesSent GroupInvite[] @relation("GroupInviter")
+
+  following Follow[] @relation("Follower")
+  followers Follow[] @relation("Following")
 
   blocksMade     Block[] @relation("Blocker")
   blocksReceived Block[] @relation("Blocked")
@@ -367,6 +377,10 @@ model Post {
   body       String         @db.VarChar(5000)
   visibility PostVisibility @default(FRIENDS)
 
+  /// When set, the post lives in that group and only members see it.
+  groupId String?
+  group   Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
   // One optional song per post, stored through the same object storage as photos.
   audioUrl   String?
   audioTitle String? @db.VarChar(200)
@@ -387,6 +401,7 @@ model Post {
 
   @@index([authorId, createdAt])
   @@index([visibility, createdAt])
+  @@index([groupId, createdAt])
   @@map("post")
 }
 
@@ -470,6 +485,100 @@ model Friendship {
 // ---------------------------------------------------------------------------
 // Safety
 // ---------------------------------------------------------------------------
+
+enum GroupVisibility {
+  /// Listed for everyone; anyone may join.
+  PUBLIC
+  /// Not listed; you get in by invitation only.
+  PRIVATE
+}
+
+enum GroupRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+/// A space several people share, with its own posts.
+model Group {
+  id          String          @id @default(cuid())
+  name        String          @db.VarChar(80)
+  description String?         @db.VarChar(1000)
+  visibility  GroupVisibility @default(PUBLIC)
+
+  ownerId String
+  owner   User   @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  members GroupMember[]
+  invites GroupInvite[]
+  posts   Post[]
+
+  @@index([visibility, createdAt])
+  @@map("group")
+}
+
+model GroupMember {
+  id String @id @default(cuid())
+
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@map("group_member")
+}
+
+model GroupInvite {
+  id String @id @default(cuid())
+
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  invitedUserId String
+  invitedUser   User   @relation("GroupInvitee", fields: [invitedUserId], references: [id], onDelete: Cascade)
+
+  invitedById String
+  invitedBy   User   @relation("GroupInviter", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  status    InviteStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+
+  @@unique([groupId, invitedUserId])
+  @@index([invitedUserId, status])
+  @@map("group_invite")
+}
+
+/// One-directional interest: A follows B, which says nothing about B.
+/// Friendship, by contrast, is mutual and needs accepting.
+model Follow {
+  id String @id @default(cuid())
+
+  followerId String
+  follower   User   @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+
+  followingId String
+  following   User   @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followingId, createdAt])
+  @@map("follow")
+}
 
 model Block {
   id String @id @default(cuid())
