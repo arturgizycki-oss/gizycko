@@ -9,6 +9,7 @@ import {
   type ActionState,
 } from "./actions";
 import { MAX_IMAGE_BYTES, MAX_PROFILE_PHOTOS } from "@/lib/image";
+import { Lightbox } from "@/components/photo-lightbox";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -26,10 +27,13 @@ const MODERATION_LABEL: Record<PhotoItem["moderation"], string> = {
 };
 
 export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
+  const [viewing, setViewing] = useState<number | null>(null);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     uploadPhoto,
     {},
   );
+
+  const urls = photos.map((photo) => photo.url);
 
   return (
     <section className="card p-4">
@@ -42,20 +46,27 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
 
       {photos.length > 0 && (
         <ul className="mt-3 grid grid-cols-3 gap-3">
-          {photos.map((photo) => (
+          {photos.map((photo, index) => (
             <li key={photo.id} className="space-y-1">
               <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                <Image
-                  src={photo.url}
-                  alt=""
-                  fill
-                  sizes="200px"
-                  className={
-                    photo.moderation === "REJECTED"
-                      ? "object-cover opacity-40"
-                      : "object-cover"
-                  }
-                />
+                <button
+                  type="button"
+                  onClick={() => setViewing(index)}
+                  aria-label="See this photo full size"
+                  className="absolute inset-0 cursor-zoom-in"
+                >
+                  <Image
+                    src={photo.url}
+                    alt=""
+                    fill
+                    sizes="200px"
+                    className={
+                      photo.moderation === "REJECTED"
+                        ? "object-cover opacity-40"
+                        : "object-cover"
+                    }
+                  />
+                </button>
                 {photo.isPrimary && (
                   <span className="absolute top-1.5 left-1.5 rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-semibold text-white">
                     Main
@@ -84,6 +95,15 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
             </li>
           ))}
         </ul>
+      )}
+
+      {viewing !== null && (
+        <Lightbox
+          photos={urls}
+          index={viewing}
+          onClose={() => setViewing(null)}
+          onIndex={setViewing}
+        />
       )}
 
       {photos.length < MAX_PROFILE_PHOTOS && (

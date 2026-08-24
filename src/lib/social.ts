@@ -35,3 +35,21 @@ export async function matchedUserIds(userId: string): Promise<string[]> {
 
   return rows.map((r) => (r.userAId === userId ? r.userBId : r.userAId));
 }
+
+/**
+ * Friends the two people have in common, with the viewer's own blocks removed.
+ * Shown on a profile as the honest answer to "do we know any of the same people".
+ */
+export async function mutualFriendIds(
+  viewerId: string,
+  otherId: string,
+): Promise<string[]> {
+  const [mine, theirs, hidden] = await Promise.all([
+    friendIds(viewerId),
+    friendIds(otherId),
+    hiddenUserIds(viewerId),
+  ]);
+
+  const theirSet = new Set(theirs);
+  return mine.filter((id) => theirSet.has(id) && !hidden.includes(id));
+}

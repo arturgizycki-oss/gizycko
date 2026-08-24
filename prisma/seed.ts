@@ -168,42 +168,35 @@ function makeToneWav(seconds = 4, freq = 220, rate = 22050): Buffer {
 async function seedSocial(byEmail: Map<string, string>) {
   const id = (email: string) => byEmail.get(email)!;
 
-  if ((await prisma.post.count()) > 0) {
-    console.log("posts already seeded — skipping");
-    return;
+  // A small social graph, so profiles have friends and mutual friends to show.
+  const FRIENDSHIPS: [string, string, "ACCEPTED" | "PENDING"][] = [
+    ["ania@seed.test", "kasia@seed.test", "ACCEPTED"],
+    ["kasia@seed.test", "marek@seed.test", "ACCEPTED"],
+    ["kasia@seed.test", "piotr@seed.test", "ACCEPTED"],
+    ["marek@seed.test", "piotr@seed.test", "ACCEPTED"],
+    // Left pending so the Friends page has a request to answer.
+    ["piotr@seed.test", "ania@seed.test", "PENDING"],
+  ];
+
+  for (const [from, to, status] of FRIENDSHIPS) {
+    await prisma.friendship.upsert({
+      where: {
+        requesterId_addresseeId: { requesterId: id(from), addresseeId: id(to) },
+      },
+      create: {
+        requesterId: id(from),
+        addresseeId: id(to),
+        status,
+        respondedAt: status === "ACCEPTED" ? new Date() : null,
+      },
+      update: { status },
+    });
   }
 
-  // Ania and Kasia are friends, so friends-only posts have an audience.
-  await prisma.friendship.upsert({
-    where: {
-      requesterId_addresseeId: {
-        requesterId: id("ania@seed.test"),
-        addresseeId: id("kasia@seed.test"),
-      },
-    },
-    create: {
-      requesterId: id("ania@seed.test"),
-      addresseeId: id("kasia@seed.test"),
-      status: "ACCEPTED",
-      respondedAt: new Date(),
-    },
-    update: { status: "ACCEPTED" },
-  });
-
-  // Piotr has asked Ania, so the Friends page shows a pending request.
-  await prisma.friendship.upsert({
-    where: {
-      requesterId_addresseeId: {
-        requesterId: id("piotr@seed.test"),
-        addresseeId: id("ania@seed.test"),
-      },
-    },
-    create: {
-      requesterId: id("piotr@seed.test"),
-      addresseeId: id("ania@seed.test"),
-    },
-    update: { status: "PENDING" },
-  });
+  if ((await prisma.post.count()) > 0) {
+    console.log("posts already seeded — skipping those");
+    return;
+  }
 
   await prisma.post.create({
     data: {
@@ -246,7 +239,23 @@ async function seedSocial(byEmail: Map<string, string>) {
     },
   });
 
-  console.log("seeded 4 posts, 1 friendship, 1 pending request");
+  await prisma.post.create({
+    data: {
+      authorId: id("kasia@seed.test"),
+      body: "Darkroom day. Nothing beats watching a print come up in the tray.",
+      visibility: "PUBLIC",
+    },
+  });
+
+  await prisma.post.create({
+    data: {
+      authorId: id("kasia@seed.test"),
+      body: "Anyone up for the Tatras the weekend after next? I have a spare seat in the car.",
+      visibility: "FRIENDS",
+    },
+  });
+
+  console.log(`seeded posts and ${FRIENDSHIPS.length} friendships`);
 }
 
 async function main() {
