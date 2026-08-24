@@ -89,3 +89,42 @@ export async function deleteMessage(messageId: string) {
   revalidatePath(`/matches/${message.matchId}`);
   revalidatePath("/messages");
 }
+
+/**
+ * Add or remove one emoji on a message. Tapping the same emoji again removes
+ * it, which is how every chat app behaves.
+ */
+export async function toggleMessageReaction(messageId: string, emoji: string) {
+  const session = await requireSession();
+  const me = session.user.id;
+
+  // Keep it to a single grapheme-ish token; the column is small on purpose.
+  const trimmed = emoji.trim().slice(0, 24);
+  if (!trimmed) return;
+
+  const message = await prisma.message.findUnique({
+    where: { id: messageId },
+    select: { matchId: true, deletedAt: true },
+  });
+  if (!message || message.deletedAt) return;
+
+  // Only someone in the conversation may react to it.
+  if (!(await memberMatch(message.matchId, me))) return;
+
+  const existing = await prisma.messageReaction.findUnique({
+    where: {
+      messageId_userId_emoji: { messageId, userId: me, emoji: trimmed },
+    },
+    select: { id: true },
+  });
+
+  if (existing) {
+    await prisma.messageReaction.delete({ where: { id: existing.id } });
+  } else {
+    await prisma.messageReaction.create({
+      data: { messageId, userId: me, emoji: trimmed },
+    });
+  }
+
+  revalidatePath(`/matches/${message.matchId}`);
+}

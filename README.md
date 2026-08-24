@@ -106,7 +106,9 @@ filters by author (everyone, friends, matches, just me) and by attachment
 
 **Messages** — `/messages` lists every conversation with unread counts, previews
 and timestamps, plus search, an All/Unread filter, mark read/unread, and mark
-all read. Inside a chat you can delete your own messages.
+all read. Inside a chat: an emoji keyboard that inserts at the caret, emoji
+reactions on any message, emoji-only messages rendered large without a bubble,
+and deleting your own messages.
 
 **Safety** — block and report from any profile, post, comment, or message.
 Blocking hides both people from each other and ends any match. A moderation
@@ -133,8 +135,8 @@ without touching any page:
 npm test
 ```
 
-52 tests. `tests/age.test.ts`, `tests/image.test.ts`, `tests/audio.test.ts`, and
-`tests/video.test.ts` are pure unit tests;
+63 tests. `tests/age.test.ts`, `tests/image.test.ts`, `tests/audio.test.ts`,
+`tests/video.test.ts` and `tests/emoji.test.ts` are pure unit tests;
 `tests/storage.test.ts` uses a temp directory; `tests/matching.test.ts` runs
 against the local database and prefixes every fixture id with `test-match-` so
 cleanup never touches seeded or real rows.

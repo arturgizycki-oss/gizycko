@@ -1,12 +1,13 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 
-export type MessageState = { error?: string };
+export type MessageState = { error?: string; submissionId?: string };
 
 /** Load a match the signed-in user is actually part of, or null. */
 async function memberMatch(matchId: string, userId: string) {
@@ -66,7 +67,9 @@ export async function sendMessage(
   ]);
 
   revalidatePath(`/matches/${matchId}`);
-  return {};
+  revalidatePath("/messages");
+  // A fresh id tells the composer this send landed, so it can clear itself.
+  return { submissionId: randomUUID() };
 }
 
 export async function markRead(matchId: string) {

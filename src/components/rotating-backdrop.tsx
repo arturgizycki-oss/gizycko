@@ -1,19 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { PhotoCredit } from "@/lib/photo-credits";
 
 const INTERVAL_MS = 15_000;
 
 /**
- * Cross-fades through several photographs of Giżycko behind the app. Every
- * image is rendered once and only its opacity changes, so switching costs
- * nothing after the first load.
+ * Cross-fades through several photographs of Giżycko behind the app.
  *
- * Someone who has asked their system for reduced motion gets a single still
- * image — an unprompted background change is exactly the kind of movement that
- * setting is meant to stop.
+ * Only photographs that have actually been shown are mounted. Rendering all of
+ * them up front would download every full-screen image on first paint, which is
+ * megabytes of traffic for pictures nobody sees for the first minute.
+ *
+ * Someone who has asked their system for reduced motion gets a single still —
+ * an unprompted background change is exactly the movement that setting means to
+ * stop, and it also means they download one image rather than several.
  */
 export function RotatingBackdrop({
   photos,
@@ -23,17 +25,23 @@ export function RotatingBackdrop({
   overlay?: "light" | "medium" | "heavy";
 }) {
   const [index, setIndex] = useState(0);
+  const [mounted, setMounted] = useState<number[]>([0]);
+  const indexRef = useRef(0);
 
   useEffect(() => {
     if (photos.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduced.matches) return;
+    const id = setInterval(() => {
+      const next = (indexRef.current + 1) % photos.length;
+      indexRef.current = next;
 
-    const id = setInterval(
-      () => setIndex((current) => (current + 1) % photos.length),
-      INTERVAL_MS,
-    );
+      setIndex(next);
+      setMounted((current) =>
+        current.includes(next) ? current : [...current, next],
+      );
+    }, INTERVAL_MS);
+
     return () => clearInterval(id);
   }, [photos.length]);
 
@@ -43,15 +51,15 @@ export function RotatingBackdrop({
     heavy: "bg-white/88 dark:bg-neutral-950/90",
   }[overlay];
 
-  const current = photos[index] ?? photos[0];
+  const current = photos[index];
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10">
-      {photos.map((photo, at) => (
+      {mounted.map((at) => (
         <Image
-          key={photo.src}
-          src={photo.src}
-          alt={at === index ? photo.alt : ""}
+          key={photos[at].src}
+          src={photos[at].src}
+          alt={at === index ? photos[at].alt : ""}
           fill
           priority={at === 0}
           sizes="100vw"

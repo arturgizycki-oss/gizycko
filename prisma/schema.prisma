@@ -123,7 +123,8 @@ model User {
   matchesAsB  Match[] @relation("MatchUserB")
   unmatchedBy Match[] @relation("UnmatchedBy")
 
-  messages Message[]
+  messages         Message[]
+  messageReactions MessageReaction[]
 
   posts     Post[]
   comments  Comment[]
@@ -315,10 +316,30 @@ model Message {
   readAt    DateTime?
   deletedAt DateTime?
 
-  reports Report[]
+  reports   Report[]
+  reactions MessageReaction[]
 
   @@index([matchId, createdAt])
   @@map("message")
+}
+
+/// One emoji a person put on a message. A person may add several different
+/// emoji to the same message, but each only once.
+model MessageReaction {
+  id String @id @default(cuid())
+
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  emoji     String   @db.VarChar(24)
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+  @@map("message_reaction")
 }
 
 // ---------------------------------------------------------------------------

@@ -1,9 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { sendMessage, type MessageState } from "./actions";
-import { deleteMessage } from "../../messages/actions";
+import { deleteMessage, toggleMessageReaction } from "../../messages/actions";
+import { EmojiPicker } from "@/components/emoji-picker";
+import { isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
+
+export type ChatReaction = { emoji: string; count: number; mine: boolean };
 
 export type ChatMessage = {
   id: string;
@@ -11,6 +15,7 @@ export type ChatMessage = {
   createdAt: string;
   mine: boolean;
   deleted: boolean;
+  reactions: ChatReaction[];
 };
 
 const POLL_MS = 5000;
@@ -25,14 +30,7 @@ export function Chat({
   closed: boolean;
 }) {
   const router = useRouter();
-  const formRef = useRef<HTMLFormElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  const action = sendMessage.bind(null, matchId);
-  const [state, formAction, pending] = useActionState<MessageState, FormData>(
-    action,
-    {},
-  );
 
   // Poor-man's realtime. Swap for a websocket or SSE when traffic justifies it.
   useEffect(() => {
@@ -45,103 +43,240 @@ export function Chat({
     bottomRef.current?.scrollIntoView({ block: "end" });
   }, [messages.length]);
 
-  useEffect(() => {
-    if (!pending && !state.error) formRef.current?.reset();
-  }, [pending, state.error]);
-
   return (
-    <div className="flex h-[70vh] flex-col rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
-      <ol className="flex-1 space-y-2 overflow-y-auto p-4">
+    <div className="card flex h-[70vh] flex-col overflow-hidden">
+      <ol className="flex-1 space-y-3 overflow-y-auto p-4">
         {messages.length === 0 && (
-          <li className="py-8 text-center text-sm text-neutral-500">
+          <li className="py-8 text-center text-sm text-[var(--ink-muted)]">
             No messages yet. Say hello.
           </li>
         )}
-        {messages.map((message) => (
-          <li
-            key={message.id}
-            className={message.mine ? "flex justify-end" : "flex justify-start"}
-          >
-            <div className="group max-w-[75%]">
-              <div
-                className={
-                  message.deleted
-                    ? "rounded-2xl border border-dashed border-neutral-300 px-3 py-2 text-sm text-neutral-400 italic dark:border-neutral-700"
-                    : message.mine
-                      ? "rounded-2xl rounded-br-sm bg-brand-600 px-3 py-2 text-sm text-white"
-                      : "rounded-2xl rounded-bl-sm bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-800"
-                }
-              >
-                <p className="whitespace-pre-wrap">
-                  {message.deleted ? "This message was deleted." : message.body}
-                </p>
-                <time
-                  dateTime={message.createdAt}
-                  className={
-                    message.mine && !message.deleted
-                      ? "mt-1 block text-[10px] text-brand-100"
-                      : "mt-1 block text-[10px] text-neutral-500"
-                  }
-                >
-                  {new Date(message.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </time>
-              </div>
 
-              {message.mine && !message.deleted && (
-                <form
-                  action={deleteMessage.bind(null, message.id)}
-                  className="mt-0.5 text-right"
-                >
-                  <button
-                    type="submit"
-                    className="text-[10px] text-neutral-400 opacity-0 transition group-hover:opacity-100 focus:opacity-100 hover:text-rose-600"
-                  >
-                    Delete
-                  </button>
-                </form>
-              )}
-            </div>
-          </li>
+        {messages.map((message) => (
+          <Bubble key={message.id} message={message} />
         ))}
+
         <div ref={bottomRef} />
       </ol>
 
       {closed ? (
-        <p className="border-t border-neutral-200 p-4 text-center text-sm text-neutral-500 dark:border-neutral-800">
+        <p className="border-t border-[var(--line)] p-4 text-center text-sm text-[var(--ink-muted)]">
           This conversation is closed.
         </p>
       ) : (
-        <form
-          ref={formRef}
-          action={formAction}
-          className="flex items-end gap-2 border-t border-neutral-200 p-3 dark:border-neutral-800"
-        >
-          <textarea
-            name="body"
-            rows={1}
-            required
-            maxLength={4000}
-            placeholder="Write a message…"
-            className="flex-1 resize-none rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 dark:border-neutral-700 dark:bg-neutral-950"
-          />
-          <button
-            type="submit"
-            disabled={pending}
-            className="btn btn-primary"
+        <Composer matchId={matchId} />
+      )}
+    </div>
+  );
+}
+
+function Bubble({ message }: { message: ChatMessage }) {
+  const [showPicker, setShowPicker] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  // A short emoji-only message shows large and bare, as chat apps do.
+  const big = !message.deleted && isEmojiOnly(message.body);
+
+  function react(emoji: string) {
+    setShowPicker(false);
+    startTransition(() => toggleMessageReaction(message.id, emoji));
+  }
+
+  return (
+    <li className={message.mine ? "flex justify-end" : "flex justify-start"}>
+      <div className="group relative max-w-[75%]">
+        {big ? (
+          <p className="px-1 text-5xl leading-tight">{message.body}</p>
+        ) : (
+          <div
+            className={
+              message.deleted
+                ? "rounded-2xl border border-dashed border-[var(--line)] px-3 py-2 text-sm text-[var(--ink-muted)] italic"
+                : message.mine
+                  ? "rounded-2xl rounded-br-sm bg-brand-600 px-3 py-2 text-sm text-white"
+                  : "rounded-2xl rounded-bl-sm bg-[var(--surface-muted)] px-3 py-2 text-sm"
+            }
           >
-            Send
-          </button>
-        </form>
+            <p className="whitespace-pre-wrap">
+              {message.deleted ? "This message was deleted." : message.body}
+            </p>
+            <time
+              dateTime={message.createdAt}
+              className={
+                message.mine && !message.deleted
+                  ? "mt-1 block text-[10px] text-white/70"
+                  : "mt-1 block text-[10px] text-[var(--ink-muted)]"
+              }
+            >
+              {new Date(message.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </time>
+          </div>
+        )}
+
+        {message.reactions.length > 0 && (
+          <ul
+            className={
+              message.mine
+                ? "mt-1 flex flex-wrap justify-end gap-1"
+                : "mt-1 flex flex-wrap gap-1"
+            }
+          >
+            {message.reactions.map((reaction) => (
+              <li key={reaction.emoji}>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => react(reaction.emoji)}
+                  aria-pressed={reaction.mine}
+                  className={
+                    reaction.mine
+                      ? "flex items-center gap-1 rounded-full border border-brand-500 bg-brand-50 px-2 py-0.5 text-xs dark:bg-brand-900/40"
+                      : "flex items-center gap-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-2 py-0.5 text-xs"
+                  }
+                >
+                  <span>{reaction.emoji}</span>
+                  <span className="text-[var(--ink-muted)]">{reaction.count}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {!message.deleted && (
+          <div
+            className={
+              message.mine
+                ? "absolute top-0 right-full mr-1 flex items-center gap-1 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100"
+                : "absolute top-0 left-full ml-1 flex items-center gap-1 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100"
+            }
+          >
+            <button
+              type="button"
+              onClick={() => setShowPicker((open) => !open)}
+              aria-label="React to this message"
+              className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-xs"
+            >
+              🙂
+            </button>
+
+            {message.mine && (
+              <form action={deleteMessage.bind(null, message.id)}>
+                <button
+                  type="submit"
+                  aria-label="Delete this message"
+                  className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] text-[var(--ink-muted)] hover:text-rose-600"
+                >
+                  ✕
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
+        {showPicker && (
+          <div
+            className={
+              message.mine
+                ? "card absolute top-7 right-0 z-20 flex gap-1 p-1"
+                : "card absolute top-7 left-0 z-20 flex gap-1 p-1"
+            }
+          >
+            {QUICK_REACTIONS.map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                onClick={() => react(emoji)}
+                aria-label={`React with ${emoji}`}
+                className="rounded-lg px-1 text-lg transition-transform hover:scale-125"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function Composer({ matchId }: { matchId: string }) {
+  const textarea = useRef<HTMLTextAreaElement>(null);
+  const [showPicker, setShowPicker] = useState(false);
+
+  const action = sendMessage.bind(null, matchId);
+  const [state, formAction, pending] = useActionState<MessageState, FormData>(
+    action,
+    {},
+  );
+
+  /** Insert at the caret rather than appending, so mid-sentence emoji work. */
+  function insert(emoji: string) {
+    const field = textarea.current;
+    if (!field) return;
+
+    const start = field.selectionStart ?? field.value.length;
+    const end = field.selectionEnd ?? start;
+
+    field.value = field.value.slice(0, start) + emoji + field.value.slice(end);
+    field.focus();
+    field.selectionStart = field.selectionEnd = start + emoji.length;
+  }
+
+  return (
+    <form action={formAction} className="relative border-t border-[var(--line)] p-3">
+      <div className="flex items-end gap-2">
+        <button
+          type="button"
+          onClick={() => setShowPicker((open) => !open)}
+          aria-label="Emoji"
+          aria-expanded={showPicker}
+          className="btn btn-secondary btn-sm shrink-0 px-2.5 text-base"
+        >
+          🙂
+        </button>
+
+        {/* Remounting on a new submission id clears the box after sending. */}
+        <MessageField key={state.submissionId ?? "new"} fieldRef={textarea} />
+
+        <button
+          type="submit"
+          disabled={pending}
+          className="btn btn-primary btn-sm shrink-0"
+        >
+          Send
+        </button>
+      </div>
+
+      {showPicker && (
+        <EmojiPicker onPick={insert} onClose={() => setShowPicker(false)} />
       )}
 
       {state.error && (
-        <p role="alert" className="px-4 pb-3 text-sm text-rose-600">
+        <p role="alert" className="mt-2 text-sm text-rose-600">
           {state.error}
         </p>
       )}
-    </div>
+    </form>
+  );
+}
+
+function MessageField({
+  fieldRef,
+}: {
+  fieldRef: React.RefObject<HTMLTextAreaElement | null>;
+}) {
+  return (
+    <textarea
+      ref={fieldRef}
+      name="body"
+      rows={1}
+      required
+      maxLength={4000}
+      placeholder="Write a message…"
+      className="input flex-1 resize-none"
+    />
   );
 }

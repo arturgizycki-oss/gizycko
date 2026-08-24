@@ -1,12 +1,19 @@
+import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "./auth";
 import { prisma } from "./prisma";
 
-/** Current session, or null when signed out. Safe to call in any server component. */
-export async function getSession() {
+/**
+ * Current session, or null when signed out. Safe to call in any server
+ * component.
+ *
+ * Wrapped in React's cache so the layout and the page it renders share one
+ * lookup instead of hitting the database twice for every request.
+ */
+export const getSession = cache(async () => {
   return auth.api.getSession({ headers: await headers() });
-}
+});
 
 /** Session or redirect to sign-in. Use in protected server components and actions. */
 export async function requireSession() {

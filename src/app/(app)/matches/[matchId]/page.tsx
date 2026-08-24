@@ -10,6 +10,27 @@ import { BlockButton } from "@/components/block-button";
 import { Chat } from "./chat";
 import { markRead, unmatch } from "./actions";
 
+/** Group a message's reactions by emoji, noting which ones are mine. */
+function summariseReactions(
+  reactions: { emoji: string; userId: string }[],
+  me: string,
+) {
+  const byEmoji = new Map<string, { emoji: string; count: number; mine: boolean }>();
+
+  for (const reaction of reactions) {
+    const entry = byEmoji.get(reaction.emoji) ?? {
+      emoji: reaction.emoji,
+      count: 0,
+      mine: false,
+    };
+    entry.count += 1;
+    if (reaction.userId === me) entry.mine = true;
+    byEmoji.set(reaction.emoji, entry);
+  }
+
+  return [...byEmoji.values()].sort((a, b) => b.count - a.count);
+}
+
 export default async function ChatPage({
   params,
 }: {
@@ -36,7 +57,11 @@ export default async function ChatPage({
           profile: { include: { photos: { where: { isPrimary: true }, take: 1 } } },
         },
       },
-      messages: { orderBy: { createdAt: "asc" }, take: 200 },
+      messages: {
+        orderBy: { createdAt: "asc" },
+        take: 200,
+        include: { reactions: { select: { emoji: true, userId: true } } },
+      },
     },
   });
 
@@ -95,6 +120,7 @@ export default async function ChatPage({
           createdAt: message.createdAt.toISOString(),
           mine: message.senderId === me,
           deleted: message.deletedAt !== null,
+          reactions: summariseReactions(message.reactions, me),
         }))}
       />
     </div>
