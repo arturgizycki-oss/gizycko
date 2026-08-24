@@ -3,7 +3,6 @@ import { requireProfile } from "@/lib/session";
 import { ageFrom } from "@/lib/age";
 import { PhotoManager } from "./photo-manager";
 import { ProfileForm } from "./profile-form";
-import { DangerZone } from "./danger-zone";
 
 export default async function ProfilePage() {
   const { session, profile } = await requireProfile();
@@ -36,6 +35,14 @@ export default async function ProfilePage() {
         }))}
       />
 
+      <p className="hint">
+        Your data, blocked people, and account deletion are in{" "}
+        <a href="/settings" className="underline">
+          Settings
+        </a>
+        .
+      </p>
+
       <ProfileForm
         profile={{
           displayName: profile.displayName,
@@ -49,8 +56,6 @@ export default async function ProfilePage() {
           isVisible: profile.isVisible,
         }}
       />
-
-      <DangerZone />
     </div>
   );
 }

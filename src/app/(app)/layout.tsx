@@ -1,13 +1,14 @@
+import { Suspense } from "react";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { Avatar } from "@/components/avatar";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { unreadMessageCount } from "@/lib/messages";
 import { RotatingBackdrop } from "@/components/rotating-backdrop";
+import { RouteProgress } from "@/components/route-progress";
 import { DASHBOARD_PHOTOS } from "@/lib/photo-credits";
 import { Brand } from "@/components/brand";
 import { NavIconLink, NavLinks } from "@/components/nav-links";
-import { SignOutButton } from "@/components/sign-out-button";
+import { UserMenu } from "@/components/user-menu";
 
 export default async function AppLayout({
   children,
@@ -34,6 +35,11 @@ export default async function AppLayout({
     <div className="relative min-h-dvh">
       <RotatingBackdrop photos={DASHBOARD_PHOTOS} overlay="heavy" />
 
+      {/* useSearchParams needs a boundary; the bar renders nothing until a click. */}
+      <Suspense fallback={null}>
+        <RouteProgress />
+      </Suspense>
+
       <header className="sticky top-0 z-20 border-b border-[var(--line)] bg-[color-mix(in_oklab,var(--surface)_85%,transparent)] backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2.5">
           <Brand href="/feed" size={26} />
@@ -49,15 +55,10 @@ export default async function AppLayout({
             )}
           </NavIconLink>
 
-          <NavIconLink href="/profile" label="Your profile">
-            <Avatar
-              name={profile?.displayName ?? session.user.name}
-              src={photoUrlOf(profile) ?? session.user.image}
-              size={30}
-            />
-          </NavIconLink>
-
-          <SignOutButton />
+          <UserMenu
+            name={profile?.displayName ?? session.user.name}
+            photo={photoUrlOf(profile) ?? session.user.image ?? null}
+          />
         </div>
       </header>
 

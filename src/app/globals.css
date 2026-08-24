@@ -220,6 +220,35 @@
     color: var(--ink-muted);
   }
 
+  /* Placeholder blocks shown while a page's data loads. */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--surface-muted) 25%,
+      color-mix(in oklab, var(--line) 60%, var(--surface-muted)) 37%,
+      var(--surface-muted) 63%
+    );
+    background-size: 400% 100%;
+    border-radius: 0.5rem;
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-sweep {
+    from {
+      background-position: 100% 50%;
+    }
+    to {
+      background-position: 0 50%;
+    }
+  }
+
+  /* A sweeping placeholder is decorative motion; hold it still on request. */
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
+  }
+
   .empty-state {
     border: 1px dashed var(--line);
     border-radius: var(--radius-card);
