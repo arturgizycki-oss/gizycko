@@ -28,11 +28,16 @@ export default async function MatchesPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold tracking-tight">Matches</h1>
+      <h1 className="text-xl font-semibold tracking-tight">Matches</h1>
+      <p className="mb-6 text-sm text-neutral-500">
+        Your conversations. Tap a name to open the chat, or the photo to see
+        their profile.
+      </p>
 
       {matches.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-neutral-300 p-10 text-center text-sm text-neutral-500 dark:border-neutral-700">
-          No matches yet. Keep swiping in Discover.
+          No matches yet, so there is nobody to message. Keep swiping in
+          Discover — a conversation opens as soon as you both like each other.
         </p>
       ) : (
         <ul className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
@@ -41,24 +46,33 @@ export default async function MatchesPage() {
             const preview = match.messages[0];
 
             return (
-              <li key={match.id}>
+              <li
+                key={match.id}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+              >
                 <Link
-                  href={`/matches/${match.id}`}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                  href={`/u/${other.id}`}
+                  aria-label={`${other.profile?.displayName ?? other.name}'s profile`}
                 >
                   <Avatar
                     name={other.profile?.displayName ?? other.name}
                     src={photoUrlOf(other.profile)}
                     size={40}
                   />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">
-                      {other.profile?.displayName ?? other.name}
-                    </p>
-                    <p className="truncate text-sm text-neutral-500">
-                      {preview ? preview.body : "You matched. Say hello."}
-                    </p>
-                  </div>
+                </Link>
+                <Link href={`/matches/${match.id}`} className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">
+                    {other.profile?.displayName ?? other.name}
+                  </p>
+                  <p className="truncate text-sm text-neutral-500">
+                    {preview ? preview.body : "You matched. Say hello."}
+                  </p>
+                </Link>
+                <Link
+                  href={`/matches/${match.id}`}
+                  className="shrink-0 rounded-full bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white"
+                >
+                  Message
                 </Link>
               </li>
             );

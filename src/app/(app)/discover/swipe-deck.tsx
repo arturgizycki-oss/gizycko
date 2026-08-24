@@ -42,7 +42,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto w-full max-w-sm space-y-3">
       {matchedWith && (
         <div
           role="status"
@@ -53,13 +53,13 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
       )}
 
       <article className="overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
-        <div className="relative aspect-[4/5] bg-neutral-200 dark:bg-neutral-800">
+        <div className="relative h-[min(46dvh,22rem)] w-full bg-neutral-200 dark:bg-neutral-800">
           {current.photos[0] ? (
             <Image
               src={current.photos[0]}
               alt={current.displayName}
               fill
-              sizes="(max-width: 768px) 100vw, 640px"
+              sizes="(max-width: 640px) 100vw, 384px"
               className="object-cover"
               priority
             />
@@ -68,15 +68,20 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
           )}
         </div>
 
-        <div className="p-4">
-          <h2 className="text-lg font-semibold">
+        <div className="p-3">
+          <a
+            href={`/u/${current.userId}`}
+            className="text-base font-semibold hover:underline"
+          >
             {current.displayName}, {current.age}
-          </h2>
+          </a>
           {current.city && (
-            <p className="text-sm text-neutral-500">{current.city}</p>
+            <p className="text-xs text-neutral-500">{current.city}</p>
           )}
           {current.bio && (
-            <p className="mt-3 text-sm whitespace-pre-wrap">{current.bio}</p>
+            <p className="mt-2 line-clamp-3 text-sm whitespace-pre-wrap">
+              {current.bio}
+            </p>
           )}
         </div>
       </article>
@@ -86,7 +91,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
           type="button"
           onClick={() => decide("PASS")}
           disabled={pending}
-          className="flex-1 rounded-full border border-neutral-300 py-3 text-sm font-semibold transition hover:bg-neutral-100 disabled:opacity-60 dark:border-neutral-700 dark:hover:bg-neutral-800"
+          className="flex-1 rounded-full border border-neutral-300 py-2.5 text-sm font-semibold transition hover:bg-neutral-100 disabled:opacity-60 dark:border-neutral-700 dark:hover:bg-neutral-800"
         >
           Pass
         </button>
@@ -94,7 +99,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
           type="button"
           onClick={() => decide("LIKE")}
           disabled={pending}
-          className="flex-1 rounded-full bg-rose-600 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60"
+          className="flex-1 rounded-full bg-rose-600 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60"
         >
           Like
         </button>

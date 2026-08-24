@@ -57,7 +57,11 @@ export default async function DiscoverPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold tracking-tight">Discover</h1>
+      <h1 className="text-xl font-semibold tracking-tight">Discover</h1>
+      <p className="mb-6 text-sm text-neutral-500">
+        New people who match your preferences. Like someone to see if they like
+        you back — if you both do, it becomes a match and you can message.
+      </p>
       <SwipeDeck initialDeck={deck} />
     </div>
   );

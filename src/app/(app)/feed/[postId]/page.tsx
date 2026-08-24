@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -26,6 +27,7 @@ export default async function PostPage({
           profile: { select: { displayName: true } },
         },
       },
+      images: { orderBy: { position: "asc" } },
       comments: {
         orderBy: { createdAt: "asc" },
         include: {
@@ -89,7 +91,38 @@ export default async function PostPage({
           )}
         </header>
 
-        <p className="mt-3 text-sm whitespace-pre-wrap">{post.body}</p>
+        {post.body && (
+          <p className="mt-3 text-sm whitespace-pre-wrap">{post.body}</p>
+        )}
+
+        {post.images.length > 0 && (
+          <ul className="mt-3 grid grid-cols-2 gap-2">
+            {post.images.map((image) => (
+              <li key={image.id} className="relative overflow-hidden rounded-xl">
+                <Image
+                  src={image.url}
+                  alt=""
+                  width={800}
+                  height={800}
+                  sizes="(max-width: 768px) 50vw, 320px"
+                  className="aspect-square w-full object-cover"
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {post.audioUrl && (
+          <figure className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-800/50">
+            <figcaption className="mb-2 flex items-center gap-2 text-xs font-medium">
+              <span aria-hidden>🎵</span>
+              <span className="truncate">{post.audioTitle ?? "Attached song"}</span>
+            </figcaption>
+            <audio controls preload="none" src={post.audioUrl} className="w-full">
+              Your browser cannot play this audio.
+            </audio>
+          </figure>
+        )}
       </article>
 
       <section>

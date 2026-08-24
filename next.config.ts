@@ -3,11 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      // Photo uploads go through a Server Action, and the default cap is 1 MB —
-      // below that limit the request is rejected before our code runs and the
-      // browser only sees "Failed to fetch". Keep this above MAX_IMAGE_BYTES
-      // (5 MB) so oversized files get a real error message instead.
-      bodySizeLimit: "8mb",
+      // Uploads go through Server Actions, and the default cap is 1 MB — under
+      // it the request is rejected before our code runs and the browser only
+      // sees "Failed to fetch". A post can carry 4 photos (5 MB each) plus a
+      // song (10 MB), so this sits above that worst case with room to spare.
+      // A production deployment should upload straight to the bucket instead.
+      bodySizeLimit: "40mb",
     },
   },
 };

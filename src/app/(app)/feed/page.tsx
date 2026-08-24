@@ -79,6 +79,8 @@ export default async function FeedPage() {
                   authorImage:
                     photoUrlOf(post.author.profile) ?? post.author.image,
                   images: post.images.map((image) => image.url),
+                  audioUrl: post.audioUrl,
+                  audioTitle: post.audioTitle,
                   reactionCount: post._count.reactions,
                   commentCount: post._count.comments,
                   reactedByMe: post.reactions.length > 0,

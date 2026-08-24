@@ -38,7 +38,7 @@ export default async function PublicProfilePage({
 
   if (!user?.profile || user.bannedAt) notFound();
 
-  const [friends, matches, friendship] = await Promise.all([
+  const [friends, matches, friendship, match] = await Promise.all([
     friendIds(me),
     matchedUserIds(me),
     prisma.friendship.findFirst({
@@ -48,6 +48,16 @@ export default async function PublicProfilePage({
           { requesterId: userId, addresseeId: me },
         ],
       },
+    }),
+    prisma.match.findFirst({
+      where: {
+        unmatchedAt: null,
+        OR: [
+          { userAId: me, userBId: userId },
+          { userAId: userId, userBId: me },
+        ],
+      },
+      select: { id: true },
     }),
   ]);
 
@@ -83,6 +93,14 @@ export default async function PublicProfilePage({
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
+          {match && (
+            <Link
+              href={`/matches/${match.id}`}
+              className="rounded-full bg-rose-600 px-4 py-1.5 text-xs font-semibold text-white"
+            >
+              Message
+            </Link>
+          )}
           <FriendButton
             userId={userId}
             state={

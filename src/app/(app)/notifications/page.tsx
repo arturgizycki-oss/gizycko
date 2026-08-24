@@ -62,36 +62,43 @@ export default async function NotificationsPage() {
               "Someone";
 
             return (
-              <li key={notification.id}>
+              <li
+                key={notification.id}
+                className={
+                  notification.readAt
+                    ? "flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                    : "flex items-center gap-3 bg-rose-50/60 px-4 py-3 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/30"
+                }
+              >
+                {notification.actorId ? (
+                  <Link href={`/u/${notification.actorId}`} aria-label={actorName}>
+                    <Avatar
+                      name={actorName}
+                      src={photoUrlOf(notification.actor?.profile)}
+                      size={36}
+                    />
+                  </Link>
+                ) : (
+                  <Avatar name={actorName} size={36} />
+                )}
                 <Link
                   href={hrefFor(
                     notification.type,
                     notification.entityId,
                     notification.actorId,
                   )}
-                  className={
-                    notification.readAt
-                      ? "flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                      : "flex items-center gap-3 bg-rose-50/60 px-4 py-3 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/30"
-                  }
+                  className="min-w-0 flex-1"
                 >
-                  <Avatar
-                    name={actorName}
-                    src={photoUrlOf(notification.actor?.profile)}
-                    size={36}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm">
-                      <span className="font-medium">{actorName}</span>{" "}
-                      {TEXT[notification.type] ?? "did something"}
-                    </p>
-                    <time
-                      dateTime={notification.createdAt.toISOString()}
-                      className="text-xs text-neutral-500"
-                    >
-                      {notification.createdAt.toLocaleString()}
-                    </time>
-                  </div>
+                  <p className="text-sm">
+                    <span className="font-medium">{actorName}</span>{" "}
+                    {TEXT[notification.type] ?? "did something"}
+                  </p>
+                  <time
+                    dateTime={notification.createdAt.toISOString()}
+                    className="text-xs text-neutral-500"
+                  >
+                    {notification.createdAt.toLocaleString()}
+                  </time>
                 </Link>
               </li>
             );

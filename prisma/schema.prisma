@@ -324,6 +324,11 @@ model Post {
   body       String         @db.VarChar(5000)
   visibility PostVisibility @default(FRIENDS)
 
+  // One optional song per post, stored through the same object storage as photos.
+  audioUrl   String?
+  audioTitle String? @db.VarChar(200)
+  audioType  String? @db.VarChar(60)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?

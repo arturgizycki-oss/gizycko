@@ -82,11 +82,13 @@ export default async function FriendsPage() {
                 key={request.id}
                 className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <Avatar
-                  name={request.requester.profile?.displayName ?? request.requester.name}
-                  src={photoUrlOf(request.requester.profile)}
-                  size={40}
-                />
+                <Link href={`/u/${request.requester.id}`}>
+                  <Avatar
+                    name={request.requester.profile?.displayName ?? request.requester.name}
+                    src={photoUrlOf(request.requester.profile)}
+                    size={40}
+                  />
+                </Link>
                 <Link
                   href={`/u/${request.requester.id}`}
                   className="flex-1 text-sm font-medium hover:underline"
@@ -117,11 +119,13 @@ export default async function FriendsPage() {
                 key={friend.id}
                 className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <Avatar
-                  name={friend.profile?.displayName ?? friend.name}
-                  src={photoUrlOf(friend.profile)}
-                  size={40}
-                />
+                <Link href={`/u/${friend.id}`}>
+                  <Avatar
+                    name={friend.profile?.displayName ?? friend.name}
+                    src={photoUrlOf(friend.profile)}
+                    size={40}
+                  />
+                </Link>
                 <Link
                   href={`/u/${friend.id}`}
                   className="flex-1 text-sm font-medium hover:underline"
@@ -143,11 +147,13 @@ export default async function FriendsPage() {
                 key={person.userId}
                 className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <Avatar
-                  name={person.displayName}
-                  src={photoUrlOf(person)}
-                  size={40}
-                />
+                <Link href={`/u/${person.userId}`}>
+                  <Avatar
+                    name={person.displayName}
+                    src={photoUrlOf(person)}
+                    size={40}
+                  />
+                </Link>
                 <div className="flex-1">
                   <Link
                     href={`/u/${person.userId}`}

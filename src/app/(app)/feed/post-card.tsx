@@ -13,6 +13,8 @@ type PostCardProps = {
     authorName: string;
     authorImage: string | null;
     images: string[];
+    audioUrl: string | null;
+    audioTitle: string | null;
     reactionCount: number;
     commentCount: number;
     reactedByMe: boolean;
@@ -25,7 +27,9 @@ export function PostCard({ post, isMine }: PostCardProps) {
     <article className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
       <header className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Avatar name={post.authorName} src={post.authorImage} size={36} />
+          <Link href={`/u/${post.authorId}`} aria-label={post.authorName}>
+            <Avatar name={post.authorName} src={post.authorImage} size={36} />
+          </Link>
           <div>
             <Link
               href={`/u/${post.authorId}`}
@@ -59,18 +63,42 @@ export function PostCard({ post, isMine }: PostCardProps) {
       <p className="mt-3 text-sm whitespace-pre-wrap">{post.body}</p>
 
       {post.images.length > 0 && (
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <ul
+          className={
+            post.images.length === 1
+              ? "mt-3 grid grid-cols-1 gap-2"
+              : "mt-3 grid grid-cols-2 gap-2"
+          }
+        >
           {post.images.map((url) => (
-            <Image
-              key={url}
-              src={url}
-              alt=""
-              width={400}
-              height={400}
-              className="aspect-square w-full rounded-lg object-cover"
-            />
+            <li key={url} className="relative overflow-hidden rounded-xl">
+              <Image
+                src={url}
+                alt=""
+                width={800}
+                height={800}
+                sizes="(max-width: 768px) 100vw, 640px"
+                className={
+                  post.images.length === 1
+                    ? "max-h-[28rem] w-full object-cover"
+                    : "aspect-square w-full object-cover"
+                }
+              />
+            </li>
           ))}
-        </div>
+        </ul>
+      )}
+
+      {post.audioUrl && (
+        <figure className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-800/50">
+          <figcaption className="mb-2 flex items-center gap-2 text-xs font-medium">
+            <span aria-hidden>🎵</span>
+            <span className="truncate">{post.audioTitle ?? "Attached song"}</span>
+          </figcaption>
+          <audio controls preload="none" src={post.audioUrl} className="w-full">
+            Your browser cannot play this audio.
+          </audio>
+        </figure>
       )}
 
       <footer className="mt-4 flex items-center gap-4 border-t border-neutral-100 pt-3 text-sm dark:border-neutral-800">

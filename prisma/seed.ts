@@ -134,6 +134,121 @@ async function attachPhoto(userId: string, profileId: string, fileName: string) 
   });
 }
 
+
+/** A short sine-wave WAV, so the demo song is generated rather than copied. */
+function makeToneWav(seconds = 4, freq = 220, rate = 22050): Buffer {
+  const samples = seconds * rate;
+  const data = Buffer.alloc(samples * 2);
+
+  for (let i = 0; i < samples; i += 1) {
+    const fade = Math.min(1, i / (rate * 0.2), (samples - i) / (rate * 0.5));
+    const wobble = Math.sin((2 * Math.PI * 3 * i) / rate) * 6;
+    const value = Math.sin((2 * Math.PI * (freq + wobble) * i) / rate) * fade * 0.3;
+    data.writeInt16LE(Math.round(value * 32767), i * 2);
+  }
+
+  const header = Buffer.alloc(44);
+  header.write("RIFF", 0);
+  header.writeUInt32LE(36 + data.length, 4);
+  header.write("WAVE", 8);
+  header.write("fmt ", 12);
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20); // PCM
+  header.writeUInt16LE(1, 22); // mono
+  header.writeUInt32LE(rate, 24);
+  header.writeUInt32LE(rate * 2, 28);
+  header.writeUInt16LE(2, 32);
+  header.writeUInt16LE(16, 34);
+  header.write("data", 36);
+  header.writeUInt32LE(data.length, 40);
+
+  return Buffer.concat([header, data]);
+}
+
+async function seedSocial(byEmail: Map<string, string>) {
+  const id = (email: string) => byEmail.get(email)!;
+
+  if ((await prisma.post.count()) > 0) {
+    console.log("posts already seeded — skipping");
+    return;
+  }
+
+  // Ania and Kasia are friends, so friends-only posts have an audience.
+  await prisma.friendship.upsert({
+    where: {
+      requesterId_addresseeId: {
+        requesterId: id("ania@seed.test"),
+        addresseeId: id("kasia@seed.test"),
+      },
+    },
+    create: {
+      requesterId: id("ania@seed.test"),
+      addresseeId: id("kasia@seed.test"),
+      status: "ACCEPTED",
+      respondedAt: new Date(),
+    },
+    update: { status: "ACCEPTED" },
+  });
+
+  // Piotr has asked Ania, so the Friends page shows a pending request.
+  await prisma.friendship.upsert({
+    where: {
+      requesterId_addresseeId: {
+        requesterId: id("piotr@seed.test"),
+        addresseeId: id("ania@seed.test"),
+      },
+    },
+    create: {
+      requesterId: id("piotr@seed.test"),
+      addresseeId: id("ania@seed.test"),
+    },
+    update: { status: "PENDING" },
+  });
+
+  await prisma.post.create({
+    data: {
+      authorId: id("kasia@seed.test"),
+      body: "Sunrise over the lake this morning. Worth the 4am alarm.",
+      visibility: "PUBLIC",
+      images: { create: [{ url: "/hero.jpg", position: 0 }] },
+    },
+  });
+
+  await prisma.post.create({
+    data: {
+      authorId: id("marek@seed.test"),
+      body: "Rebuilt my coffee setup for the third time this year. My flatmates have stopped asking.",
+      visibility: "PUBLIC",
+    },
+  });
+
+  // A song, generated on the spot and pushed through object storage.
+  const wav = makeToneWav();
+  const songKey = `songs/${id("piotr@seed.test")}/seed-demo-track.wav`;
+  await putObject(songKey, wav);
+
+  await prisma.post.create({
+    data: {
+      authorId: id("piotr@seed.test"),
+      body: "Messing about with a synth. Four seconds is all you are getting.",
+      visibility: "PUBLIC",
+      audioUrl: mediaUrl(songKey),
+      audioTitle: "Demo Track",
+      audioType: "audio/wav",
+    },
+  });
+
+  await prisma.post.create({
+    data: {
+      authorId: id("ania@seed.test"),
+      body: "Friends only: anyone free for climbing at the wall on Thursday?",
+      visibility: "FRIENDS",
+    },
+  });
+
+  console.log("seeded 4 posts, 1 friendship, 1 pending request");
+}
+
 async function main() {
   const created = [];
   for (const person of PEOPLE) {
@@ -157,6 +272,8 @@ async function main() {
     });
     console.log(`\n${PEOPLE[0].email} is an ADMIN — open /moderation as them.`);
   }
+
+  await seedSocial(new Map(created.map((u) => [u.email, u.id])));
 
   console.log(`All seed accounts use the password: ${PASSWORD}`);
 }
