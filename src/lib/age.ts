@@ -1,10 +1,20 @@
-/** Whole years between a birth date and now. */
+/**
+ * Birth dates arrive from an <input type="date"> and are stored as a date-only
+ * value at UTC midnight. Reading them with local getters shifts the day
+ * backwards on any server west of UTC, which would let someone through the 18+
+ * gate a day early — so every comparison here is done in UTC.
+ */
 export function ageFrom(birthDate: Date, now = new Date()): number {
-  let age = now.getFullYear() - birthDate.getFullYear();
-  const monthDiff = now.getMonth() - birthDate.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birthDate.getDate())) {
+  let age = now.getUTCFullYear() - birthDate.getUTCFullYear();
+
+  const monthDiff = now.getUTCMonth() - birthDate.getUTCMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && now.getUTCDate() < birthDate.getUTCDate())
+  ) {
     age -= 1;
   }
+
   return age;
 }
 

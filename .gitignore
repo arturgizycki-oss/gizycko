@@ -44,3 +44,6 @@ next-env.d.ts
 
 # keep the example env committed
 !.env.example
+
+# local object storage (photos)
+/.storage

@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "./auth";
 import { prisma } from "./prisma";
 
@@ -31,4 +31,13 @@ export async function requireProfile() {
   if (!profile?.completedAt) redirect("/onboarding");
 
   return { session, profile };
+}
+
+/** Session for a moderator or admin, or a 404 for everyone else. */
+export async function requireModerator() {
+  const session = await requireSession();
+  if (session.user.role !== "MODERATOR" && session.user.role !== "ADMIN") {
+    notFound();
+  }
+  return session;
 }

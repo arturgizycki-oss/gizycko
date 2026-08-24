@@ -92,11 +92,30 @@ async function upsertPerson(person: SeedPerson) {
 }
 
 async function main() {
+  const created = [];
   for (const person of PEOPLE) {
     const user = await upsertPerson(person);
+    created.push(user);
     console.log(`seeded ${person.email} (${user.id})`);
   }
-  console.log(`\nAll seed accounts use the password: ${PASSWORD}`);
+
+  // Seed accounts skip email confirmation so they are usable straight away.
+  await prisma.user.updateMany({
+    where: { email: { endsWith: "@seed.test" } },
+    data: { emailVerified: true },
+  });
+
+  // The first account doubles as moderator, so /moderation is reachable in dev.
+  const admin = created[0];
+  if (admin) {
+    await prisma.user.update({
+      where: { id: admin.id },
+      data: { role: "ADMIN" },
+    });
+    console.log(`\n${PEOPLE[0].email} is an ADMIN — open /moderation as them.`);
+  }
+
+  console.log(`All seed accounts use the password: ${PASSWORD}`);
 }
 
 main()

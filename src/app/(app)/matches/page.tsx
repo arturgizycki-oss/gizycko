@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
+import { Avatar } from "@/components/avatar";
 
 export default async function MatchesPage() {
   const { session } = await requireProfile();
@@ -39,7 +40,10 @@ export default async function MatchesPage() {
                   href={`/matches/${match.id}`}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
                 >
-                  <div className="size-10 rounded-full bg-neutral-200 dark:bg-neutral-700" />
+                  <Avatar
+                    name={other.profile?.displayName ?? other.name}
+                    size={40}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium">
                       {other.profile?.displayName ?? other.name}

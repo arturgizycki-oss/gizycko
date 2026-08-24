@@ -56,8 +56,10 @@ export default async function FeedPage() {
           {posts.map((post) => (
             <li key={post.id}>
               <PostCard
+                isMine={post.authorId === me}
                 post={{
                   id: post.id,
+                  authorId: post.authorId,
                   body: post.body,
                   createdAt: post.createdAt,
                   authorName:

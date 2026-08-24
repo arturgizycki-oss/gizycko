@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { PhotoPlaceholder } from "@/components/avatar";
 import { swipe } from "./actions";
 
 export type Candidate = {
@@ -63,9 +64,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
               priority
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-neutral-500">
-              No photo yet
-            </div>
+            <PhotoPlaceholder name={current.displayName} className="h-full w-full" />
           )}
         </div>
 

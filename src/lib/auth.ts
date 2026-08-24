@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
+import { sendMail } from "./mail";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -9,6 +10,37 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 10,
+    sendResetPassword: async ({ user, url }) => {
+      await sendMail({
+        to: user.email,
+        subject: "Reset your gizycko password",
+        text: [
+          "Someone asked to reset the password for this account.",
+          "",
+          `Open this link to choose a new one: ${url}`,
+          "",
+          "The link expires in one hour. If this was not you, ignore this email —",
+          "your password stays as it is.",
+        ].join("\n"),
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendMail({
+        to: user.email,
+        subject: "Confirm your email address",
+        text: [
+          `Welcome to gizycko, ${user.name}.`,
+          "",
+          `Confirm this address to finish setting up your account: ${url}`,
+          "",
+          "If you did not sign up, ignore this email.",
+        ].join("\n"),
+      });
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 30,
