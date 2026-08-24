@@ -20,10 +20,14 @@ export function sniffAudio(bytes: Uint8Array): AudioKind | null {
     return { extension: ".mp3", contentType: "audio/mpeg" };
   }
 
-  // MP4 container: "ftyp" at offset 4. M4A and M4B are audio brands.
+  /*
+   * MP4 container: "ftyp" at offset 4. Only the audio brands count here —
+   * isom/mp42/avc1 are video and belong to sniffVideo, or an uploaded film
+   * would be stored and played as a song.
+   */
   if (ascii(bytes, 4, 4) === "ftyp") {
     const brand = ascii(bytes, 8, 4);
-    if (brand.startsWith("M4A") || brand.startsWith("M4B") || brand === "mp42" || brand === "isom") {
+    if (brand.startsWith("M4A") || brand.startsWith("M4B")) {
       return { extension: ".m4a", contentType: "audio/mp4" };
     }
   }

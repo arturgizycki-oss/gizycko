@@ -13,6 +13,7 @@ type PostCardProps = {
     authorName: string;
     authorImage: string | null;
     images: string[];
+    videoUrl: string | null;
     audioUrl: string | null;
     audioTitle: string | null;
     reactionCount: number;
@@ -87,6 +88,17 @@ export function PostCard({ post, isMine }: PostCardProps) {
             </li>
           ))}
         </ul>
+      )}
+
+      {post.videoUrl && (
+        <video
+          controls
+          preload="metadata"
+          src={post.videoUrl}
+          className="mt-3 max-h-[28rem] w-full rounded-xl bg-black"
+        >
+          Your browser cannot play this video.
+        </video>
       )}
 
       {post.audioUrl && (

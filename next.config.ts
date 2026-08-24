@@ -5,10 +5,10 @@ const nextConfig: NextConfig = {
     serverActions: {
       // Uploads go through Server Actions, and the default cap is 1 MB — under
       // it the request is rejected before our code runs and the browser only
-      // sees "Failed to fetch". A post can carry 4 photos (5 MB each) plus a
-      // song (10 MB), so this sits above that worst case with room to spare.
+      // sees "Failed to fetch". A post can carry 4 photos (5 MB each), a song
+      // (10 MB), and a video (30 MB), so this clears that worst case.
       // A production deployment should upload straight to the bucket instead.
-      bodySizeLimit: "40mb",
+      bodySizeLimit: "72mb",
     },
   },
 };

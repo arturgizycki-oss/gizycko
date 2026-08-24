@@ -5,6 +5,7 @@ import { createPost, type PostState } from "./actions";
 import { MAX_POST_IMAGES } from "@/lib/post-media";
 import { MAX_IMAGE_BYTES } from "@/lib/image";
 import { MAX_AUDIO_BYTES } from "@/lib/audio";
+import { MAX_VIDEO_BYTES } from "@/lib/video";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -45,6 +46,7 @@ function ComposerFields({
 }) {
   const [images, setImages] = useState<Selected[]>([]);
   const [song, setSong] = useState<File | null>(null);
+  const [video, setVideo] = useState<File | null>(null);
   const [clientError, setClientError] = useState<string | null>(null);
 
   function replaceImages(next: Selected[]) {
@@ -100,6 +102,22 @@ function ComposerFields({
     setSong(file);
   }
 
+  function onVideoChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setClientError(null);
+    const file = event.target.files?.[0] ?? null;
+
+    if (file && file.size > MAX_VIDEO_BYTES) {
+      setClientError(
+        `${file.name} is ${megabytes(file.size)} MB. Videos must be under 30 MB.`,
+      );
+      event.target.value = "";
+      setVideo(null);
+      return;
+    }
+
+    setVideo(file);
+  }
+
   const error = clientError ?? serverError;
 
   return (
@@ -142,6 +160,16 @@ function ComposerFields({
         </p>
       )}
 
+      {video && (
+        <p className="mt-3 flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs dark:bg-neutral-800">
+          <span aria-hidden>🎬</span>
+          <span className="truncate font-medium">{video.name}</span>
+          <span className="ml-auto shrink-0 text-neutral-500">
+            {megabytes(video.size)} MB
+          </span>
+        </p>
+      )}
+
       <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
         <label className="cursor-pointer rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
           📷 Photos
@@ -162,6 +190,17 @@ function ComposerFields({
             name="song"
             accept="audio/mpeg,audio/mp4,audio/ogg,audio/flac,audio/wav,.mp3,.m4a,.ogg,.flac,.wav"
             onChange={onSongChange}
+            className="sr-only"
+          />
+        </label>
+
+        <label className="cursor-pointer rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
+          🎬 Video
+          <input
+            type="file"
+            name="video"
+            accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov"
+            onChange={onVideoChange}
             className="sr-only"
           />
         </label>

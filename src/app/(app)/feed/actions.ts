@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { checkUploadedImage } from "@/lib/image";
 import { checkUploadedAudio, titleFromFileName } from "@/lib/audio";
+import { checkUploadedVideo } from "@/lib/video";
 import { mediaUrl, putObject } from "@/lib/storage";
 import { MAX_POST_IMAGES } from "@/lib/post-media";
 
@@ -40,8 +41,11 @@ export async function createPost(
   const songEntry = formData.get("song");
   const song = songEntry instanceof File && songEntry.size > 0 ? songEntry : null;
 
-  if (parsed.data.body.length === 0 && images.length === 0 && !song) {
-    return { error: "Write something, or add a photo or a song." };
+  const videoEntry = formData.get("video");
+  const video = videoEntry instanceof File && videoEntry.size > 0 ? videoEntry : null;
+
+  if (parsed.data.body.length === 0 && images.length === 0 && !song && !video) {
+    return { error: "Write something, or add a photo, a song, or a video." };
   }
 
   // Validate everything before writing any bytes, so a bad song does not leave
@@ -68,9 +72,21 @@ export async function createPost(
     };
   }
 
+  let videoUpload: { key: string; bytes: Buffer; type: string } | null = null;
+  if (video) {
+    const checked = await checkUploadedVideo(video);
+    if (!checked.ok) return { error: checked.error };
+    videoUpload = {
+      key: `videos/${session.user.id}/${randomUUID()}${checked.kind.extension}`,
+      bytes: checked.bytes,
+      type: checked.kind.contentType,
+    };
+  }
+
   await Promise.all([
     ...imageUploads.map((upload) => putObject(upload.key, upload.bytes)),
     ...(songUpload ? [putObject(songUpload.key, songUpload.bytes)] : []),
+    ...(videoUpload ? [putObject(videoUpload.key, videoUpload.bytes)] : []),
   ]);
 
   await prisma.post.create({
@@ -81,6 +97,8 @@ export async function createPost(
       audioUrl: songUpload ? mediaUrl(songUpload.key) : null,
       audioTitle: songUpload?.title ?? null,
       audioType: songUpload?.type ?? null,
+      videoUrl: videoUpload ? mediaUrl(videoUpload.key) : null,
+      videoType: videoUpload?.type ?? null,
       images: {
         create: imageUploads.map((upload, index) => ({
           url: mediaUrl(upload.key),

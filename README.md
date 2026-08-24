@@ -16,8 +16,16 @@ npm run db
 npm run dev
 ```
 
-`npm run db` prints a `DATABASE_URL` and a `SHADOW_DATABASE_URL`. **The port changes
-between runs** — if the app cannot connect, copy the new URLs into `.env`.
+`npm run db` prints a `DATABASE_URL` and a `SHADOW_DATABASE_URL`. **The port can
+change between runs** — if the app cannot connect, copy the new URLs into `.env`.
+
+Keep that terminal open. If pages start failing with *"Connection terminated
+unexpectedly"*, the database has stopped even though its port may still look
+open. Restart it, and if it complains that the lock file is held, the previous
+process died badly — delete
+`%LOCALAPPDATA%\prisma-dev-nodejs\Data\durable-streams\gizycko\server.lock.lock`
+and start it again. Never run two copies at once; they fight over the same data
+files and every connection is dropped.
 
 First time only:
 
@@ -80,10 +88,17 @@ blocks, and people already swiped. Mutual likes create exactly one match and
 notify both sides once. Each match has a private conversation with 5-second
 polling, unmatch, block, and report.
 
-**Social** — posts with per-post visibility (public / friends / matches /
-private), reactions, comments, post deletion, friend requests with
-accept/decline, a friends page with suggestions, public profiles at `/u/[id]`,
-and a notifications page.
+**Social** — posts carrying text, up to 4 photos, one song, and one video, with
+per-post visibility (public / friends / matches / private). Reactions, comments,
+post deletion, friend requests with accept/decline, a friends page with
+collapsible sections and suggestions, public profiles at `/u/[id]`, and a
+notifications page. The feed sorts by newest / most liked / most discussed and
+filters by author (everyone, friends, matches, just me) and by attachment
+(photos, video, song) — all through URL params, so a view can be shared.
+
+**Messages** — `/messages` lists every conversation with unread counts, previews
+and timestamps, plus search, an All/Unread filter, mark read/unread, and mark
+all read. Inside a chat you can delete your own messages.
 
 **Safety** — block and report from any profile, post, comment, or message.
 Blocking hides both people from each other and ends any match. A moderation
@@ -110,16 +125,17 @@ without touching any page:
 npm test
 ```
 
-31 tests. `tests/age.test.ts` and `tests/image.test.ts` are pure unit tests;
+52 tests. `tests/age.test.ts`, `tests/image.test.ts`, `tests/audio.test.ts`, and
+`tests/video.test.ts` are pure unit tests;
 `tests/storage.test.ts` uses a temp directory; `tests/matching.test.ts` runs
 against the local database and prefixes every fixture id with `test-match-` so
 cleanup never touches seeded or real rows.
 
 ## Not built yet
 
-- Photo uploads on posts (the `PostImage` table exists; only profile photos have
-  an upload path)
 - Nested comment replies (the `parentId` column exists, the UI is flat)
+- Video thumbnails and transcoding — videos play as uploaded, so a large file
+  stays large
 - Distance filtering — `latitude`/`longitude`/`maxDistanceKm` are stored and
   editable but Discover does not yet filter on them
 - Rate limiting on sign-up, swipes, and messages

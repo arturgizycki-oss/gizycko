@@ -329,6 +329,10 @@ model Post {
   audioTitle String? @db.VarChar(200)
   audioType  String? @db.VarChar(60)
 
+  // One optional video per post, same storage.
+  videoUrl  String?
+  videoType String? @db.VarChar(60)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?

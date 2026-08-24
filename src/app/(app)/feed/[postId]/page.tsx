@@ -112,6 +112,17 @@ export default async function PostPage({
           </ul>
         )}
 
+        {post.videoUrl && (
+          <video
+            controls
+            preload="metadata"
+            src={post.videoUrl}
+            className="mt-3 max-h-[28rem] w-full rounded-xl bg-black"
+          >
+            Your browser cannot play this video.
+          </video>
+        )}
+
         {post.audioUrl && (
           <figure className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-800/50">
             <figcaption className="mb-2 flex items-center gap-2 text-xs font-medium">
