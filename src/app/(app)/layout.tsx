@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { Avatar } from "@/components/avatar";
@@ -7,15 +6,8 @@ import { unreadMessageCount } from "@/lib/messages";
 import { RotatingBackdrop } from "@/components/rotating-backdrop";
 import { DASHBOARD_PHOTOS } from "@/lib/photo-credits";
 import { Brand } from "@/components/brand";
+import { NavIconLink, NavLinks } from "@/components/nav-links";
 import { SignOutButton } from "@/components/sign-out-button";
-
-const NAV = [
-  { href: "/feed", label: "Feed" },
-  { href: "/discover", label: "Discover" },
-  { href: "/matches", label: "Matches" },
-  { href: "/messages", label: "Messages", badge: true },
-  { href: "/friends", label: "Friends" },
-];
 
 export default async function AppLayout({
   children,
@@ -42,43 +34,28 @@ export default async function AppLayout({
     <div className="relative min-h-dvh">
       <RotatingBackdrop photos={DASHBOARD_PHOTOS} overlay="heavy" />
 
-      <header className="sticky top-0 z-10 border-b border-neutral-200 bg-white/80 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/80">
-        <div className="mx-auto flex max-w-3xl items-center gap-4 px-4 py-3">
+      <header className="sticky top-0 z-20 border-b border-[var(--line)] bg-[color-mix(in_oklab,var(--surface)_85%,transparent)] backdrop-blur">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2.5">
           <Brand href="/feed" size={26} />
 
-          <nav className="flex flex-1 gap-4 text-sm">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="relative text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
-              >
-                {item.label}
-                {item.badge && unreadMessages > 0 && (
-                  <span className="absolute -top-2 -right-3 flex size-4 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
-                    {unreadMessages > 9 ? "9+" : unreadMessages}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </nav>
+          <NavLinks unreadMessages={unreadMessages} />
 
-          <Link href="/notifications" className="relative" aria-label="Notifications">
+          <NavIconLink href="/notifications" label="Notifications">
             <span className="text-lg leading-none">🔔</span>
             {unread > 0 && (
               <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
                 {unread > 9 ? "9+" : unread}
               </span>
             )}
-          </Link>
+          </NavIconLink>
 
-          <Link href="/profile" aria-label="Your profile">
+          <NavIconLink href="/profile" label="Your profile">
             <Avatar
               name={profile?.displayName ?? session.user.name}
               src={photoUrlOf(profile) ?? session.user.image}
               size={30}
             />
-          </Link>
+          </NavIconLink>
 
           <SignOutButton />
         </div>
