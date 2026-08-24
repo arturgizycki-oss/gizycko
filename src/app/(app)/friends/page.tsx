@@ -3,7 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { hiddenUserIds } from "@/lib/social";
 import { Avatar } from "@/components/avatar";
+import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { FriendButton } from "@/components/friend-button";
+
+const PROFILE_AVATAR = {
+  displayName: true,
+  photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
+};
 
 export default async function FriendsPage() {
   const { session } = await requireProfile();
@@ -16,7 +22,7 @@ export default async function FriendsPage() {
       where: { addresseeId: me, status: "PENDING", requesterId: { notIn: hidden } },
       include: {
         requester: {
-          select: { id: true, name: true, profile: { select: { displayName: true } } },
+          select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -28,10 +34,10 @@ export default async function FriendsPage() {
       },
       include: {
         requester: {
-          select: { id: true, name: true, profile: { select: { displayName: true } } },
+          select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
         },
         addressee: {
-          select: { id: true, name: true, profile: { select: { displayName: true } } },
+          select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
         },
       },
     }),
@@ -48,7 +54,12 @@ export default async function FriendsPage() {
       },
       orderBy: { lastActiveAt: "desc" },
       take: 8,
-      select: { userId: true, displayName: true, city: true },
+      select: {
+        userId: true,
+        displayName: true,
+        city: true,
+        photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
+      },
     }),
   ]);
 
@@ -73,6 +84,7 @@ export default async function FriendsPage() {
               >
                 <Avatar
                   name={request.requester.profile?.displayName ?? request.requester.name}
+                  src={photoUrlOf(request.requester.profile)}
                   size={40}
                 />
                 <Link
@@ -105,7 +117,11 @@ export default async function FriendsPage() {
                 key={friend.id}
                 className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <Avatar name={friend.profile?.displayName ?? friend.name} size={40} />
+                <Avatar
+                  name={friend.profile?.displayName ?? friend.name}
+                  src={photoUrlOf(friend.profile)}
+                  size={40}
+                />
                 <Link
                   href={`/u/${friend.id}`}
                   className="flex-1 text-sm font-medium hover:underline"
@@ -127,7 +143,11 @@ export default async function FriendsPage() {
                 key={person.userId}
                 className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <Avatar name={person.displayName} size={40} />
+                <Avatar
+                  name={person.displayName}
+                  src={photoUrlOf(person)}
+                  size={40}
+                />
                 <div className="flex-1">
                   <Link
                     href={`/u/${person.userId}`}

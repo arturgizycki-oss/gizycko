@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { ageFrom } from "@/lib/age";
+import { Avatar } from "@/components/avatar";
+import { photoUrlOf } from "@/lib/avatar";
 import { ReportDialog } from "@/components/report-dialog";
 import { BlockButton } from "@/components/block-button";
 import { Chat } from "./chat";
@@ -20,8 +22,20 @@ export default async function ChatPage({
   const match = await prisma.match.findUnique({
     where: { id: matchId },
     include: {
-      userA: { select: { id: true, name: true, profile: true } },
-      userB: { select: { id: true, name: true, profile: true } },
+      userA: {
+        select: {
+          id: true,
+          name: true,
+          profile: { include: { photos: { where: { isPrimary: true }, take: 1 } } },
+        },
+      },
+      userB: {
+        select: {
+          id: true,
+          name: true,
+          profile: { include: { photos: { where: { isPrimary: true }, take: 1 } } },
+        },
+      },
       messages: { orderBy: { createdAt: "asc" }, take: 200 },
     },
   });
@@ -39,13 +53,24 @@ export default async function ChatPage({
           <Link href="/matches" className="text-sm text-neutral-500 hover:underline">
             ← Matches
           </Link>
-          <h1 className="mt-1 text-lg font-semibold tracking-tight">
-            {other.profile?.displayName ?? other.name}
-            {other.profile && `, ${ageFrom(other.profile.birthDate)}`}
-          </h1>
-          {other.profile?.city && (
-            <p className="text-sm text-neutral-500">{other.profile.city}</p>
-          )}
+          <div className="mt-1 flex items-center gap-3">
+            <Link href={`/u/${other.id}`}>
+              <Avatar
+                name={other.profile?.displayName ?? other.name}
+                src={photoUrlOf(other.profile)}
+                size={44}
+              />
+            </Link>
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight">
+                {other.profile?.displayName ?? other.name}
+                {other.profile && `, ${ageFrom(other.profile.birthDate)}`}
+              </h1>
+              {other.profile?.city && (
+                <p className="text-sm text-neutral-500">{other.profile.city}</p>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col items-end gap-1">

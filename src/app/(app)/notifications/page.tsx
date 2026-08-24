@@ -2,7 +2,13 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { Avatar } from "@/components/avatar";
+import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { MarkRead } from "./mark-read";
+
+const PROFILE_AVATAR = {
+  displayName: true,
+  photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
+};
 
 const TEXT: Record<string, string> = {
   MATCH: "matched with you",
@@ -31,7 +37,7 @@ export default async function NotificationsPage() {
     take: 50,
     include: {
       actor: {
-        select: { id: true, name: true, profile: { select: { displayName: true } } },
+        select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
       },
     },
   });
@@ -69,7 +75,11 @@ export default async function NotificationsPage() {
                       : "flex items-center gap-3 bg-rose-50/60 px-4 py-3 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/30"
                   }
                 >
-                  <Avatar name={actorName} size={36} />
+                  <Avatar
+                    name={actorName}
+                    src={photoUrlOf(notification.actor?.profile)}
+                    size={36}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm">
                       <span className="font-medium">{actorName}</span>{" "}

@@ -2,7 +2,13 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { Avatar } from "@/components/avatar";
+import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { UnblockButton } from "./unblock-button";
+
+const PROFILE_AVATAR = {
+  displayName: true,
+  photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
+};
 
 export default async function BlockedPage() {
   const { session } = await requireProfile();
@@ -12,7 +18,7 @@ export default async function BlockedPage() {
     orderBy: { createdAt: "desc" },
     include: {
       blocked: {
-        select: { id: true, name: true, profile: { select: { displayName: true } } },
+        select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
       },
     },
   });
@@ -40,6 +46,7 @@ export default async function BlockedPage() {
             >
               <Avatar
                 name={block.blocked.profile?.displayName ?? block.blocked.name}
+                src={photoUrlOf(block.blocked.profile)}
                 size={40}
               />
               <div className="flex-1">

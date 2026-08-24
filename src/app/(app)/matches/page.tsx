@@ -2,6 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { Avatar } from "@/components/avatar";
+import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
+
+const PROFILE_AVATAR = {
+  displayName: true,
+  photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
+};
 
 export default async function MatchesPage() {
   const { session } = await requireProfile();
@@ -14,8 +20,8 @@ export default async function MatchesPage() {
     },
     orderBy: [{ lastMessageAt: "desc" }, { createdAt: "desc" }],
     include: {
-      userA: { select: { id: true, name: true, profile: { select: { displayName: true } } } },
-      userB: { select: { id: true, name: true, profile: { select: { displayName: true } } } },
+      userA: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
+      userB: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
       messages: { orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
@@ -42,6 +48,7 @@ export default async function MatchesPage() {
                 >
                   <Avatar
                     name={other.profile?.displayName ?? other.name}
+                    src={photoUrlOf(other.profile)}
                     size={40}
                   />
                   <div className="min-w-0 flex-1">

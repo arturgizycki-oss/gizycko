@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { friendIds, hiddenUserIds, matchedUserIds } from "@/lib/social";
+import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { Composer } from "./composer";
 import { PostCard } from "./post-card";
 
@@ -33,7 +34,12 @@ export default async function FeedPage() {
           id: true,
           name: true,
           image: true,
-          profile: { select: { displayName: true } },
+          profile: {
+            select: {
+              displayName: true,
+              photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
+            },
+          },
         },
       },
       images: { orderBy: { position: "asc" } },
@@ -70,7 +76,8 @@ export default async function FeedPage() {
                   createdAt: post.createdAt,
                   authorName:
                     post.author.profile?.displayName ?? post.author.name,
-                  authorImage: post.author.image,
+                  authorImage:
+                    photoUrlOf(post.author.profile) ?? post.author.image,
                   images: post.images.map((image) => image.url),
                   reactionCount: post._count.reactions,
                   commentCount: post._count.comments,

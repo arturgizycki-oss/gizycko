@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { Avatar } from "@/components/avatar";
+import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { SignOutButton } from "@/components/sign-out-button";
 
 const NAV = [
@@ -18,9 +19,18 @@ export default async function AppLayout({
 }) {
   const session = await requireSession();
 
-  const unread = await prisma.notification.count({
-    where: { userId: session.user.id, readAt: null },
-  });
+  const [unread, profile] = await Promise.all([
+    prisma.notification.count({
+      where: { userId: session.user.id, readAt: null },
+    }),
+    prisma.profile.findUnique({
+      where: { userId: session.user.id },
+      select: {
+        displayName: true,
+        photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
+      },
+    }),
+  ]);
 
   return (
     <div className="relative min-h-dvh bg-neutral-50 dark:bg-neutral-950">
@@ -57,7 +67,11 @@ export default async function AppLayout({
           </Link>
 
           <Link href="/profile" aria-label="Your profile">
-            <Avatar name={session.user.name} src={session.user.image} size={30} />
+            <Avatar
+              name={profile?.displayName ?? session.user.name}
+              src={photoUrlOf(profile) ?? session.user.image}
+              size={30}
+            />
           </Link>
 
           <SignOutButton />
