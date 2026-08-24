@@ -11,12 +11,7 @@ export default async function AuthLayout({
   if (session) redirect("/feed");
 
   return (
-    <main className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-neutral-50 px-6 py-12 dark:bg-neutral-950">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_45%_at_50%_0%,rgba(244,63,94,0.18),transparent_65%),radial-gradient(45%_40%_at_15%_100%,rgba(251,146,60,0.14),transparent_60%)]"
-      />
-
+    <main className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-12">
       <Link
         href="/"
         className="relative mb-8 text-lg font-semibold tracking-tight"

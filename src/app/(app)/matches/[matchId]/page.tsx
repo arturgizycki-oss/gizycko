@@ -50,8 +50,8 @@ export default async function ChatPage({
     <div className="space-y-4">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <Link href="/matches" className="text-sm text-neutral-500 hover:underline">
-            ← Matches
+          <Link href="/messages" className="text-sm text-neutral-500 hover:underline">
+            ← Messages
           </Link>
           <div className="mt-1 flex items-center gap-3">
             <Link href={`/u/${other.id}`}>
@@ -94,6 +94,7 @@ export default async function ChatPage({
           body: message.body,
           createdAt: message.createdAt.toISOString(),
           mine: message.senderId === me,
+          deleted: message.deletedAt !== null,
         }))}
       />
     </div>

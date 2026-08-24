@@ -3,12 +3,14 @@
 import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { sendMessage, type MessageState } from "./actions";
+import { deleteMessage } from "../../messages/actions";
 
 export type ChatMessage = {
   id: string;
   body: string;
   createdAt: string;
   mine: boolean;
+  deleted: boolean;
 };
 
 const POLL_MS = 5000;
@@ -60,27 +62,47 @@ export function Chat({
             key={message.id}
             className={message.mine ? "flex justify-end" : "flex justify-start"}
           >
-            <div
-              className={
-                message.mine
-                  ? "max-w-[75%] rounded-2xl rounded-br-sm bg-rose-600 px-3 py-2 text-sm text-white"
-                  : "max-w-[75%] rounded-2xl rounded-bl-sm bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-800"
-              }
-            >
-              <p className="whitespace-pre-wrap">{message.body}</p>
-              <time
-                dateTime={message.createdAt}
+            <div className="group max-w-[75%]">
+              <div
                 className={
-                  message.mine
-                    ? "mt-1 block text-[10px] text-rose-100"
-                    : "mt-1 block text-[10px] text-neutral-500"
+                  message.deleted
+                    ? "rounded-2xl border border-dashed border-neutral-300 px-3 py-2 text-sm text-neutral-400 italic dark:border-neutral-700"
+                    : message.mine
+                      ? "rounded-2xl rounded-br-sm bg-rose-600 px-3 py-2 text-sm text-white"
+                      : "rounded-2xl rounded-bl-sm bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-800"
                 }
               >
-                {new Date(message.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </time>
+                <p className="whitespace-pre-wrap">
+                  {message.deleted ? "This message was deleted." : message.body}
+                </p>
+                <time
+                  dateTime={message.createdAt}
+                  className={
+                    message.mine && !message.deleted
+                      ? "mt-1 block text-[10px] text-rose-100"
+                      : "mt-1 block text-[10px] text-neutral-500"
+                  }
+                >
+                  {new Date(message.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </time>
+              </div>
+
+              {message.mine && !message.deleted && (
+                <form
+                  action={deleteMessage.bind(null, message.id)}
+                  className="mt-0.5 text-right"
+                >
+                  <button
+                    type="submit"
+                    className="text-[10px] text-neutral-400 opacity-0 transition group-hover:opacity-100 focus:opacity-100 hover:text-rose-600"
+                  >
+                    Delete
+                  </button>
+                </form>
+              )}
             </div>
           </li>
         ))}

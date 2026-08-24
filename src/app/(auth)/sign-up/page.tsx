@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp } from "@/lib/auth-client";
+import { PhotoBackdrop } from "@/components/photo-backdrop";
+import { GIZYCKO_PHOTOS } from "@/lib/photo-credits";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -32,6 +34,7 @@ export default function SignUpPage() {
 
   return (
     <>
+      <PhotoBackdrop photo={GIZYCKO_PHOTOS.lake} overlay="medium" priority />
       <h1 className="text-xl font-semibold tracking-tight">Create an account</h1>
       <p className="mt-1 text-sm text-neutral-500">You must be 18 or older.</p>
 

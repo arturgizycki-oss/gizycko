@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
+import { PhotoBackdrop } from "@/components/photo-backdrop";
+import { GIZYCKO_PHOTOS } from "@/lib/photo-credits";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -33,6 +35,7 @@ export default function SignInPage() {
 
   return (
     <>
+      <PhotoBackdrop photo={GIZYCKO_PHOTOS.sunset} overlay="medium" priority />
       <h1 className="text-xl font-semibold tracking-tight">Welcome back</h1>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">

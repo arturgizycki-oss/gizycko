@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
+import { GIZYCKO_PHOTOS } from "@/lib/photo-credits";
+import { PhotoCreditLine } from "@/components/photo-backdrop";
 
 const SHOWCASE = [
   { name: "Kasia", age: 28, line: "Photographer · Kraków", src: "/demo/kasia.jpg" },
@@ -74,8 +76,8 @@ export default async function LandingPage() {
           <div className="relative">
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-2xl shadow-neutral-900/20 sm:aspect-[5/4] lg:aspect-[4/5]">
               <Image
-                src="/hero.jpg"
-                alt="Someone paddling a canoe across a still mountain lake at dusk"
+                src={GIZYCKO_PHOTOS.bridge.src}
+                alt={GIZYCKO_PHOTOS.bridge.alt}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 560px"
@@ -85,9 +87,10 @@ export default async function LandingPage() {
                 aria-hidden
                 className="absolute inset-0 bg-gradient-to-t from-neutral-950/70 via-neutral-950/10 to-transparent"
               />
-              <p className="absolute right-6 bottom-6 left-6 text-lg font-semibold text-white">
-                Someone near you is free this weekend.
+              <p className="absolute right-6 bottom-8 left-6 text-lg font-semibold text-white">
+                Someone in Giżycko is free this weekend.
               </p>
+              <PhotoCreditLine photo={GIZYCKO_PHOTOS.bridge} />
             </div>
 
             {/* Overlapping profile card, the way a match actually looks. */}
