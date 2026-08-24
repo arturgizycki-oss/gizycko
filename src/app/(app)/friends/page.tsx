@@ -6,6 +6,7 @@ import { Avatar } from "@/components/avatar";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { FriendButton } from "@/components/friend-button";
+import { openConversation } from "@/lib/actions/conversations";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -147,6 +148,11 @@ export default async function FriendsPage() {
                   >
                     {name}
                   </Link>
+                  <form action={openConversation.bind(null, friend.id)}>
+                    <button type="submit" className="btn btn-primary btn-sm">
+                      Message
+                    </button>
+                  </form>
                 </li>
               );
             })}

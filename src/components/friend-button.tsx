@@ -20,8 +20,7 @@ export function FriendButton({
 }) {
   const [pending, startTransition] = useTransition();
 
-  const base =
-    "rounded-full px-4 py-1.5 text-xs font-semibold transition disabled:opacity-60";
+  const base = "btn btn-sm";
 
   if (state === "friends") {
     return (
@@ -29,7 +28,7 @@ export function FriendButton({
         type="button"
         disabled={pending}
         onClick={() => startTransition(() => removeFriend(userId))}
-        className={`${base} border border-neutral-300 dark:border-neutral-700`}
+        className={`${base} btn-secondary`}
       >
         Friends · remove
       </button>
@@ -42,7 +41,7 @@ export function FriendButton({
         type="button"
         disabled={pending}
         onClick={() => startTransition(() => removeFriend(userId))}
-        className={`${base} border border-neutral-300 dark:border-neutral-700`}
+        className={`${base} btn-secondary`}
       >
         Request sent · cancel
       </button>
@@ -58,7 +57,7 @@ export function FriendButton({
           onClick={() =>
             startTransition(() => respondToFriendRequest(friendshipId, true))
           }
-          className={`${base} bg-rose-600 text-white`}
+          className={`${base} btn-primary`}
         >
           Accept
         </button>
@@ -68,7 +67,7 @@ export function FriendButton({
           onClick={() =>
             startTransition(() => respondToFriendRequest(friendshipId, false))
           }
-          className={`${base} border border-neutral-300 dark:border-neutral-700`}
+          className={`${base} btn-secondary`}
         >
           Decline
         </button>
@@ -81,7 +80,7 @@ export function FriendButton({
       type="button"
       disabled={pending}
       onClick={() => startTransition(() => sendFriendRequest(userId))}
-      className={`${base} bg-rose-600 text-white`}
+      className={`${base} btn-primary`}
     >
       Add friend
     </button>

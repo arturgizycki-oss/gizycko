@@ -79,6 +79,12 @@ enum ReportStatus {
   DISMISSED
 }
 
+/// How a conversation came to exist: a mutual swipe, or two friends talking.
+enum ConversationOrigin {
+  SWIPE
+  FRIEND
+}
+
 enum NotificationType {
   MATCH
   MESSAGE
@@ -269,9 +275,12 @@ model Swipe {
   @@map("swipe")
 }
 
-/// userAId is always the lexicographically smaller id, so each pair has one row.
+/// A conversation between two people. userAId is always the lexicographically
+/// smaller id, so each pair has exactly one row whichever way they connected.
 model Match {
   id String @id @default(cuid())
+
+  origin ConversationOrigin @default(SWIPE)
 
   userAId String
   userA   User   @relation("MatchUserA", fields: [userAId], references: [id], onDelete: Cascade)

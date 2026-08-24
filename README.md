@@ -19,13 +19,21 @@ npm run dev
 `npm run db` prints a `DATABASE_URL` and a `SHADOW_DATABASE_URL`. **The port can
 change between runs** — if the app cannot connect, copy the new URLs into `.env`.
 
-Keep that terminal open. If pages start failing with *"Connection terminated
-unexpectedly"*, the database has stopped even though its port may still look
-open. Restart it, and if it complains that the lock file is held, the previous
-process died badly — delete
-`%LOCALAPPDATA%\prisma-dev-nodejs\Data\durable-streams\gizycko\server.lock.lock`
-and start it again. Never run two copies at once; they fight over the same data
-files and every connection is dropped.
+Keep that terminal open — the database must be a long-lived process of its own.
+
+If pages start failing with *"Connection terminated unexpectedly"*, the database
+has stopped even though its port may still look open. Restart it. Two things can
+block the restart, both under
+`%LOCALAPPDATA%\prisma-dev-nodejs\Data\durable-streams\gizycko\`:
+
+- *"Lock file is already being held"* — delete `server.lock.lock`.
+- *"Skipped! Your server is already running"* when nothing is listening — delete
+  `server.json`. It records the previous process id, and a process that died
+  badly leaves it behind.
+
+Neither file holds data; `durable-streams.sqlite` does, and it survives both.
+Never run two copies at once — they fight over that file and every connection is
+dropped.
 
 First time only:
 

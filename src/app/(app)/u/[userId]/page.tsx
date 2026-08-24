@@ -9,6 +9,7 @@ import { ReportDialog } from "@/components/report-dialog";
 import { BlockButton } from "@/components/block-button";
 import { PhotoPlaceholder } from "@/components/avatar";
 import { FriendButton } from "@/components/friend-button";
+import { openConversation } from "@/lib/actions/conversations";
 
 export default async function PublicProfilePage({
   params,
@@ -93,13 +94,18 @@ export default async function PublicProfilePage({
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          {match && (
-            <Link
-              href={`/matches/${match.id}`}
-              className="btn btn-primary btn-sm"
-            >
+          {match ? (
+            <Link href={`/matches/${match.id}`} className="btn btn-primary btn-sm">
               Message
             </Link>
+          ) : (
+            isFriend && (
+              <form action={openConversation.bind(null, userId)}>
+                <button type="submit" className="btn btn-primary btn-sm">
+                  Message
+                </button>
+              </form>
+            )
           )}
           <FriendButton
             userId={userId}
