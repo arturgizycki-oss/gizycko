@@ -24,7 +24,7 @@ export const KINDS = [
 ] as const;
 
 const selectClass =
-  "rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium outline-none focus:border-rose-500 dark:border-neutral-700 dark:bg-neutral-900";
+  "rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium outline-none focus:border-brand-500 dark:border-neutral-700 dark:bg-neutral-900";
 
 export function FeedFilters({
   sort,
@@ -53,7 +53,7 @@ export function FeedFilters({
   const filtered = source !== "all" || kind !== "all";
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200 bg-white/80 p-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/80">
+    <div className="card-glass flex flex-wrap items-center gap-2 p-3">
       <label className="flex items-center gap-1.5 text-xs text-neutral-500">
         Sort
         <select

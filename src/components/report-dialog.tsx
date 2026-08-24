@@ -90,14 +90,14 @@ export function ReportDialog({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+          className="btn btn-primary btn-sm"
         >
           {pending ? "Sending…" : "Send report"}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-full border border-neutral-300 px-3 py-1.5 text-xs dark:border-neutral-700"
+          className="btn btn-secondary btn-sm"
         >
           Cancel
         </button>

@@ -18,7 +18,7 @@ export function CollapsibleSection({
   return (
     <details
       open={defaultOpen}
-      className="group overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
+      className="card group overflow-hidden"
     >
       <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 hover:bg-neutral-50 [&::-webkit-details-marker]:hidden dark:hover:bg-neutral-800">
         <span className="text-sm font-medium">{title}</span>
@@ -26,7 +26,7 @@ export function CollapsibleSection({
         <span
           className={
             count > 0
-              ? "rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-950/50 dark:text-rose-300"
+              ? "rounded-full bg-brand-100 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
               : "rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-500 dark:bg-neutral-800"
           }
         >

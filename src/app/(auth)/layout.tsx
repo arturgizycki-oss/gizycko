@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Brand } from "@/components/brand";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 
@@ -12,14 +13,9 @@ export default async function AuthLayout({
 
   return (
     <main className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-12">
-      <Link
-        href="/"
-        className="relative mb-8 text-lg font-semibold tracking-tight"
-      >
-        gizycko
-      </Link>
+      <Brand href="/" size={44} className="relative mb-8 text-lg" />
 
-      <div className="relative w-full max-w-sm rounded-2xl border border-neutral-200 bg-white/90 p-8 shadow-xl shadow-neutral-900/5 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/90">
+      <div className="card-glass relative w-full max-w-sm p-8">
         {children}
       </div>
 

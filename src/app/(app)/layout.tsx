@@ -4,8 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { Avatar } from "@/components/avatar";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { unreadMessageCount } from "@/lib/messages";
-import { PhotoBackdrop } from "@/components/photo-backdrop";
-import { GIZYCKO_PHOTOS } from "@/lib/photo-credits";
+import { RotatingBackdrop } from "@/components/rotating-backdrop";
+import { DASHBOARD_PHOTOS } from "@/lib/photo-credits";
+import { Brand } from "@/components/brand";
 import { SignOutButton } from "@/components/sign-out-button";
 
 const NAV = [
@@ -39,13 +40,11 @@ export default async function AppLayout({
 
   return (
     <div className="relative min-h-dvh">
-      <PhotoBackdrop photo={GIZYCKO_PHOTOS.port} overlay="heavy" />
+      <RotatingBackdrop photos={DASHBOARD_PHOTOS} overlay="heavy" />
 
       <header className="sticky top-0 z-10 border-b border-neutral-200 bg-white/80 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/80">
         <div className="mx-auto flex max-w-3xl items-center gap-4 px-4 py-3">
-          <Link href="/feed" className="font-semibold tracking-tight">
-            gizycko
-          </Link>
+          <Brand href="/feed" size={26} />
 
           <nav className="flex flex-1 gap-4 text-sm">
             {NAV.map((item) => (
@@ -56,7 +55,7 @@ export default async function AppLayout({
               >
                 {item.label}
                 {item.badge && unreadMessages > 0 && (
-                  <span className="absolute -top-2 -right-3 flex size-4 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white">
+                  <span className="absolute -top-2 -right-3 flex size-4 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
                     {unreadMessages > 9 ? "9+" : unreadMessages}
                   </span>
                 )}
@@ -67,7 +66,7 @@ export default async function AppLayout({
           <Link href="/notifications" className="relative" aria-label="Notifications">
             <span className="text-lg leading-none">🔔</span>
             {unread > 0 && (
-              <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white">
+              <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
                 {unread > 9 ? "9+" : unread}
               </span>
             )}

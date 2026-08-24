@@ -35,12 +35,12 @@ export default async function MatchesPage() {
       </p>
 
       {matches.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-neutral-300 p-10 text-center text-sm text-neutral-500 dark:border-neutral-700">
+        <p className="empty-state">
           No matches yet, so there is nobody to message. Keep swiping in
           Discover — a conversation opens as soon as you both like each other.
         </p>
       ) : (
-        <ul className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
+        <ul className="card divide-y divide-[var(--line)] overflow-hidden">
           {matches.map((match) => {
             const other = match.userAId === me ? match.userB : match.userA;
             const preview = match.messages[0];
@@ -70,7 +70,7 @@ export default async function MatchesPage() {
                 </Link>
                 <Link
                   href={`/matches/${match.id}`}
-                  className="shrink-0 rounded-full bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white"
+                  className="btn btn-primary btn-sm shrink-0"
                 >
                   Message
                 </Link>

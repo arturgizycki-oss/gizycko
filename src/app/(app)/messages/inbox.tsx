@@ -66,7 +66,7 @@ export function Inbox({ items }: { items: InboxItem[] }) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search names and messages"
-          className="min-w-0 flex-1 rounded-full border border-neutral-300 bg-white px-4 py-1.5 text-sm outline-none focus:border-rose-500 dark:border-neutral-700 dark:bg-neutral-900"
+          className="min-w-0 flex-1 rounded-full border border-neutral-300 bg-white px-4 py-1.5 text-sm outline-none focus:border-brand-500 dark:border-neutral-700 dark:bg-neutral-900"
         />
 
         {totalUnread > 0 && (
@@ -74,7 +74,7 @@ export function Inbox({ items }: { items: InboxItem[] }) {
             type="button"
             disabled={pending}
             onClick={() => startTransition(() => markAllConversationsRead())}
-            className="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium disabled:opacity-60 dark:border-neutral-700"
+            className="btn btn-secondary btn-sm"
           >
             Mark all read
           </button>
@@ -82,19 +82,19 @@ export function Inbox({ items }: { items: InboxItem[] }) {
       </div>
 
       {visible.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-neutral-300 p-10 text-center text-sm text-neutral-500 dark:border-neutral-700">
+        <p className="empty-state">
           {items.length === 0
             ? "No conversations yet. Match with someone in Discover and you can message them here."
             : "Nothing matches that."}
         </p>
       ) : (
-        <ul className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
+        <ul className="card divide-y divide-[var(--line)] overflow-hidden">
           {visible.map((item) => (
             <li
               key={item.matchId}
               className={
                 item.unread > 0
-                  ? "flex items-center gap-3 bg-rose-50/50 px-4 py-3 dark:bg-rose-950/15"
+                  ? "flex items-center gap-3 bg-brand-50/60 px-4 py-3 dark:bg-brand-900/20"
                   : "flex items-center gap-3 px-4 py-3"
               }
             >
@@ -128,7 +128,7 @@ export function Inbox({ items }: { items: InboxItem[] }) {
               <div className="flex shrink-0 flex-col items-end gap-1">
                 {item.unread > 0 ? (
                   <>
-                    <span className="flex size-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white">
+                    <span className="flex size-5 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
                       {item.unread > 9 ? "9+" : item.unread}
                     </span>
                     <button

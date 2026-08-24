@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import Image from "next/image";
 import {
   deletePhoto,
@@ -26,47 +26,16 @@ const MODERATION_LABEL: Record<PhotoItem["moderation"], string> = {
 };
 
 export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [clientError, setClientError] = useState<string | null>(null);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     uploadPhoto,
     {},
   );
 
-  useEffect(() => {
-    if (state.ok) formRef.current?.reset();
-  }, [state.ok]);
-
-  /**
-   * Check size and type before the file ever leaves the browser. Without this
-   * an oversized upload is rejected by the server before our code runs, and the
-   * only thing the user sees is an unexplained "Failed to fetch".
-   */
-  function onFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setClientError(null);
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!ACCEPTED.includes(file.type)) {
-      setClientError("Only JPEG, PNG, WebP, and GIF images are allowed.");
-      event.target.value = "";
-      return;
-    }
-
-    if (file.size > MAX_IMAGE_BYTES) {
-      const mb = (file.size / 1024 / 1024).toFixed(1);
-      setClientError(`That image is ${mb} MB. The limit is 5 MB.`);
-      event.target.value = "";
-    }
-  }
-
-  const error = clientError ?? state.error;
-
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+    <section className="card p-4">
       <div className="flex items-baseline justify-between">
         <h2 className="text-sm font-medium">Photos</h2>
-        <span className="text-xs text-neutral-500">
+        <span className="hint">
           {photos.length} / {MAX_PROFILE_PHOTOS}
         </span>
       </div>
@@ -75,7 +44,7 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
         <ul className="mt-3 grid grid-cols-3 gap-3">
           {photos.map((photo) => (
             <li key={photo.id} className="space-y-1">
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-800">
+              <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
                 <Image
                   src={photo.url}
                   alt=""
@@ -88,20 +57,20 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
                   }
                 />
                 {photo.isPrimary && (
-                  <span className="absolute top-1 left-1 rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-semibold text-white">
+                  <span className="absolute top-1.5 left-1.5 rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-semibold text-white">
                     Main
                   </span>
                 )}
               </div>
 
-              <p className="text-[10px] text-neutral-500">
+              <p className="text-[10px] text-[var(--ink-muted)]">
                 {MODERATION_LABEL[photo.moderation]}
               </p>
 
               <div className="flex gap-2 text-xs">
                 {!photo.isPrimary && (
                   <form action={setPrimaryPhoto.bind(null, photo.id)}>
-                    <button type="submit" className="text-neutral-500 hover:underline">
+                    <button type="submit" className="muted hover:underline">
                       Make main
                     </button>
                   </form>
@@ -118,30 +87,98 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
       )}
 
       {photos.length < MAX_PROFILE_PHOTOS && (
-        <form ref={formRef} action={formAction} className="mt-4 flex items-center gap-3">
+        <form action={formAction} className="mt-4">
+          {/* Remounting on a new submission id clears the picker, rather than
+              resetting state from inside an effect. */}
+          <UploadFields
+            key={state.submissionId ?? "new"}
+            pending={pending}
+            serverError={state.error}
+          />
+        </form>
+      )}
+    </section>
+  );
+}
+
+function UploadFields({
+  pending,
+  serverError,
+}: {
+  pending: boolean;
+  serverError?: string;
+}) {
+  const [chosen, setChosen] = useState<string | null>(null);
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  /**
+   * Check size and type before the file leaves the browser. Without this an
+   * oversized upload is rejected by the server before our code runs, and the
+   * only thing the user sees is an unexplained "Failed to fetch".
+   */
+  function onFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setClientError(null);
+    setChosen(null);
+
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!ACCEPTED.includes(file.type)) {
+      setClientError("Only JPEG, PNG, WebP, and GIF images are allowed.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_BYTES) {
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      setClientError(`That image is ${mb} MB. The limit is 5 MB.`);
+      event.target.value = "";
+      return;
+    }
+
+    setChosen(file.name);
+  }
+
+  const error = clientError ?? serverError;
+
+  return (
+    <>
+      <div className="flex items-center gap-3">
+        {/*
+          The native file input renders its own button plus "No file chosen".
+          Hiding it inside a label gives one control we style ourselves, with
+          the chosen filename shown beside it.
+        */}
+        <label className="btn btn-secondary btn-sm cursor-pointer">
+          {chosen ? "Change photo" : "Choose a photo"}
           <input
             type="file"
             name="photo"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept={ACCEPTED.join(",")}
             onChange={onFileChange}
             required
-            className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-neutral-100 file:px-4 file:py-2 file:text-xs file:font-medium dark:file:bg-neutral-800"
+            className="sr-only"
           />
-          <button
-            type="submit"
-            disabled={pending}
-            className="shrink-0 rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
-          >
-            {pending ? "Uploading…" : "Upload"}
-          </button>
-        </form>
-      )}
+        </label>
+
+        <span className="muted min-w-0 flex-1 truncate text-xs">
+          {chosen ?? "JPEG, PNG, WebP or GIF, up to 5 MB"}
+        </span>
+
+        <button
+          type="submit"
+          disabled={pending || !chosen}
+          className="btn btn-primary btn-sm shrink-0"
+        >
+          {pending ? "Uploading…" : "Upload"}
+        </button>
+      </div>
 
       {error && (
         <p role="alert" className="mt-2 text-sm text-rose-600">
           {error}
         </p>
       )}
-    </section>
+    </>
   );
 }

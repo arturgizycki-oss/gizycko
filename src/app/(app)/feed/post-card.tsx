@@ -25,7 +25,7 @@ type PostCardProps = {
 
 export function PostCard({ post, isMine }: PostCardProps) {
   return (
-    <article className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+    <article className="card p-4">
       <header className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link href={`/u/${post.authorId}`} aria-label={post.authorName}>
@@ -119,7 +119,7 @@ export function PostCard({ post, isMine }: PostCardProps) {
             type="submit"
             className={
               post.reactedByMe
-                ? "font-medium text-rose-600"
+                ? "font-medium text-brand-600"
                 : "text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
             }
           >

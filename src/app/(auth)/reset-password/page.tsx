@@ -68,7 +68,7 @@ function ResetPasswordForm() {
             name="password"
             type="password"
             autoComplete="new-password"
-            className="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-rose-500 dark:border-neutral-700 dark:bg-neutral-950"
+            className="input mt-1"
           />
           <span className="mt-1 block text-xs text-neutral-500">
             At least 10 characters.
@@ -83,7 +83,7 @@ function ResetPasswordForm() {
             name="confirm"
             type="password"
             autoComplete="new-password"
-            className="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-rose-500 dark:border-neutral-700 dark:bg-neutral-950"
+            className="input mt-1"
           />
         </label>
 
@@ -96,7 +96,7 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60"
+          className="btn btn-primary btn-lg w-full"
         >
           {pending ? "Saving…" : "Set new password"}
         </button>

@@ -96,7 +96,7 @@ export default async function PublicProfilePage({
           {match && (
             <Link
               href={`/matches/${match.id}`}
-              className="rounded-full bg-rose-600 px-4 py-1.5 text-xs font-semibold text-white"
+              className="btn btn-primary btn-sm"
             >
               Message
             </Link>
@@ -141,7 +141,7 @@ export default async function PublicProfilePage({
       )}
 
       {user.profile.bio && (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+        <section className="card p-4">
           <h2 className="text-sm font-medium">About</h2>
           <p className="mt-2 text-sm whitespace-pre-wrap text-neutral-600 dark:text-neutral-400">
             {user.profile.bio}

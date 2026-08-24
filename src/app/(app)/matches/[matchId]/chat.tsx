@@ -68,7 +68,7 @@ export function Chat({
                   message.deleted
                     ? "rounded-2xl border border-dashed border-neutral-300 px-3 py-2 text-sm text-neutral-400 italic dark:border-neutral-700"
                     : message.mine
-                      ? "rounded-2xl rounded-br-sm bg-rose-600 px-3 py-2 text-sm text-white"
+                      ? "rounded-2xl rounded-br-sm bg-brand-600 px-3 py-2 text-sm text-white"
                       : "rounded-2xl rounded-bl-sm bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-800"
                 }
               >
@@ -79,7 +79,7 @@ export function Chat({
                   dateTime={message.createdAt}
                   className={
                     message.mine && !message.deleted
-                      ? "mt-1 block text-[10px] text-rose-100"
+                      ? "mt-1 block text-[10px] text-brand-100"
                       : "mt-1 block text-[10px] text-neutral-500"
                   }
                 >
@@ -125,12 +125,12 @@ export function Chat({
             required
             maxLength={4000}
             placeholder="Write a message…"
-            className="flex-1 resize-none rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-rose-500 dark:border-neutral-700 dark:bg-neutral-950"
+            className="flex-1 resize-none rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 dark:border-neutral-700 dark:bg-neutral-950"
           />
           <button
             type="submit"
             disabled={pending}
-            className="rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            className="btn btn-primary"
           >
             Send
           </button>

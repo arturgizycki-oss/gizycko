@@ -115,7 +115,7 @@ export default async function FeedPage({
       <FeedFilters sort={sort} source={source} kind={kind} total={posts.length} />
 
       {posts.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-neutral-300 p-8 text-center text-sm text-neutral-500 dark:border-neutral-700">
+        <p className="empty-state">
           {filtered ? (
             "Nothing matches those filters. Try widening them."
           ) : (

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { GIZYCKO_PHOTOS } from "@/lib/photo-credits";
 import { PhotoCreditLine } from "@/components/photo-backdrop";
+import { Brand } from "@/components/brand";
 
 const SHOWCASE = [
   { name: "Kasia", age: 28, line: "Photographer · Kraków", src: "/demo/kasia.jpg" },
@@ -24,7 +25,7 @@ export default async function LandingPage() {
 
       <div className="relative mx-auto flex min-h-dvh max-w-6xl flex-col px-6">
         <header className="flex items-center justify-between py-6">
-          <span className="text-lg font-semibold tracking-tight">gizycko</span>
+          <Brand href="/" size={34} className="text-lg" />
           <Link
             href="/sign-in"
             className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
@@ -35,15 +36,15 @@ export default async function LandingPage() {
 
         <section className="grid flex-1 items-center gap-12 py-10 lg:grid-cols-2">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white/70 px-3 py-1 text-xs font-medium text-rose-700 backdrop-blur dark:border-rose-900 dark:bg-neutral-900/70 dark:text-rose-300">
-              <span className="size-1.5 rounded-full bg-rose-500" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-3 py-1 text-xs font-medium text-brand-700 backdrop-blur dark:border-brand-900 dark:bg-neutral-900/70 dark:text-brand-200">
+              <span className="size-1.5 rounded-full bg-brand-500" />
               Now open in Poland
             </span>
 
             <h1 className="mt-5 text-4xl font-bold tracking-tight text-balance sm:text-6xl">
               Meet people nearby.
               <br />
-              <span className="bg-gradient-to-r from-rose-600 to-orange-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent">
                 Stay for the community.
               </span>
             </h1>
@@ -56,13 +57,13 @@ export default async function LandingPage() {
             <div className="mt-10 flex flex-wrap gap-3">
               <Link
                 href="/sign-up"
-                className="rounded-full bg-rose-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-600/20 transition hover:bg-rose-700"
+                className="btn btn-primary btn-lg"
               >
                 Create an account
               </Link>
               <Link
                 href="/sign-in"
-                className="rounded-full border border-neutral-300 bg-white/60 px-6 py-3 text-sm font-semibold backdrop-blur transition hover:bg-white dark:border-neutral-700 dark:bg-neutral-900/60 dark:hover:bg-neutral-900"
+                className="btn btn-secondary btn-lg"
               >
                 I already have one
               </Link>
@@ -161,7 +162,7 @@ export default async function LandingPage() {
           ].map((feature) => (
             <div
               key={feature.title}
-              className="rounded-2xl border border-neutral-200 bg-white/70 p-4 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/70"
+              className="card-glass p-4"
             >
               <h2 className="text-sm font-semibold">{feature.title}</h2>
               <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">

@@ -38,7 +38,7 @@ export function DangerZone() {
       <div className="mt-3 flex flex-wrap gap-3">
         <a
           href="/api/me/export"
-          className="rounded-full border border-neutral-300 px-4 py-2 text-xs font-semibold dark:border-neutral-700"
+          className="btn btn-secondary btn-sm"
         >
           Download my data
         </a>
@@ -47,7 +47,7 @@ export function DangerZone() {
           <button
             type="button"
             onClick={() => setConfirming(true)}
-            className="rounded-full border border-rose-300 px-4 py-2 text-xs font-semibold text-rose-700 dark:border-rose-800 dark:text-rose-400"
+            className="btn btn-secondary btn-sm text-rose-700 dark:text-rose-400"
           >
             Delete my account
           </button>
@@ -67,7 +67,7 @@ export function DangerZone() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
-              className="mt-1 w-full max-w-xs rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+              className="input mt-1 max-w-xs"
             />
           </label>
 
@@ -82,14 +82,14 @@ export function DangerZone() {
               type="button"
               onClick={onDelete}
               disabled={pending || password.length === 0}
-              className="rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+              className="btn btn-primary btn-sm"
             >
               {pending ? "Deleting…" : "Delete permanently"}
             </button>
             <button
               type="button"
               onClick={() => setConfirming(false)}
-              className="rounded-full border border-neutral-300 px-4 py-2 text-xs font-semibold dark:border-neutral-700"
+              className="btn btn-secondary btn-sm"
             >
               Cancel
             </button>

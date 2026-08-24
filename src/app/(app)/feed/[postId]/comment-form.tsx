@@ -23,7 +23,7 @@ export function CommentForm({ postId }: { postId: string }) {
         required
         maxLength={2000}
         placeholder="Write a comment…"
-        className="w-full resize-none rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-rose-500 dark:border-neutral-700 dark:bg-neutral-900"
+        className="w-full resize-none rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 dark:border-neutral-700 dark:bg-neutral-900"
       />
 
       {state.error && (
@@ -35,7 +35,7 @@ export function CommentForm({ postId }: { postId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+        className="btn btn-primary mt-2"
       >
         {pending ? "Posting…" : "Comment"}
       </button>

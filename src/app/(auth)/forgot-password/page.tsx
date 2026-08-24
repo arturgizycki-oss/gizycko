@@ -56,14 +56,14 @@ export default function ForgotPasswordPage() {
             name="email"
             type="email"
             autoComplete="email"
-            className="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-neutral-700 dark:bg-neutral-950"
+            className="input mt-1"
           />
         </label>
 
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60"
+          className="btn btn-primary btn-lg w-full"
         >
           {pending ? "Sending…" : "Send reset link"}
         </button>

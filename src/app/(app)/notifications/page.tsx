@@ -50,11 +50,11 @@ export default async function NotificationsPage() {
       <h1 className="mb-6 text-xl font-semibold tracking-tight">Notifications</h1>
 
       {notifications.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-neutral-300 p-10 text-center text-sm text-neutral-500 dark:border-neutral-700">
+        <p className="empty-state">
           Nothing yet.
         </p>
       ) : (
-        <ul className="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
+        <ul className="card divide-y divide-[var(--line)] overflow-hidden">
           {notifications.map((notification) => {
             const actorName =
               notification.actor?.profile?.displayName ??
@@ -67,7 +67,7 @@ export default async function NotificationsPage() {
                 className={
                   notification.readAt
                     ? "flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                    : "flex items-center gap-3 bg-rose-50/60 px-4 py-3 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/30"
+                    : "flex items-center gap-3 bg-brand-50/60 px-4 py-3 hover:bg-brand-50 dark:bg-brand-900/20 dark:hover:bg-brand-900/30"
                 }
               >
                 {notification.actorId ? (

@@ -70,7 +70,7 @@ export default async function ModerationPage() {
               return (
                 <li
                   key={report.id}
-                  className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+                  className="card p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -86,7 +86,7 @@ export default async function ModerationPage() {
                       <form action={resolveReport.bind(null, report.id, "DISMISS")}>
                         <button
                           type="submit"
-                          className="rounded-full border border-neutral-300 px-3 py-1.5 text-xs dark:border-neutral-700"
+                          className="btn btn-secondary btn-sm"
                         >
                           Dismiss
                         </button>

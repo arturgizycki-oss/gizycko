@@ -73,7 +73,7 @@ export default async function PostPage({
         ← Feed
       </Link>
 
-      <article className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+      <article className="card p-4">
         <header className="flex items-start justify-between">
           <div>
             <Link href={`/u/${post.author.id}`} className="text-sm font-medium hover:underline">
@@ -145,7 +145,7 @@ export default async function PostPage({
           {comments.map((comment) => (
             <li
               key={comment.id}
-              className="rounded-xl border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"
+              className="card p-3"
             >
               {comment.deletedAt ? (
                 <p className="text-sm text-neutral-400 italic">

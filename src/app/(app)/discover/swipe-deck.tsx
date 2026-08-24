@@ -34,7 +34,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
 
   if (!current) {
     return (
-      <p className="rounded-2xl border border-dashed border-neutral-300 p-10 text-center text-sm text-neutral-500 dark:border-neutral-700">
+      <p className="empty-state">
         No one new right now. Check back later, or widen your age and distance
         preferences in your profile.
       </p>
@@ -46,7 +46,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
       {matchedWith && (
         <div
           role="status"
-          className="rounded-xl bg-rose-600 px-4 py-3 text-sm font-medium text-white"
+          className="card px-4 py-3 text-sm font-medium text-white"
         >
           It is a match with {matchedWith}! Say hello from Matches.
         </div>
@@ -91,7 +91,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
           type="button"
           onClick={() => decide("PASS")}
           disabled={pending}
-          className="flex-1 rounded-full border border-neutral-300 py-2.5 text-sm font-semibold transition hover:bg-neutral-100 disabled:opacity-60 dark:border-neutral-700 dark:hover:bg-neutral-800"
+          className="btn btn-secondary flex-1"
         >
           Pass
         </button>
@@ -99,7 +99,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
           type="button"
           onClick={() => decide("LIKE")}
           disabled={pending}
-          className="flex-1 rounded-full bg-rose-600 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60"
+          className="btn btn-primary flex-1"
         >
           Like
         </button>

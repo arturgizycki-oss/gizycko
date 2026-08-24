@@ -8,7 +8,7 @@ import { requireSession } from "@/lib/session";
 import { checkUploadedImage, MAX_PROFILE_PHOTOS } from "@/lib/image";
 import { deleteObject, keyFromMediaUrl, mediaUrl, putObject } from "@/lib/storage";
 
-export type ActionState = { error?: string; ok?: boolean };
+export type ActionState = { error?: string; ok?: boolean; submissionId?: string };
 
 async function myProfile(userId: string) {
   return prisma.profile.findUniqueOrThrow({
@@ -60,7 +60,8 @@ export async function uploadPhoto(
   });
 
   revalidatePath("/profile");
-  return { ok: true };
+  // A fresh id tells the form this upload landed, so it can clear itself.
+  return { ok: true, submissionId: randomUUID() };
 }
 
 export async function deletePhoto(photoId: string) {

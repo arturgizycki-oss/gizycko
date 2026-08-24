@@ -11,7 +11,7 @@ const GENDER_LABELS: Record<string, string> = {
 };
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 dark:border-neutral-700 dark:bg-neutral-950";
+  "input mt-1";
 
 export type ProfileFormValues = {
   displayName: string;
@@ -87,7 +87,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
           {Object.entries(GENDER_LABELS).map(([value, label]) => (
             <label
               key={value}
-              className="cursor-pointer rounded-full border border-neutral-300 px-4 py-1.5 text-sm has-checked:border-rose-500 has-checked:bg-rose-50 dark:border-neutral-700 dark:has-checked:bg-rose-950/40"
+              className="chip"
             >
               <input
                 type="checkbox"
@@ -157,7 +157,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
+        className="btn btn-primary"
       >
         {pending ? "Saving…" : "Save changes"}
       </button>

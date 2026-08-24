@@ -34,7 +34,7 @@ export default async function BlockedPage() {
       </h1>
 
       {blocks.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-neutral-300 p-10 text-center text-sm text-neutral-500 dark:border-neutral-700">
+        <p className="empty-state">
           You have not blocked anyone.
         </p>
       ) : (
@@ -42,7 +42,7 @@ export default async function BlockedPage() {
           {blocks.map((block) => (
             <li
               key={block.id}
-              className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"
+              className="card flex items-center gap-3 p-3"
             >
               <Avatar
                 name={block.blocked.profile?.displayName ?? block.blocked.name}

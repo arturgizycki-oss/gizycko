@@ -22,7 +22,7 @@ export function Composer() {
   return (
     <form
       action={formAction}
-      className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+      className="card p-4"
     >
       {/* Remounting on a new submission id clears the text, the files, and the
           previews without resetting state from inside an effect. */}
@@ -171,7 +171,7 @@ function ComposerFields({
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
-        <label className="cursor-pointer rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
+        <label className="btn btn-secondary btn-sm cursor-pointer">
           📷 Photos
           <input
             type="file"
@@ -183,7 +183,7 @@ function ComposerFields({
           />
         </label>
 
-        <label className="cursor-pointer rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
+        <label className="btn btn-secondary btn-sm cursor-pointer">
           🎵 Song
           <input
             type="file"
@@ -194,7 +194,7 @@ function ComposerFields({
           />
         </label>
 
-        <label className="cursor-pointer rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
+        <label className="btn btn-secondary btn-sm cursor-pointer">
           🎬 Video
           <input
             type="file"
@@ -222,7 +222,7 @@ function ComposerFields({
         <button
           type="submit"
           disabled={pending}
-          className="ml-auto rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60"
+          className="btn btn-primary ml-auto"
         >
           {pending ? "Posting…" : "Post"}
         </button>

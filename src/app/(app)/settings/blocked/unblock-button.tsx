@@ -11,7 +11,7 @@ export function UnblockButton({ userId }: { userId: string }) {
       type="button"
       disabled={pending}
       onClick={() => startTransition(() => unblockUser(userId))}
-      className="rounded-full border border-neutral-300 px-4 py-1.5 text-xs font-semibold disabled:opacity-60 dark:border-neutral-700"
+      className="btn btn-secondary btn-sm"
     >
       {pending ? "Unblocking…" : "Unblock"}
     </button>
