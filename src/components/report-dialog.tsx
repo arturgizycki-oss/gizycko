@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { submitReport, REPORT_REASONS, type SafetyState } from "@/lib/actions/safety";
+import { submitReport, type SafetyState } from "@/lib/actions/safety";
+import { REPORT_REASONS } from "@/lib/report-reasons";
 
 type ReportTarget = {
   reportedUserId?: string;

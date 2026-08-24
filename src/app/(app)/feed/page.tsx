@@ -38,7 +38,13 @@ export default async function FeedPage() {
       },
       images: { orderBy: { position: "asc" } },
       reactions: { where: { userId: me }, select: { id: true } },
-      _count: { select: { reactions: true, comments: true } },
+      _count: {
+        select: {
+          reactions: true,
+          // Soft-deleted comments must not inflate the count on the card.
+          comments: { where: { deletedAt: null } },
+        },
+      },
     },
   });
 

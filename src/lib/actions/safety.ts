@@ -4,33 +4,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { REPORT_REASON_VALUES } from "@/lib/report-reasons";
 
 export type SafetyState = { error?: string; ok?: boolean };
 
-const REASONS = [
-  "SPAM",
-  "HARASSMENT",
-  "NUDITY",
-  "FAKE_PROFILE",
-  "UNDERAGE",
-  "HATE_SPEECH",
-  "SCAM",
-  "OTHER",
-] as const;
-
-export const REPORT_REASONS: { value: (typeof REASONS)[number]; label: string }[] = [
-  { value: "HARASSMENT", label: "Harassment or abuse" },
-  { value: "NUDITY", label: "Nudity or sexual content" },
-  { value: "FAKE_PROFILE", label: "Fake profile or impersonation" },
-  { value: "UNDERAGE", label: "This person is under 18" },
-  { value: "SCAM", label: "Scam or money request" },
-  { value: "SPAM", label: "Spam" },
-  { value: "HATE_SPEECH", label: "Hate speech" },
-  { value: "OTHER", label: "Something else" },
-];
-
 const reportSchema = z.object({
-  reason: z.enum(REASONS),
+  reason: z.enum(REPORT_REASON_VALUES),
   details: z.string().trim().max(2000).optional(),
   reportedUserId: z.string().optional(),
   postId: z.string().optional(),

@@ -1,12 +1,12 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { PhotoPlaceholder } from "@/components/avatar";
 
 const SHOWCASE = [
-  { name: "Kasia W", line: "Photographer · Kraków", rotate: "-6deg", offset: "0" },
-  { name: "Marek D", line: "Developer · Warszawa", rotate: "3deg", offset: "2.5rem" },
-  { name: "Ola P", line: "Climber · Gdańsk", rotate: "-2deg", offset: "5rem" },
+  { name: "Kasia", age: 28, line: "Photographer · Kraków", src: "/demo/kasia.jpg" },
+  { name: "Marek", age: 33, line: "Developer · Warszawa", src: "/demo/marek.jpg" },
+  { name: "Ania", age: 31, line: "Climber · Gdańsk", src: "/demo/ania.jpg" },
 ];
 
 export default async function LandingPage() {
@@ -15,14 +15,9 @@ export default async function LandingPage() {
 
   return (
     <main className="relative min-h-dvh overflow-hidden bg-white dark:bg-neutral-950">
-      {/* Background wash — pure CSS so there is nothing to download. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(244,63,94,0.20),transparent_60%),radial-gradient(50%_45%_at_85%_10%,rgba(251,146,60,0.18),transparent_60%),radial-gradient(45%_45%_at_60%_100%,rgba(168,85,247,0.16),transparent_60%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18] [background-image:radial-gradient(currentColor_1px,transparent_1px)] [background-size:22px_22px] text-neutral-400"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(244,63,94,0.18),transparent_60%),radial-gradient(50%_45%_at_85%_10%,rgba(251,146,60,0.16),transparent_60%)]"
       />
 
       <div className="relative mx-auto flex min-h-dvh max-w-6xl flex-col px-6">
@@ -36,7 +31,7 @@ export default async function LandingPage() {
           </Link>
         </header>
 
-        <section className="grid flex-1 items-center gap-12 py-12 lg:grid-cols-2">
+        <section className="grid flex-1 items-center gap-12 py-10 lg:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white/70 px-3 py-1 text-xs font-medium text-rose-700 backdrop-blur dark:border-rose-900 dark:bg-neutral-900/70 dark:text-rose-300">
               <span className="size-1.5 rounded-full bg-rose-500" />
@@ -76,26 +71,74 @@ export default async function LandingPage() {
             </p>
           </div>
 
-          {/* Fan of profile cards. Each one is generated, so no stock photos. */}
-          <div className="relative hidden h-[26rem] lg:block">
-            {SHOWCASE.map((person, index) => (
-              <article
+          <div className="relative">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-2xl shadow-neutral-900/20 sm:aspect-[5/4] lg:aspect-[4/5]">
+              <Image
+                src="/hero.jpg"
+                alt="Someone paddling a canoe across a still mountain lake at dusk"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 560px"
+                className="object-cover"
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-t from-neutral-950/70 via-neutral-950/10 to-transparent"
+              />
+              <p className="absolute right-6 bottom-6 left-6 text-lg font-semibold text-white">
+                Someone near you is free this weekend.
+              </p>
+            </div>
+
+            {/* Overlapping profile card, the way a match actually looks. */}
+            <article className="absolute -bottom-6 -left-4 hidden w-48 overflow-hidden rounded-2xl border border-white/70 bg-white shadow-xl shadow-neutral-900/20 sm:block dark:border-neutral-800 dark:bg-neutral-900">
+              <div className="relative aspect-square">
+                <Image
+                  src={SHOWCASE[0].src}
+                  alt=""
+                  fill
+                  sizes="192px"
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-3">
+                <p className="text-sm font-semibold">
+                  {SHOWCASE[0].name}, {SHOWCASE[0].age}
+                </p>
+                <p className="text-xs text-neutral-500">{SHOWCASE[0].line}</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section className="pt-16 pb-10">
+          <h2 className="text-sm font-semibold text-neutral-500">
+            People already here
+          </h2>
+          <ul className="mt-4 grid grid-cols-3 gap-4">
+            {SHOWCASE.map((person) => (
+              <li
                 key={person.name}
-                style={{
-                  transform: `rotate(${person.rotate}) translateY(${person.offset})`,
-                  left: `${index * 5.5}rem`,
-                  zIndex: index,
-                }}
-                className="absolute top-0 w-56 overflow-hidden rounded-3xl border border-white/60 bg-white shadow-xl shadow-neutral-900/10 dark:border-neutral-800 dark:bg-neutral-900"
+                className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <PhotoPlaceholder name={person.name} className="aspect-[4/5] w-full" />
+                <div className="relative aspect-[4/5]">
+                  <Image
+                    src={person.src}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 33vw, 200px"
+                    className="object-cover"
+                  />
+                </div>
                 <div className="p-3">
-                  <p className="text-sm font-semibold">{person.name}</p>
+                  <p className="text-sm font-semibold">
+                    {person.name}, {person.age}
+                  </p>
                   <p className="text-xs text-neutral-500">{person.line}</p>
                 </div>
-              </article>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
 
         <section className="grid gap-4 pb-12 sm:grid-cols-3">

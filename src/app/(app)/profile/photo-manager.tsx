@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useEffect } from "react";
+import { useActionState, useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   deletePhoto,
@@ -8,7 +8,9 @@ import {
   uploadPhoto,
   type ActionState,
 } from "./actions";
-import { MAX_PROFILE_PHOTOS } from "@/lib/image";
+import { MAX_IMAGE_BYTES, MAX_PROFILE_PHOTOS } from "@/lib/image";
+
+const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export type PhotoItem = {
   id: string;
@@ -25,6 +27,7 @@ const MODERATION_LABEL: Record<PhotoItem["moderation"], string> = {
 
 export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [clientError, setClientError] = useState<string | null>(null);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     uploadPhoto,
     {},
@@ -33,6 +36,31 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
   useEffect(() => {
     if (state.ok) formRef.current?.reset();
   }, [state.ok]);
+
+  /**
+   * Check size and type before the file ever leaves the browser. Without this
+   * an oversized upload is rejected by the server before our code runs, and the
+   * only thing the user sees is an unexplained "Failed to fetch".
+   */
+  function onFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setClientError(null);
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!ACCEPTED.includes(file.type)) {
+      setClientError("Only JPEG, PNG, WebP, and GIF images are allowed.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_BYTES) {
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      setClientError(`That image is ${mb} MB. The limit is 5 MB.`);
+      event.target.value = "";
+    }
+  }
+
+  const error = clientError ?? state.error;
 
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
@@ -95,6 +123,7 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
             type="file"
             name="photo"
             accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={onFileChange}
             required
             className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-neutral-100 file:px-4 file:py-2 file:text-xs file:font-medium dark:file:bg-neutral-800"
           />
@@ -108,9 +137,9 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
         </form>
       )}
 
-      {state.error && (
+      {error && (
         <p role="alert" className="mt-2 text-sm text-rose-600">
-          {state.error}
+          {error}
         </p>
       )}
     </section>

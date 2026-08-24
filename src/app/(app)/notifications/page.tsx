@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { Avatar } from "@/components/avatar";
+import { MarkRead } from "./mark-read";
 
 const TEXT: Record<string, string> = {
   MATCH: "matched with you",
@@ -35,14 +36,11 @@ export default async function NotificationsPage() {
     },
   });
 
-  // Opening the page is the read receipt.
-  await prisma.notification.updateMany({
-    where: { userId: session.user.id, readAt: null },
-    data: { readAt: new Date() },
-  });
+  const unread = notifications.filter((n) => n.readAt === null).length;
 
   return (
     <div>
+      <MarkRead unread={unread} />
       <h1 className="mb-6 text-xl font-semibold tracking-tight">Notifications</h1>
 
       {notifications.length === 0 ? (

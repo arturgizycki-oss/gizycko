@@ -27,10 +27,19 @@ export async function uploadPhoto(
   const file = formData.get("photo");
   if (!(file instanceof File)) return { error: "Choose an image first." };
 
-  const count = await prisma.photo.count({ where: { profileId: profile.id } });
-  if (count >= MAX_PROFILE_PHOTOS) {
+  const existing = await prisma.photo.findMany({
+    where: { profileId: profile.id },
+    select: { position: true },
+    orderBy: { position: "desc" },
+  });
+
+  if (existing.length >= MAX_PROFILE_PHOTOS) {
     return { error: `You can have at most ${MAX_PROFILE_PHOTOS} photos.` };
   }
+
+  // Deleting a photo from the middle leaves a gap, so counting rows would
+  // reuse a position that is already taken. Take the next one after the last.
+  const nextPosition = existing.length === 0 ? 0 : existing[0].position + 1;
 
   const checked = await checkUploadedImage(file);
   if (!checked.ok) return { error: checked.error };
@@ -42,8 +51,8 @@ export async function uploadPhoto(
     data: {
       profileId: profile.id,
       url: mediaUrl(key),
-      position: count,
-      isPrimary: count === 0,
+      position: nextPosition,
+      isPrimary: existing.length === 0,
       // Reactive moderation: photos are visible right away and hidden only once
       // a moderator rejects them. PENDING is the queue, not a block.
       moderation: "PENDING",

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
-import { friendIds, hiddenUserIds } from "@/lib/social";
+import { friendIds, hiddenUserIds, matchedUserIds } from "@/lib/social";
 import { ageFrom } from "@/lib/age";
 import { ReportDialog } from "@/components/report-dialog";
 import { BlockButton } from "@/components/block-button";
@@ -38,8 +38,9 @@ export default async function PublicProfilePage({
 
   if (!user?.profile || user.bannedAt) notFound();
 
-  const [friends, friendship] = await Promise.all([
+  const [friends, matches, friendship] = await Promise.all([
     friendIds(me),
+    matchedUserIds(me),
     prisma.friendship.findFirst({
       where: {
         OR: [
@@ -51,13 +52,18 @@ export default async function PublicProfilePage({
   ]);
 
   const isFriend = friends.includes(userId);
+  const isMatched = matches.includes(userId);
   const photos = user.profile.photos.filter((p) => p.moderation !== "REJECTED");
 
   const posts = await prisma.post.findMany({
     where: {
       authorId: userId,
       deletedAt: null,
-      OR: [{ visibility: "PUBLIC" }, ...(isFriend ? [{ visibility: "FRIENDS" as const }] : [])],
+      OR: [
+        { visibility: "PUBLIC" as const },
+        ...(isFriend ? [{ visibility: "FRIENDS" as const }] : []),
+        ...(isMatched ? [{ visibility: "MATCHES" as const }] : []),
+      ],
     },
     orderBy: { createdAt: "desc" },
     take: 10,

@@ -49,6 +49,11 @@ export default async function PostPage({
     matchedUserIds(me),
   ]);
 
+  // A block hides that person's comments here too, not just their posts.
+  const comments = post.comments.filter(
+    (comment) => !hidden.includes(comment.authorId),
+  );
+
   const canSee =
     post.authorId === me ||
     (!hidden.includes(post.authorId) &&
@@ -89,11 +94,11 @@ export default async function PostPage({
 
       <section>
         <h2 className="mb-3 text-sm font-medium">
-          {post.comments.filter((c) => !c.deletedAt).length} comments
+          {comments.filter((c) => !c.deletedAt).length} comments
         </h2>
 
         <ul className="space-y-3">
-          {post.comments.map((comment) => (
+          {comments.map((comment) => (
             <li
               key={comment.id}
               className="rounded-xl border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"

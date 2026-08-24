@@ -1,6 +1,9 @@
 import "dotenv/config";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { auth } from "../src/lib/auth";
 import { prisma } from "../src/lib/prisma";
+import { mediaUrl, putObject } from "../src/lib/storage";
 import type { Gender } from "../src/generated/prisma/enums";
 
 type SeedPerson = {
@@ -12,6 +15,8 @@ type SeedPerson = {
   interestedIn: Gender[];
   city: string;
   bio: string;
+  /** File under public/demo, copied into object storage as their photo. */
+  photo: string;
 };
 
 const PASSWORD = "seedpassword123";
@@ -26,6 +31,7 @@ const PEOPLE: SeedPerson[] = [
     interestedIn: ["MAN"],
     city: "Warszawa",
     bio: "Climbing, pierogi, and long walks along the Wisła.",
+    photo: "ania.jpg",
   },
   {
     name: "Marek",
@@ -36,6 +42,7 @@ const PEOPLE: SeedPerson[] = [
     interestedIn: ["WOMAN"],
     city: "Warszawa",
     bio: "Backend developer. I will talk about coffee for an hour.",
+    photo: "marek.jpg",
   },
   {
     name: "Kasia",
@@ -46,6 +53,7 @@ const PEOPLE: SeedPerson[] = [
     interestedIn: ["MAN", "WOMAN"],
     city: "Kraków",
     bio: "Photographer. Looking for someone to explore the Tatras with.",
+    photo: "kasia.jpg",
   },
   {
     name: "Piotr",
@@ -56,6 +64,7 @@ const PEOPLE: SeedPerson[] = [
     interestedIn: ["WOMAN"],
     city: "Warszawa",
     bio: "Runner, cook, terrible at board games.",
+    photo: "piotr.jpg",
   },
 ];
 
@@ -82,13 +91,47 @@ async function upsertPerson(person: SeedPerson) {
     completedAt: new Date(),
   };
 
-  await prisma.profile.upsert({
+  const profile = await prisma.profile.upsert({
     where: { userId: user.id },
     create: { userId: user.id, ...data },
     update: data,
   });
 
+  await attachPhoto(user.id, profile.id, person.photo);
+
   return user;
+}
+
+/**
+ * Copy a demo photo from public/demo into object storage, so seeded profiles
+ * look like real ones. Idempotent: re-running the seed does not duplicate.
+ */
+async function attachPhoto(userId: string, profileId: string, fileName: string) {
+  const already = await prisma.photo.count({ where: { profileId } });
+  if (already > 0) return;
+
+  const source = path.join(process.cwd(), "public", "demo", fileName);
+
+  let bytes: Buffer;
+  try {
+    bytes = await readFile(source);
+  } catch {
+    console.warn(`  no demo photo at ${source} — skipping`);
+    return;
+  }
+
+  const key = `photos/${userId}/seed-${fileName}`;
+  await putObject(key, bytes);
+
+  await prisma.photo.create({
+    data: {
+      profileId,
+      url: mediaUrl(key),
+      position: 0,
+      isPrimary: true,
+      moderation: "APPROVED",
+    },
+  });
 }
 
 async function main() {
