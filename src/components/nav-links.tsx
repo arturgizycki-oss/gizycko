@@ -32,11 +32,16 @@ export function NavLinks({ unreadMessages }: { unreadMessages: number }) {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={
+            /*
+             * Geometry is identical for every tab — same padding, same font
+             * weight. Only colour changes, so nothing moves or resizes when the
+             * active tab changes.
+             */
+            className={`relative rounded-full px-3 py-1.5 font-medium transition-colors ${
               active
-                ? "relative rounded-full bg-brand-600 px-3 py-1.5 font-semibold text-white"
-                : "relative rounded-full px-3 py-1.5 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]"
-            }
+                ? "bg-brand-600 text-white"
+                : "text-[var(--ink-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]"
+            }`}
           >
             {item.label}
 
