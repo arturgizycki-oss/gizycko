@@ -21,6 +21,14 @@ change between runs** — if the app cannot connect, copy the new URLs into `.en
 
 Keep that terminal open — the database must be a long-lived process of its own.
 
+**The local server degrades.** After a few hours, or once its write-ahead log
+grows large, `prisma dev` starts resetting connections: pages 500 with P1017
+"Server has closed the connection" or ECONNRESET, while the process still looks
+alive and its port still accepts TCP. Restarting it fixes it, and no data is
+lost. If you are doing more than a short session, use a real Postgres (Neon or
+Supabase both have a free tier) and put its URL in `DATABASE_URL` — the app is
+identical either way, and this whole class of failure disappears.
+
 If pages start failing with *"Connection terminated unexpectedly"*, the database
 has stopped even though its port may still look open. Restart it. Two things can
 block the restart, both under

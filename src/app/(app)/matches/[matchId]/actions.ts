@@ -6,6 +6,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { checkUploadedImage } from "@/lib/image";
+import { checkUploadedAudio, titleFromFileName } from "@/lib/audio";
+import { checkUploadedVideo } from "@/lib/video";
+import { mediaUrl, putObject } from "@/lib/storage";
 
 export type MessageState = { error?: string; submissionId?: string };
 
@@ -22,8 +26,70 @@ async function memberMatch(matchId: string, userId: string) {
 }
 
 const messageSchema = z.object({
-  body: z.string().trim().min(1).max(4000),
+  body: z.string().trim().max(4000),
 });
+
+type Attachment = {
+  key: string;
+  bytes: Buffer;
+  type: string;
+  kind: "IMAGE" | "VIDEO" | "AUDIO";
+  name: string;
+};
+
+/**
+ * Work out what was attached and check it by magic bytes, never by filename or
+ * the content type the browser claims. Returns null when nothing was attached.
+ */
+async function readAttachment(
+  file: File,
+  userId: string,
+): Promise<{ ok: true; attachment: Attachment } | { ok: false; error: string }> {
+  const declared = file.type.toLowerCase();
+
+  if (declared.startsWith("video/")) {
+    const checked = await checkUploadedVideo(file);
+    if (!checked.ok) return { ok: false, error: checked.error };
+    return {
+      ok: true,
+      attachment: {
+        key: `chat/${userId}/${randomUUID()}${checked.kind.extension}`,
+        bytes: checked.bytes,
+        type: checked.kind.contentType,
+        kind: "VIDEO",
+        name: file.name.slice(0, 200),
+      },
+    };
+  }
+
+  if (declared.startsWith("audio/")) {
+    const checked = await checkUploadedAudio(file);
+    if (!checked.ok) return { ok: false, error: checked.error };
+    return {
+      ok: true,
+      attachment: {
+        key: `chat/${userId}/${randomUUID()}${checked.kind.extension}`,
+        bytes: checked.bytes,
+        type: checked.kind.contentType,
+        kind: "AUDIO",
+        name: titleFromFileName(file.name) || "Audio",
+      },
+    };
+  }
+
+  const checked = await checkUploadedImage(file);
+  if (!checked.ok) return { ok: false, error: checked.error };
+  return {
+    ok: true,
+    attachment: {
+      key: `chat/${userId}/${randomUUID()}${checked.kind.extension}`,
+      bytes: checked.bytes,
+      type: checked.kind.contentType,
+      kind: "IMAGE",
+      name: file.name.slice(0, 200),
+    },
+  };
+}
 
 export async function sendMessage(
   matchId: string,
@@ -37,7 +103,14 @@ export async function sendMessage(
   if (match.unmatchedAt) return { error: "You are no longer matched." };
 
   const parsed = messageSchema.safeParse({ body: formData.get("body") });
-  if (!parsed.success) return { error: "Write something first." };
+  if (!parsed.success) return { error: "That message is too long." };
+
+  const entry = formData.get("attachment");
+  const file = entry instanceof File && entry.size > 0 ? entry : null;
+
+  if (parsed.data.body.length === 0 && !file) {
+    return { error: "Write something, or attach a photo, video, or song." };
+  }
 
   const otherId = match.userAId === session.user.id ? match.userBId : match.userAId;
 
@@ -53,9 +126,25 @@ export async function sendMessage(
   });
   if (blocked) return { error: "You cannot message this person." };
 
+  let attachment: Attachment | null = null;
+  if (file) {
+    const result = await readAttachment(file, session.user.id);
+    if (!result.ok) return { error: result.error };
+    attachment = result.attachment;
+    await putObject(attachment.key, attachment.bytes);
+  }
+
   await prisma.$transaction([
     prisma.message.create({
-      data: { matchId, senderId: session.user.id, body: parsed.data.body },
+      data: {
+        matchId,
+        senderId: session.user.id,
+        body: parsed.data.body,
+        mediaUrl: attachment ? mediaUrl(attachment.key) : null,
+        mediaType: attachment?.type ?? null,
+        mediaKind: attachment?.kind ?? null,
+        mediaName: attachment?.name ?? null,
+      },
     }),
     prisma.match.update({
       where: { id: matchId },

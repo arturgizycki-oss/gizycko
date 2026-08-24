@@ -150,7 +150,7 @@ export async function addComment(
   });
   if (!post || post.deletedAt) return { error: "That post is gone." };
 
-  const comment = await prisma.comment.create({
+  await prisma.comment.create({
     data: { postId, authorId: session.user.id, body: parsed.data.body },
   });
 
@@ -160,7 +160,8 @@ export async function addComment(
         userId: post.authorId,
         type: "POST_COMMENT",
         actorId: session.user.id,
-        entityId: comment.id,
+        // The post, not the comment: that is what the notification opens.
+        entityId: postId,
       },
     });
   }

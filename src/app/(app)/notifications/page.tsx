@@ -24,6 +24,9 @@ function hrefFor(type: string, entityId: string | null, actorId: string | null) 
   if (type === "MESSAGE" && entityId) return `/matches/${entityId}`;
   if (type === "MATCH") return "/matches";
   if (type === "FRIEND_REQUEST" || type === "FRIEND_ACCEPTED") return "/friends";
+  if ((type === "POST_COMMENT" || type === "POST_REACTION") && entityId) {
+    return `/feed/${entityId}`;
+  }
   if (actorId) return `/u/${actorId}`;
   return "/feed";
 }

@@ -11,7 +11,7 @@ import {
 } from "@/lib/social";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { ageFrom } from "@/lib/age";
-import { shortWhen } from "@/lib/time";
+import { shortWhen, timeAgo } from "@/lib/time";
 import { ReportDialog } from "@/components/report-dialog";
 import { BlockButton } from "@/components/block-button";
 import { Avatar } from "@/components/avatar";
@@ -219,7 +219,7 @@ export default async function PublicProfilePage({
               year: "numeric",
             })}
             {" · active "}
-            {shortWhen(user.profile.lastActiveAt)} ago
+            {timeAgo(user.profile.lastActiveAt)}
           </p>
         </section>
       )}

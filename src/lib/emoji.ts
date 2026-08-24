@@ -1,4 +1,10 @@
-export type EmojiGroup = { name: string; icon: string; emoji: string[] };
+export type EmojiGroup = {
+  name: string;
+  icon: string;
+  /** Words people type when looking for this group. */
+  keywords: string[];
+  emoji: string[];
+};
 
 /**
  * A curated set rather than the full Unicode table: enough to cover ordinary
@@ -8,6 +14,7 @@ export type EmojiGroup = { name: string; icon: string; emoji: string[] };
 export const EMOJI_GROUPS: EmojiGroup[] = [
   {
     name: "Smileys",
+    keywords: ["face", "smile", "happy", "sad", "cry", "laugh", "angry", "emotion"],
     icon: "🙂",
     emoji: [
       "😀", "😃", "😄", "😁", "😆", "😅", "🤣", "😂", "🙂", "🙃",
@@ -22,6 +29,7 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   },
   {
     name: "Gestures",
+    keywords: ["hand", "thumb", "wave", "clap", "point", "finger", "body"],
     icon: "👋",
     emoji: [
       "👋", "🤚", "✋", "🖖", "👌", "🤌", "🤏", "✌️", "🤞", "🤟",
@@ -32,6 +40,7 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   },
   {
     name: "Hearts",
+    keywords: ["heart", "love", "kiss", "romance", "flower", "rose"],
     icon: "❤️",
     emoji: [
       "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔",
@@ -41,6 +50,7 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   },
   {
     name: "Animals",
+    keywords: ["animal", "pet", "dog", "cat", "bird", "fish", "nature"],
     icon: "🐶",
     emoji: [
       "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯",
@@ -51,6 +61,7 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   },
   {
     name: "Food",
+    keywords: ["food", "eat", "drink", "fruit", "coffee", "beer", "meal"],
     icon: "🍕",
     emoji: [
       "🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐",
@@ -63,6 +74,7 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   },
   {
     name: "Travel",
+    keywords: ["travel", "car", "plane", "train", "holiday", "place", "boat"],
     icon: "✈️",
     emoji: [
       "🚗", "🚕", "🚙", "🚌", "🏎️", "🚓", "🚑", "🚒", "🚲", "🛴",
@@ -73,6 +85,7 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   },
   {
     name: "Activity",
+    keywords: ["sport", "game", "music", "ball", "hobby", "activity"],
     icon: "⚽",
     emoji: [
       "⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎱", "🏓", "🏸",
@@ -83,6 +96,7 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   },
   {
     name: "Symbols",
+    keywords: ["symbol", "weather", "star", "sun", "party", "sign"],
     icon: "✨",
     emoji: [
       "✨", "⭐", "🌟", "💫", "⚡", "☀️", "🌤️", "⛅", "🌧️", "⛈️",
@@ -93,8 +107,31 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   },
 ];
 
-/** Every emoji in one list, for search. */
+/** Every emoji in one list. */
 export const ALL_EMOJI = EMOJI_GROUPS.flatMap((group) => group.emoji);
+
+/**
+ * Emoji matching a typed query.
+ *
+ * The search used to compare typed letters against the emoji characters
+ * themselves, so it never matched anything. Names and keywords are what people
+ * actually type.
+ */
+export function searchEmoji(query: string): string[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return [];
+
+  const groups = EMOJI_GROUPS.filter(
+    (group) =>
+      group.name.toLowerCase().includes(needle) ||
+      group.keywords.some((word) => word.includes(needle) || needle.includes(word)),
+  );
+
+  // Pasting an emoji should find it too.
+  const literal = ALL_EMOJI.filter((emoji) => emoji.includes(query.trim()));
+
+  return [...new Set([...groups.flatMap((group) => group.emoji), ...literal])];
+}
 
 /** Split text into grapheme clusters so multi-codepoint emoji count as one. */
 function graphemes(text: string): string[] {

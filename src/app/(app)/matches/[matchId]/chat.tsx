@@ -4,10 +4,17 @@ import { useActionState, useEffect, useRef, useState, useTransition } from "reac
 import { useRouter } from "next/navigation";
 import { sendMessage, type MessageState } from "./actions";
 import { deleteMessage, toggleMessageReaction } from "../../messages/actions";
+import Image from "next/image";
 import { EmojiPicker } from "@/components/emoji-picker";
 import { isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
 
 export type ChatReaction = { emoji: string; count: number; mine: boolean };
+
+export type ChatMedia = {
+  url: string;
+  kind: "IMAGE" | "VIDEO" | "AUDIO";
+  name: string | null;
+};
 
 export type ChatMessage = {
   id: string;
@@ -16,6 +23,7 @@ export type ChatMessage = {
   mine: boolean;
   deleted: boolean;
   reactions: ChatReaction[];
+  media: ChatMedia | null;
 };
 
 const POLL_MS = 5000;
@@ -75,7 +83,7 @@ function Bubble({ message }: { message: ChatMessage }) {
   const [pending, startTransition] = useTransition();
 
   // A short emoji-only message shows large and bare, as chat apps do.
-  const big = !message.deleted && isEmojiOnly(message.body);
+  const big = !message.deleted && !message.media && isEmojiOnly(message.body);
 
   function react(emoji: string) {
     setShowPicker(false);
@@ -85,9 +93,13 @@ function Bubble({ message }: { message: ChatMessage }) {
   return (
     <li className={message.mine ? "flex justify-end" : "flex justify-start"}>
       <div className="group relative max-w-[75%]">
+        {message.media && !message.deleted && (
+          <Attachment media={message.media} mine={message.mine} />
+        )}
+
         {big ? (
           <p className="px-1 text-5xl leading-tight">{message.body}</p>
-        ) : (
+        ) : message.body || message.deleted ? (
           <div
             className={
               message.deleted
@@ -114,7 +126,7 @@ function Bubble({ message }: { message: ChatMessage }) {
               })}
             </time>
           </div>
-        )}
+        ) : null}
 
         {message.reactions.length > 0 && (
           <ul
@@ -202,9 +214,59 @@ function Bubble({ message }: { message: ChatMessage }) {
   );
 }
 
+function Attachment({ media, mine }: { media: ChatMedia; mine: boolean }) {
+  if (media.kind === "IMAGE") {
+    return (
+      <Image
+        src={media.url}
+        alt={media.name ?? ""}
+        width={480}
+        height={480}
+        sizes="320px"
+        className="mb-1 max-h-72 w-auto rounded-2xl object-cover"
+      />
+    );
+  }
+
+  if (media.kind === "VIDEO") {
+    return (
+      <video
+        controls
+        preload="metadata"
+        src={media.url}
+        className="mb-1 max-h-72 w-full rounded-2xl bg-black"
+      >
+        Your browser cannot play this video.
+      </video>
+    );
+  }
+
+  return (
+    <figure
+      className={
+        mine
+          ? "mb-1 rounded-2xl bg-brand-600 p-2 text-white"
+          : "mb-1 rounded-2xl bg-[var(--surface-muted)] p-2"
+      }
+    >
+      <figcaption className="mb-1 flex items-center gap-1.5 px-1 text-xs">
+        <span aria-hidden>🎵</span>
+        <span className="truncate">{media.name ?? "Audio"}</span>
+      </figcaption>
+      <audio controls preload="none" src={media.url} className="w-full">
+        Your browser cannot play this audio.
+      </audio>
+    </figure>
+  );
+}
+
+const ATTACH_ACCEPT =
+  "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,audio/mpeg,audio/mp4,audio/ogg,audio/flac,audio/wav";
+
 function Composer({ matchId }: { matchId: string }) {
   const textarea = useRef<HTMLTextAreaElement>(null);
   const [showPicker, setShowPicker] = useState(false);
+  const [attached, setAttached] = useState<string | null>(null);
 
   const action = sendMessage.bind(null, matchId);
   const [state, formAction, pending] = useActionState<MessageState, FormData>(
@@ -227,6 +289,14 @@ function Composer({ matchId }: { matchId: string }) {
 
   return (
     <form action={formAction} className="relative border-t border-[var(--line)] p-3">
+      {attached && (
+        <p className="mb-2 flex items-center gap-2 rounded-lg bg-[var(--surface-muted)] px-3 py-1.5 text-xs">
+          <span aria-hidden>📎</span>
+          <span className="truncate font-medium">{attached}</span>
+          <span className="muted ml-auto">sends with your message</span>
+        </p>
+      )}
+
       <div className="flex items-end gap-2">
         <button
           type="button"
@@ -237,6 +307,22 @@ function Composer({ matchId }: { matchId: string }) {
         >
           🙂
         </button>
+
+        <label
+          className="btn btn-secondary btn-sm shrink-0 cursor-pointer px-2.5 text-base"
+          title="Attach a photo, video, or song"
+        >
+          📎
+          <input
+            type="file"
+            name="attachment"
+            accept={ATTACH_ACCEPT}
+            onChange={(event) =>
+              setAttached(event.target.files?.[0]?.name ?? null)
+            }
+            className="sr-only"
+          />
+        </label>
 
         {/* Remounting on a new submission id clears the box after sending. */}
         <MessageField key={state.submissionId ?? "new"} fieldRef={textarea} />
@@ -273,7 +359,6 @@ function MessageField({
       ref={fieldRef}
       name="body"
       rows={1}
-      required
       maxLength={4000}
       placeholder="Write a message…"
       className="input flex-1 resize-none"

@@ -121,6 +121,14 @@ export default async function ChatPage({
           mine: message.senderId === me,
           deleted: message.deletedAt !== null,
           reactions: summariseReactions(message.reactions, me),
+          media:
+            message.mediaUrl && message.mediaKind
+              ? {
+                  url: message.mediaUrl,
+                  kind: message.mediaKind,
+                  name: message.mediaName,
+                }
+              : null,
         }))}
       />
     </div>

@@ -79,6 +79,13 @@ enum ReportStatus {
   DISMISSED
 }
 
+/// What kind of file is attached to a message.
+enum MediaKind {
+  IMAGE
+  VIDEO
+  AUDIO
+}
+
 /// How a conversation came to exist: a mutual swipe, or two friends talking.
 enum ConversationOrigin {
   SWIPE
@@ -315,6 +322,12 @@ model Message {
   createdAt DateTime  @default(now())
   readAt    DateTime?
   deletedAt DateTime?
+
+  // One optional attachment: a photo, a video, or a song.
+  mediaUrl  String?
+  mediaType String? @db.VarChar(60)
+  mediaKind MediaKind?
+  mediaName String? @db.VarChar(200)
 
   reports   Report[]
   reactions MessageReaction[]

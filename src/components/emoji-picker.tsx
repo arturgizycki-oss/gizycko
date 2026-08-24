@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ALL_EMOJI, EMOJI_GROUPS } from "@/lib/emoji";
+import { EMOJI_GROUPS, searchEmoji } from "@/lib/emoji";
 
 /**
  * Emoji keyboard. Rendered inline above the composer rather than in a portal,
@@ -38,9 +38,7 @@ export function EmojiPicker({
   }, [onClose]);
 
   const searching = query.trim().length > 0;
-  const shown = searching
-    ? ALL_EMOJI.filter((emoji) => emoji.includes(query.trim()))
-    : EMOJI_GROUPS[group].emoji;
+  const shown = searching ? searchEmoji(query) : EMOJI_GROUPS[group].emoji;
 
   return (
     <div
@@ -70,6 +68,17 @@ export function EmojiPicker({
             {item.icon}
           </button>
         ))}
+      </div>
+
+      <div className="px-2 pt-2">
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search: face, heart, food…"
+          aria-label="Search emoji"
+          className="input py-1.5 text-xs"
+        />
       </div>
 
       <ul className="grid max-h-52 grid-cols-8 gap-0.5 overflow-y-auto p-2">

@@ -37,7 +37,27 @@ export async function requireProfile() {
 
   if (!profile?.completedAt) redirect("/onboarding");
 
+  await touchLastActive(profile.id, profile.lastActiveAt);
+
   return { session, profile };
+}
+
+/** How stale "last active" may get before it is worth another write. */
+const ACTIVITY_WINDOW_MS = 10 * 60 * 1000;
+
+/**
+ * Keep "last active" honest. It was set at signup and never updated, so every
+ * profile claimed the member was last seen the moment they joined. Throttled,
+ * so a browsing session costs one update every ten minutes rather than one per
+ * page.
+ */
+async function touchLastActive(profileId: string, lastActiveAt: Date) {
+  if (Date.now() - lastActiveAt.getTime() < ACTIVITY_WINDOW_MS) return;
+
+  await prisma.profile.update({
+    where: { id: profileId },
+    data: { lastActiveAt: new Date() },
+  });
 }
 
 /** Session for a moderator or admin, or a 404 for everyone else. */

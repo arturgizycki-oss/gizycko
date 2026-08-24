@@ -24,11 +24,18 @@ export const hiddenUserIds = cache(async (userId: string): Promise<string[]> => 
   return rows.map((r) => (r.blockerId === userId ? r.blockedId : r.blockerId));
 });
 
-/** Ids of users already matched with `userId` (active matches only). */
+/**
+ * Ids of users `userId` has a live dating match with.
+ *
+ * Only SWIPE conversations count. A Match row is also the container for a chat
+ * two friends started, and treating those as matches would hand friends access
+ * to posts limited to matches.
+ */
 export const matchedUserIds = cache(async (userId: string): Promise<string[]> => {
   const rows = await prisma.match.findMany({
     where: {
       unmatchedAt: null,
+      origin: "SWIPE",
       OR: [{ userAId: userId }, { userBId: userId }],
     },
     select: { userAId: true, userBId: true },
