@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { createPost, type PostState } from "./actions";
 import { MAX_POST_IMAGES } from "@/lib/post-limits";
 import { MAX_IMAGE_BYTES } from "@/lib/image";
 import { MAX_AUDIO_BYTES } from "@/lib/audio";
 import { MAX_VIDEO_BYTES } from "@/lib/video";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
+import { EmojiPicker } from "@/components/emoji-picker";
+import { FilmIcon, ImageIcon, MusicIcon, SmileIcon } from "@/components/icons";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -23,7 +25,7 @@ export function Composer() {
   return (
     <form
       action={formAction}
-      className="card p-4"
+      className="card relative p-4"
     >
       {/* Remounting on a new submission id clears the text, the files, and the
           previews without resetting state from inside an effect. */}
@@ -38,6 +40,10 @@ export function Composer() {
 
 type Selected = { file: File; preview: string };
 
+/** One control in the composer's toolbar: a line icon with a label. */
+const TOOL =
+  "flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]";
+
 function ComposerFields({
   pending,
   serverError,
@@ -45,6 +51,8 @@ function ComposerFields({
   pending: boolean;
   serverError?: string;
 }) {
+  const body = useRef<HTMLTextAreaElement>(null);
+  const [showEmoji, setShowEmoji] = useState(false);
   const [images, setImages] = useState<Selected[]>([]);
   const [song, setSong] = useState<File | null>(null);
   const [video, setVideo] = useState<File | null>(null);
@@ -119,16 +127,30 @@ function ComposerFields({
     setVideo(file);
   }
 
+  /** Insert at the caret, so an emoji can land mid-sentence. */
+  function insertEmoji(emoji: string) {
+    const field = body.current;
+    if (!field) return;
+
+    const start = field.selectionStart ?? field.value.length;
+    const end = field.selectionEnd ?? start;
+
+    field.value = field.value.slice(0, start) + emoji + field.value.slice(end);
+    field.focus();
+    field.selectionStart = field.selectionEnd = start + emoji.length;
+  }
+
   const error = clientError ?? serverError;
 
   return (
     <>
       <textarea
+        ref={body}
         name="body"
         rows={3}
         maxLength={5000}
         placeholder="What is going on?"
-        className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-neutral-400"
+        className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-[var(--ink-muted)]"
       />
 
       {images.length > 0 && (
@@ -171,9 +193,10 @@ function ComposerFields({
         </p>
       )}
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
-        <label className="btn btn-secondary btn-sm cursor-pointer">
-          📷 Photos
+      <div className="mt-3 flex flex-wrap items-center gap-1 border-t border-[var(--line)] pt-3">
+        <label className={TOOL} title="Photos">
+          <ImageIcon className="size-4" />
+          Photos
           <input
             type="file"
             name="images"
@@ -184,8 +207,9 @@ function ComposerFields({
           />
         </label>
 
-        <label className="btn btn-secondary btn-sm cursor-pointer">
-          🎵 Song
+        <label className={TOOL} title="Song">
+          <MusicIcon className="size-4" />
+          Song
           <input
             type="file"
             name="song"
@@ -195,8 +219,9 @@ function ComposerFields({
           />
         </label>
 
-        <label className="btn btn-secondary btn-sm cursor-pointer">
-          🎬 Video
+        <label className={TOOL} title="Video">
+          <FilmIcon className="size-4" />
+          Video
           <input
             type="file"
             name="video"
@@ -209,7 +234,18 @@ function ComposerFields({
         <VoiceRecorder />
         <CameraShot />
 
-        <label className="text-xs text-neutral-500">
+        <button
+          type="button"
+          onClick={() => setShowEmoji((open) => !open)}
+          aria-label="Emoji"
+          aria-expanded={showEmoji}
+          title="Emoji"
+          className={TOOL}
+        >
+          <SmileIcon className="size-4" />
+        </button>
+
+        <label className="ml-auto flex items-center gap-1.5 text-xs text-[var(--ink-muted)]">
           Visible to{" "}
           <select
             name="visibility"
@@ -226,11 +262,15 @@ function ComposerFields({
         <button
           type="submit"
           disabled={pending}
-          className="btn btn-primary ml-auto"
+          className="btn btn-primary"
         >
           {pending ? "Posting…" : "Post"}
         </button>
       </div>
+
+      {showEmoji && (
+        <EmojiPicker onPick={insertEmoji} onClose={() => setShowEmoji(false)} />
+      )}
 
       {error && (
         <p role="alert" className="mt-2 text-sm text-rose-600">

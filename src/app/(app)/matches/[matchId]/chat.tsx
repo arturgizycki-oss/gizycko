@@ -6,7 +6,9 @@ import { sendMessage, type MessageState } from "./actions";
 import { deleteMessage, toggleMessageReaction } from "../../messages/actions";
 import Image from "next/image";
 import { EmojiPicker } from "@/components/emoji-picker";
-import { CameraShot, VoiceRecorder } from "@/components/media-capture";
+import { CameraShot } from "@/components/media-capture";
+import { ChatVoice } from "@/components/chat-capture";
+import { PaperclipIcon, SendIcon, SmileIcon, TrashIcon } from "@/components/icons";
 import { isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
 
 export type ChatReaction = { emoji: string; count: number; mine: boolean };
@@ -170,9 +172,9 @@ function Bubble({ message }: { message: ChatMessage }) {
               type="button"
               onClick={() => setShowPicker((open) => !open)}
               aria-label="React to this message"
-              className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-xs"
+              className="rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 text-[var(--ink-muted)] hover:text-[var(--ink)]"
             >
-              🙂
+              <SmileIcon className="size-3.5" />
             </button>
 
             {message.mine && (
@@ -180,9 +182,9 @@ function Bubble({ message }: { message: ChatMessage }) {
                 <button
                   type="submit"
                   aria-label="Delete this message"
-                  className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] text-[var(--ink-muted)] hover:text-rose-600"
+                  className="rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 text-[var(--ink-muted)] hover:text-rose-600"
                 >
-                  ✕
+                  <TrashIcon className="size-3.5" />
                 </button>
               </form>
             )}
@@ -261,13 +263,12 @@ function Attachment({ media, mine }: { media: ChatMedia; mine: boolean }) {
   );
 }
 
-const ATTACH_ACCEPT =
-  "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,audio/mpeg,audio/mp4,audio/ogg,audio/flac,audio/wav";
-
 function Composer({ matchId }: { matchId: string }) {
   const textarea = useRef<HTMLTextAreaElement>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [attached, setAttached] = useState<string | null>(null);
+  const [hasVoice, setHasVoice] = useState(false);
+  const [hasText, setHasText] = useState(false);
 
   const action = sendMessage.bind(null, matchId);
   const [state, formAction, pending] = useActionState<MessageState, FormData>(
@@ -286,58 +287,75 @@ function Composer({ matchId }: { matchId: string }) {
     field.value = field.value.slice(0, start) + emoji + field.value.slice(end);
     field.focus();
     field.selectionStart = field.selectionEnd = start + emoji.length;
+    setHasText(field.value.trim().length > 0);
   }
 
+  // The microphone gives way to Send as soon as there is something to send —
+  // the same swap every chat app makes.
+  const canSend = hasText || attached !== null || hasVoice;
+
   return (
-    <form action={formAction} className="relative border-t border-[var(--line)] p-3">
+    <form action={formAction} className="relative border-t border-[var(--line)] p-2">
       {attached && (
-        <p className="mb-2 flex items-center gap-2 rounded-lg bg-[var(--surface-muted)] px-3 py-1.5 text-xs">
-          <span aria-hidden>📎</span>
+        <p className="mb-2 flex items-center gap-2 px-2 text-xs">
+          <PaperclipIcon className="size-3.5" />
           <span className="truncate font-medium">{attached}</span>
-          <span className="muted ml-auto">sends with your message</span>
+          <button
+            type="button"
+            onClick={() => setAttached(null)}
+            className="muted ml-auto hover:text-rose-600"
+          >
+            remove
+          </button>
         </p>
       )}
 
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-1">
+        <label
+          title="Attach a photo, video, or song"
+          className="cursor-pointer rounded-full p-2 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]"
+        >
+          <PaperclipIcon />
+          <input
+            type="file"
+            name="attachment"
+            accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,audio/mpeg,audio/mp4,audio/ogg,audio/flac,audio/wav"
+            onChange={(event) => setAttached(event.target.files?.[0]?.name ?? null)}
+            className="sr-only"
+          />
+        </label>
+
+        <CameraShot name="attachment" />
+
+        {/* Remounting on a new submission id clears the box after sending. */}
+        <MessageField
+          key={state.submissionId ?? "new"}
+          fieldRef={textarea}
+          onInput={(value) => setHasText(value.trim().length > 0)}
+        />
+
         <button
           type="button"
           onClick={() => setShowPicker((open) => !open)}
           aria-label="Emoji"
           aria-expanded={showPicker}
-          className="btn btn-secondary btn-sm shrink-0 px-2.5 text-base"
+          className="rounded-full p-2 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]"
         >
-          🙂
+          <SmileIcon />
         </button>
 
-        <VoiceRecorder name="voice" />
-        <CameraShot name="attachment" />
-
-        <label
-          className="btn btn-secondary btn-sm shrink-0 cursor-pointer px-2.5 text-base"
-          title="Attach a photo, video, or song"
-        >
-          📎
-          <input
-            type="file"
-            name="attachment"
-            accept={ATTACH_ACCEPT}
-            onChange={(event) =>
-              setAttached(event.target.files?.[0]?.name ?? null)
-            }
-            className="sr-only"
-          />
-        </label>
-
-        {/* Remounting on a new submission id clears the box after sending. */}
-        <MessageField key={state.submissionId ?? "new"} fieldRef={textarea} />
-
-        <button
-          type="submit"
-          disabled={pending}
-          className="btn btn-primary btn-sm shrink-0"
-        >
-          Send
-        </button>
+        {canSend ? (
+          <button
+            type="submit"
+            disabled={pending}
+            aria-label="Send"
+            className="rounded-full bg-brand-600 p-2 text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
+          >
+            <SendIcon />
+          </button>
+        ) : (
+          <ChatVoice onRecordedChange={setHasVoice} />
+        )}
       </div>
 
       {showPicker && (
@@ -345,7 +363,7 @@ function Composer({ matchId }: { matchId: string }) {
       )}
 
       {state.error && (
-        <p role="alert" className="mt-2 text-sm text-rose-600">
+        <p role="alert" className="mt-2 px-2 text-sm text-rose-600">
           {state.error}
         </p>
       )}
@@ -355,8 +373,10 @@ function Composer({ matchId }: { matchId: string }) {
 
 function MessageField({
   fieldRef,
+  onInput,
 }: {
   fieldRef: React.RefObject<HTMLTextAreaElement | null>;
+  onInput: (value: string) => void;
 }) {
   return (
     <textarea
@@ -365,7 +385,8 @@ function MessageField({
       rows={1}
       maxLength={4000}
       placeholder="Write a message…"
-      className="input flex-1 resize-none"
+      onInput={(event) => onInput(event.currentTarget.value)}
+      className="flex-1 resize-none bg-transparent px-2 py-2.5 text-sm outline-none placeholder:text-[var(--ink-muted)]"
     />
   );
 }
