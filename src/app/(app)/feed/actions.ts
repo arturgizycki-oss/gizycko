@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { checkContent } from "@/lib/content-policy";
 import { readPostMedia } from "@/lib/post-media";
+import { pushToFeed, pushToUser } from "@/lib/realtime";
+import { notify } from "@/lib/notify";
 
 const postSchema = z.object({
   body: z.string().trim().max(5000),
@@ -76,6 +78,7 @@ export async function createPost(
   });
 
   revalidatePath("/feed");
+  await pushToFeed();
 
   /*
    * A fresh id on every success, which is what clears the composer.
@@ -134,18 +137,21 @@ export async function addComment(
   });
 
   if (post.authorId !== session.user.id) {
-    await prisma.notification.create({
-      data: {
-        userId: post.authorId,
-        type: "POST_COMMENT",
-        actorId: session.user.id,
-        // The post, not the comment: that is what the notification opens.
-        entityId: postId,
-      },
+    await notify({
+      userId: post.authorId,
+      type: "POST_COMMENT",
+      actorId: session.user.id,
+      // The post, not the comment: that is what the notification opens.
+      entityId: postId,
     });
   }
 
   revalidatePath(`/feed/${postId}`);
+
+  if (post.authorId !== session.user.id) {
+    await pushToUser(post.authorId, "notification");
+  }
+
   return { submissionId: randomUUID() };
 }
 

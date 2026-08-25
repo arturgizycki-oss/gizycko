@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { notify, notifyAll } from "./notify";
 import type { SwipeDirection } from "@/generated/prisma/enums";
 
 /** Order a pair so the same two users always map to the same Match row. */
@@ -54,12 +55,10 @@ export async function recordSwipe(
 
   // Notify only when the match is genuinely new, so re-swiping stays silent.
   if (!existing || existing.unmatchedAt !== null) {
-    await prisma.notification.createMany({
-      data: [
-        { userId: fromUserId, type: "MATCH", actorId: toUserId },
-        { userId: toUserId, type: "MATCH", actorId: fromUserId },
-      ],
-    });
+    await notifyAll([
+      { userId: fromUserId, type: "MATCH", actorId: toUserId },
+      { userId: toUserId, type: "MATCH", actorId: fromUserId },
+    ]);
 
     /*
      * Clear the earlier "liked your profile" between these two.
@@ -117,7 +116,9 @@ async function notifyOfLike(
   // but a block that still lets someone tap you on the shoulder is no block.
   if (blocked || already) return;
 
-  await prisma.notification.create({
-    data: { userId: toUserId, type: "PROFILE_LIKE", actorId: fromUserId },
+  await notify({
+    userId: toUserId,
+    type: "PROFILE_LIKE",
+    actorId: fromUserId,
   });
 }

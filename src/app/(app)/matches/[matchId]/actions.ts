@@ -16,6 +16,7 @@ import { mediaUrl, putObject } from "@/lib/storage";
 import { verifyUploaded } from "@/lib/uploads";
 import { isMediaKind } from "@/lib/media-kinds";
 import { emailAboutMessage } from "@/lib/message-email";
+import { pushToUser } from "@/lib/realtime";
 
 export type MessageState = { error?: string; submissionId?: string };
 
@@ -227,6 +228,11 @@ export async function sendMessage(
       where: { id: matchId },
       data: { lastMessageAt: new Date() },
     }),
+    /*
+     * Not notify(): this has to stay inside the transaction, so that a message
+     * and the notification about it either both exist or neither does. The
+     * push it would otherwise have sent is in the `after` block below.
+     */
     prisma.notification.create({
       data: {
         userId: otherId,
@@ -248,7 +254,12 @@ export async function sendMessage(
    * decides for itself whether to send - see emailAboutMessage - and it runs in
    * `after` so a slow mail provider never delays the send or fails it.
    */
-  after(() => emailAboutMessage(otherId, session.user.name, matchId));
+  after(async () => {
+    // The push lands in the other window immediately; the email decides for
+    // itself whether this is somebody who is not there to see it.
+    await pushToUser(otherId, "message");
+    await emailAboutMessage(otherId, session.user.name, matchId);
+  });
 
   // A fresh id tells the composer this send landed, so it can clear itself.
   return { submissionId: randomUUID() };

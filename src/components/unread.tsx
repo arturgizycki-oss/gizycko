@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useLive } from "./live";
 
 export type Unread = { notifications: number; messages: number };
 
@@ -55,6 +56,11 @@ export function UnreadProvider({
       // Offline, or the tab is being closed. The next tick tries again.
     }
   }, []);
+
+  // A push arrives the moment something happens; the poll below is the net
+  // that catches whatever the socket missed while it was down.
+  useLive("message", refresh);
+  useLive("notification", refresh);
 
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | null = null;

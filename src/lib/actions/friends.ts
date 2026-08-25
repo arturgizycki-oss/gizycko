@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { notify } from "@/lib/notify";
 import { requireSession } from "@/lib/session";
 
 async function isBlockedBetween(a: string, b: string) {
@@ -37,8 +38,10 @@ export async function sendFriendRequest(addresseeId: string) {
         where: { id: incoming.id },
         data: { status: "ACCEPTED", respondedAt: new Date() },
       });
-      await prisma.notification.create({
-        data: { userId: addresseeId, type: "FRIEND_ACCEPTED", actorId: me },
+      await notify({
+        userId: addresseeId,
+        type: "FRIEND_ACCEPTED",
+        actorId: me,
       });
     }
     revalidatePath(`/u/${addresseeId}`);
@@ -52,9 +55,7 @@ export async function sendFriendRequest(addresseeId: string) {
     update: { status: "PENDING", respondedAt: null },
   });
 
-  await prisma.notification.create({
-    data: { userId: addresseeId, type: "FRIEND_REQUEST", actorId: me },
-  });
+  await notify({ userId: addresseeId, type: "FRIEND_REQUEST", actorId: me });
 
   revalidatePath(`/u/${addresseeId}`);
   revalidatePath("/friends");
@@ -84,12 +85,10 @@ export async function respondToFriendRequest(
   });
 
   if (accept) {
-    await prisma.notification.create({
-      data: {
-        userId: friendship.requesterId,
-        type: "FRIEND_ACCEPTED",
-        actorId: session.user.id,
-      },
+    await notify({
+      userId: friendship.requesterId,
+      type: "FRIEND_ACCEPTED",
+      actorId: session.user.id,
     });
   }
 

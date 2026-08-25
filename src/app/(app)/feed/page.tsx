@@ -4,6 +4,7 @@ import { friendIds, hiddenUserIds, matchedUserIds } from "@/lib/social";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import type { Prisma } from "@/generated/prisma/client";
 import { Composer } from "./composer";
+import { LiveFeed } from "./live-feed";
 import { FeedFilters } from "./feed-filters";
 import { PostCard } from "./post-card";
 import { getTranslator } from "@/lib/i18n";
@@ -128,6 +129,7 @@ export default async function FeedPage({
 
   return (
     <div className="space-y-6">
+      <LiveFeed />
       <Composer />
 
       <FeedFilters

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { notify } from "@/lib/notify";
 import { requireSession } from "@/lib/session";
 
 /**
@@ -37,9 +38,7 @@ export async function toggleFollow(userId: string) {
     await prisma.follow.create({
       data: { followerId: me, followingId: userId },
     });
-    await prisma.notification.create({
-      data: { userId, type: "NEW_FOLLOWER", actorId: me },
-    });
+    await notify({ userId, type: "NEW_FOLLOWER", actorId: me });
   }
 
   revalidatePath(`/u/${userId}`);

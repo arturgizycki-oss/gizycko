@@ -10,6 +10,7 @@ import { checkContent } from "@/lib/content-policy";
 import { roleInGroup } from "@/lib/groups";
 import { can, canActOn, canLeave } from "@/lib/group-roles";
 import { readPostMedia } from "@/lib/post-media";
+import { notify } from "@/lib/notify";
 import { hiddenUserIds } from "@/lib/social";
 
 export type GroupState = { error?: string; submissionId?: string };
@@ -96,13 +97,11 @@ export async function inviteToGroup(groupId: string, userId: string) {
     update: { status: "PENDING", invitedById: session.user.id },
   });
 
-  await prisma.notification.create({
-    data: {
-      userId,
-      type: "GROUP_INVITE",
-      actorId: session.user.id,
-      entityId: groupId,
-    },
+  await notify({
+    userId,
+    type: "GROUP_INVITE",
+    actorId: session.user.id,
+    entityId: groupId,
   });
 
   revalidatePath(`/groups/${groupId}`);

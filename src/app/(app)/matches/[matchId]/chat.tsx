@@ -19,6 +19,7 @@ import { ReportDialog } from "@/components/report-dialog";
 import Image from "next/image";
 import { EmojiPicker } from "@/components/emoji-picker";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
+import { useLive } from "@/components/live";
 import {
   ICON_BUTTON,
   MusicIcon,
@@ -66,7 +67,12 @@ type Draft =
   | { mode: "reply"; id: string; author: string; body: string }
   | { mode: "edit"; id: string; body: string };
 
-const POLL_MS = 8000;
+/*
+ * The safety net, not the mechanism. A push refreshes the moment a message
+ * is sent, so this only has to catch what a dropped socket missed - which is
+ * why it is half a minute now rather than eight seconds.
+ */
+const POLL_MS = 30_000;
 
 export function Chat({
   matchId,
@@ -85,10 +91,12 @@ export function Chat({
   const bottomRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
 
+  // Sent by the server the moment the other person sends something.
+  useLive("message", () => {
+    if (!closed) router.refresh();
+  });
+
   /*
-   * Poor-man's realtime: refresh the route on a timer. Swap for a websocket or
-   * SSE when traffic justifies it.
-   *
    * Each tick re-runs the page query on the server, so it only runs while the
    * tab is actually in front of someone. A backgrounded tab used to keep
    * polling all day, and a member with four chats open in four tabs was paying
