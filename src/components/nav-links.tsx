@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV = [
-  { href: "/feed", label: "Feed" },
-  { href: "/discover", label: "Discover" },
-  { href: "/matches", label: "Matches" },
-  { href: "/messages", label: "Messages", badge: true },
-  { href: "/friends", label: "Friends" },
-  { href: "/groups", label: "Groups" },
+  { href: "/feed", key: "feed" },
+  { href: "/discover", key: "discover" },
+  { href: "/matches", key: "matches" },
+  { href: "/messages", key: "messages", badge: true },
+  { href: "/friends", key: "friends" },
+  { href: "/groups", key: "groups" },
 ] as const;
 
 /**
@@ -20,7 +20,14 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function NavLinks({ unreadMessages }: { unreadMessages: number }) {
+export function NavLinks({
+  unreadMessages,
+  labels,
+}: {
+  unreadMessages: number;
+  /** Translated on the server; this component only renders them. */
+  labels: Record<string, string>;
+}) {
   const pathname = usePathname();
 
   return (
@@ -44,7 +51,7 @@ export function NavLinks({ unreadMessages }: { unreadMessages: number }) {
                 : "text-[var(--ink-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]"
             }`}
           >
-            {item.label}
+            {labels[item.key] ?? item.key}
 
             {"badge" in item && item.badge && unreadMessages > 0 && (
               <span

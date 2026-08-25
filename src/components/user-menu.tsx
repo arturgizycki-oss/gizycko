@@ -7,10 +7,18 @@ import { Avatar } from "./avatar";
 import { signOut } from "@/lib/auth-client";
 
 const ITEMS = [
-  { href: "/profile", label: "Profile", icon: "👤" },
-  { href: "/settings", label: "Settings", icon: "⚙️" },
-  { href: "/help", label: "Help", icon: "❓" },
+  { href: "/profile", key: "profile", icon: "👤" },
+  { href: "/settings", key: "settings", icon: "⚙️" },
+  { href: "/help", key: "help", icon: "❓" },
 ] as const;
+
+export type UserMenuLabels = {
+  account: string;
+  profile: string;
+  settings: string;
+  help: string;
+  logout: string;
+};
 
 /**
  * Avatar button that opens the account menu. Replaces a permanently visible
@@ -19,9 +27,11 @@ const ITEMS = [
 export function UserMenu({
   name,
   photo,
+  labels,
 }: {
   name: string;
   photo: string | null;
+  labels: UserMenuLabels;
 }) {
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -61,7 +71,7 @@ export function UserMenu({
         onClick={() => setOpen((current) => !current)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Your account"
+        aria-label={labels.account}
         className={
           open
             ? "block rounded-full ring-2 ring-brand-500 ring-offset-2 ring-offset-[var(--surface)]"
@@ -97,7 +107,7 @@ export function UserMenu({
                 }`}
               >
                 <span aria-hidden>{item.icon}</span>
-                {item.label}
+                {labels[item.key]}
               </Link>
             );
           })}
@@ -112,7 +122,7 @@ export function UserMenu({
             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 disabled:opacity-60 dark:hover:bg-rose-950/30"
           >
             <span aria-hidden>↩</span>
-            {signingOut ? "Signing out…" : "Log out"}
+            {signingOut ? "…" : labels.logout}
           </button>
         </div>
       )}

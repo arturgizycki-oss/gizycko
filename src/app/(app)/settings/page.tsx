@@ -2,11 +2,16 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { DangerZone } from "../profile/danger-zone";
+import { LanguagePicker } from "@/components/language-picker";
+import { getLocale, getTranslator } from "@/lib/i18n";
+import { TRANSLATED_LOCALES } from "@/lib/i18n/dictionaries";
 
 export const metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
   const { session, profile } = await requireProfile();
+
+  const [locale, t] = await Promise.all([getLocale(), getTranslator()]);
 
   const [blockedCount, user] = await Promise.all([
     prisma.block.count({ where: { blockerId: session.user.id } }),
@@ -18,13 +23,13 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
+      <h1 className="text-xl font-semibold tracking-tight">{t("settings.title")}</h1>
 
       <section className="card p-4">
-        <h2 className="text-sm font-medium">Account</h2>
+        <h2 className="text-sm font-medium">{t("settings.account")}</h2>
         <dl className="mt-3 space-y-2 text-sm">
           <div className="flex justify-between gap-4">
-            <dt className="muted">Email</dt>
+            <dt className="muted">{t("settings.email")}</dt>
             <dd className="truncate">{user?.email}</dd>
           </div>
           <div className="flex justify-between gap-4">
@@ -32,7 +37,7 @@ export default async function SettingsPage() {
             <dd>{user?.emailVerified ? "Yes" : "Not yet"}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="muted">Member since</dt>
+            <dt className="muted">{t("settings.memberSince")}</dt>
             <dd>
               {user?.createdAt.toLocaleDateString(undefined, {
                 month: "long",
@@ -43,8 +48,20 @@ export default async function SettingsPage() {
         </dl>
       </section>
 
+      <section className="card p-4">
+        <h2 className="text-sm font-medium">{t("settings.language")}</h2>
+        <p className="hint mt-1">{t("settings.languageHint")}</p>
+        <div className="mt-3">
+          <LanguagePicker
+            current={locale}
+            translated={[...TRANSLATED_LOCALES]}
+            untranslatedLabel={t("language.untranslated")}
+          />
+        </div>
+      </section>
+
       <section className="card divide-y divide-[var(--line)]">
-        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">Profile and privacy</h2>
+        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">{t("settings.privacy")}</h2>
 
         <SettingsLink
           href="/profile"
@@ -53,7 +70,7 @@ export default async function SettingsPage() {
         />
         <SettingsLink
           href="/settings/blocked"
-          title="Blocked people"
+          title={t("settings.blocked")}
           detail={
             blockedCount === 0
               ? "Nobody blocked"
@@ -72,7 +89,7 @@ export default async function SettingsPage() {
       </section>
 
       <section className="card divide-y divide-[var(--line)]">
-        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">Reading</h2>
+        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">{t("settings.reading")}</h2>
         <SettingsLink href="/terms" title="Terms of service" detail="What you agree to" />
         <SettingsLink href="/privacy" title="Privacy policy" detail="What we hold, and why" />
         <SettingsLink href="/safety" title="Staying safe" detail="Advice before you meet someone" />

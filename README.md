@@ -144,6 +144,18 @@ audio extension so it plays back as sound.
 appear on your profile and on everyone else's, with a Follow button. Blocking
 someone removes follows in both directions.
 
+**Languages** — 53 languages across Europe, the Americas, Africa, the Middle
+East and Asia, chosen in Settings. The choice is saved on the account so it
+follows the person between devices, mirrored into a cookie so it also applies
+signed-out, and guessed from `Accept-Language` for a first-time visitor. Arabic,
+Egyptian Arabic, Hebrew and Persian flip the document to right-to-left.
+
+Eleven of those languages have hand-written translations
+(`src/lib/i18n/dictionaries.ts`). The rest are **offered but not translated**:
+they fall back to English key by key, and the picker says so beside each one
+rather than quietly showing English. Adding a language means adding one object
+to that file — TypeScript then checks its keys against the English source.
+
 **Safety** — block and report from any profile, post, comment, or message.
 Blocking hides both people from each other and ends any match. A moderation
 queue at `/moderation` handles reports, photo review, and bans; banned users are

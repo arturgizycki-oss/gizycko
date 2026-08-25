@@ -8,6 +8,7 @@ import { RouteProgress } from "@/components/route-progress";
 import { Brand } from "@/components/brand";
 import { NavIconLink, NavLinks } from "@/components/nav-links";
 import { UserMenu } from "@/components/user-menu";
+import { getTranslator } from "@/lib/i18n";
 
 export default async function AppLayout({
   children,
@@ -15,6 +16,7 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const session = await requireSession();
+  const t = await getTranslator();
 
   const [unread, unreadMessages, profile] = await Promise.all([
     prisma.notification.count({
@@ -43,9 +45,19 @@ export default async function AppLayout({
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2.5">
           <Brand href="/feed" size={26} />
 
-          <NavLinks unreadMessages={unreadMessages} />
+          <NavLinks
+            unreadMessages={unreadMessages}
+            labels={{
+              feed: t("nav.feed"),
+              discover: t("nav.discover"),
+              matches: t("nav.matches"),
+              messages: t("nav.messages"),
+              friends: t("nav.friends"),
+              groups: t("nav.groups"),
+            }}
+          />
 
-          <NavIconLink href="/notifications" label="Notifications">
+          <NavIconLink href="/notifications" label={t("nav.notifications")}>
             <span className="text-lg leading-none">🔔</span>
             {unread > 0 && (
               <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
@@ -57,6 +69,13 @@ export default async function AppLayout({
           <UserMenu
             name={profile?.displayName ?? session.user.name}
             photo={photoUrlOf(profile) ?? session.user.image ?? null}
+            labels={{
+              account: t("nav.account"),
+              profile: t("menu.profile"),
+              settings: t("menu.settings"),
+              help: t("menu.help"),
+              logout: t("menu.logout"),
+            }}
           />
         </div>
       </header>

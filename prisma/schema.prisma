@@ -121,6 +121,9 @@ model User {
   bannedAt  DateTime?
   banReason String?
 
+  /// BCP 47 tag for the language the interface is shown in.
+  locale String @default("en") @db.VarChar(12)
+
   sessions Session[]
   accounts Account[]
   profile  Profile?

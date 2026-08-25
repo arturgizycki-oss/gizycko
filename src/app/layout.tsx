@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getDocumentLanguage } from "@/lib/i18n";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,10 +19,14 @@ export const metadata: Metadata = {
     "Meet people around Giżycko. A dating app with a real social side — match, chat, and share what you are up to.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Arabic, Hebrew and Persian flip the whole document.
+  const { locale, dir } = await getDocumentLanguage();
+
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={dir}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
