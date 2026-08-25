@@ -478,6 +478,9 @@ export const ja: Dictionary = {
   "onboarding.dateOfBirth": "生年月日",
   "onboarding.bioPlaceholder": "好きなことは？何を探していますか？",
   "onboarding.continue": "次へ",
+  "onboarding.photo": "あなたの写真",
+  "onboarding.photoWhy":
+    "必須です。顔のないプロフィールにはほとんど返事が来ません。",
   "onboarding.title": "あなたのことを教えてください",
   "onboarding.intro":
     "ここに書いた内容は他の人に表示されます。いつでも変更できます。",

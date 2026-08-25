@@ -505,6 +505,9 @@ export const en = {
   "onboarding.dateOfBirth": "Date of birth",
   "onboarding.bioPlaceholder": "What are you into? What are you looking for?",
   "onboarding.continue": "Continue",
+  "onboarding.photo": "Your photo",
+  "onboarding.photoWhy":
+    "Required. A profile without a face is rarely answered.",
   "onboarding.title": "Tell us about you",
   "onboarding.intro":
     "This is what other people will see. You can change it any time.",

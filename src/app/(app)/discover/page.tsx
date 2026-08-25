@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { hiddenUserIds } from "@/lib/social";
 import { ageFrom } from "@/lib/age";
-import { SwipeDeck } from "./swipe-deck";
+import { PeopleGrid } from "./people-grid";
 import { getTranslator } from "@/lib/i18n";
 
 /** Birth-date bounds for an age range, oldest first. */
@@ -63,7 +63,7 @@ export default async function DiscoverPage() {
         {t("discover.title")}
       </h1>
       <p className="mb-6 text-sm text-neutral-500">{t("discover.intro")}</p>
-      <SwipeDeck initialDeck={deck} />
+      <PeopleGrid initialDeck={deck} />
     </div>
   );
 }

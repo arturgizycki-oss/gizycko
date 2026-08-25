@@ -481,6 +481,9 @@ export const es: Dictionary = {
   "onboarding.dateOfBirth": "Fecha de nacimiento",
   "onboarding.bioPlaceholder": "¿Qué te gusta? ¿Qué buscas?",
   "onboarding.continue": "Continuar",
+  "onboarding.photo": "Tu foto",
+  "onboarding.photoWhy":
+    "Obligatoria. A un perfil sin cara casi nadie responde.",
   "onboarding.title": "Cuéntanos sobre ti",
   "onboarding.intro":
     "Esto es lo que verán los demás. Puedes cambiarlo cuando quieras.",

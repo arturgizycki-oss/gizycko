@@ -469,6 +469,8 @@ export const ar: Dictionary = {
   "onboarding.dateOfBirth": "تاريخ الميلاد",
   "onboarding.bioPlaceholder": "ما الذي تحبه؟ وعمّ تبحث؟",
   "onboarding.continue": "متابعة",
+  "onboarding.photo": "صورتك",
+  "onboarding.photoWhy": "مطلوبة. نادرًا ما يردّ أحد على ملف بلا وجه.",
   "onboarding.title": "عرّفنا بنفسك",
   "onboarding.intro": "هذا ما سيراه الآخرون، ويمكنك تغييره في أي وقت.",
   "onboarding.ageNote": "يظهر عمرك فقط للآخرين، لا التاريخ الدقيق.",

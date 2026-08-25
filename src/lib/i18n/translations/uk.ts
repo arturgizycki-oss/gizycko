@@ -478,6 +478,9 @@ export const uk: Dictionary = {
   "onboarding.dateOfBirth": "Дата народження",
   "onboarding.bioPlaceholder": "Що вам подобається? Що ви шукаєте?",
   "onboarding.continue": "Далі",
+  "onboarding.photo": "Ваше фото",
+  "onboarding.photoWhy":
+    "Обовʼязково. На профіль без обличчя рідко відповідають.",
   "onboarding.title": "Розкажіть про себе",
   "onboarding.intro": "Це побачать інші. Ви можете змінити це будь-коли.",
   "onboarding.ageNote": "Іншим показують лише вік, а не точну дату.",

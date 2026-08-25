@@ -459,6 +459,8 @@ export const zhHans: Dictionary = {
   "onboarding.dateOfBirth": "出生日期",
   "onboarding.bioPlaceholder": "你喜欢什么？在寻找什么？",
   "onboarding.continue": "继续",
+  "onboarding.photo": "你的照片",
+  "onboarding.photoWhy": "必填。没有头像的资料很少有人回应。",
   "onboarding.title": "介绍一下你自己",
   "onboarding.intro": "这些内容其他人都会看到，随时可以修改。",
   "onboarding.ageNote": "其他人只会看到你的年龄，不会看到具体日期。",
