@@ -102,7 +102,7 @@ export const ja: Dictionary = {
   "profile.mutual": "共通",
   "profile.about": "自己紹介",
   "profile.noCity": "都市が未設定",
-  "profile.moderationQueue": "モデレーション一覧を開く",
+  "profile.moderationQueue": "管理画面を開く",
   "profile.followersEmpty":
     "まだフォロワーがいません。公開で投稿するのが一番の近道です。",
   "profile.followingEmpty": "まだ誰もフォローしていません。",

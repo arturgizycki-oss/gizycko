@@ -101,7 +101,7 @@ export const ar: Dictionary = {
   "profile.mutual": "مشترك",
   "profile.about": "نبذة",
   "profile.noCity": "لم تحدد مدينة",
-  "profile.moderationQueue": "فتح قائمة الإشراف",
+  "profile.moderationQueue": "فتح لوحة الإدارة",
   "profile.followersEmpty":
     "لا أحد يتابعك بعد. النشر بشكل عام أسرع طريقة لتغيير ذلك.",
   "profile.followingEmpty": "لا تتابع أحدًا بعد.",

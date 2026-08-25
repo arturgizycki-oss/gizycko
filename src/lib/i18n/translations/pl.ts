@@ -102,7 +102,7 @@ export const pl: Dictionary = {
   "profile.mutual": "Wspólni",
   "profile.about": "O mnie",
   "profile.noCity": "Brak miasta",
-  "profile.moderationQueue": "Otwórz kolejkę moderacji",
+  "profile.moderationQueue": "Otwórz panel administratora",
   "profile.followersEmpty":
     "Nikt Cię jeszcze nie obserwuje. Publiczne posty to najszybszy sposób, żeby to zmienić.",
   "profile.followingEmpty": "Nikogo jeszcze nie obserwujesz.",

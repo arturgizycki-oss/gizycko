@@ -101,7 +101,7 @@ export const zhHans: Dictionary = {
   "profile.mutual": "共同好友",
   "profile.about": "简介",
   "profile.noCity": "未填写城市",
-  "profile.moderationQueue": "打开审核队列",
+  "profile.moderationQueue": "打开管理后台",
   "profile.followersEmpty": "还没有人关注你。公开发帖是最快的改变方式。",
   "profile.followingEmpty": "你还没有关注任何人。",
   "profile.settingsNote": "数据、拉黑名单与账号删除都在“设置”里。",

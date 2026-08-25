@@ -122,7 +122,7 @@ export const en = {
   "profile.mutual": "Mutual",
   "profile.about": "About",
   "profile.noCity": "No city set",
-  "profile.moderationQueue": "Open the moderation queue",
+  "profile.moderationQueue": "Open the admin area",
   "profile.followersEmpty":
     "Nobody follows you yet. Posting publicly is the fastest way to change that.",
   "profile.followingEmpty": "You are not following anyone yet.",

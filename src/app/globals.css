@@ -281,3 +281,202 @@
     color: var(--ink-muted);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Admin skin.
+
+   The admin area borrows GitHub's visual language: dense, bordered, quiet.
+   That is a deliberate break from the rest of the site, which is soft and
+   photographic - a moderator looking at reports should never wonder whether
+   they are on the public side by mistake.
+
+   Scoped under .gh so none of it leaks into the app.
+   --------------------------------------------------------------------------- */
+
+.gh {
+  --gh-canvas: #ffffff;
+  --gh-subtle: #f6f8fa;
+  --gh-inset: #f6f8fa;
+  --gh-border: #d0d7de;
+  --gh-border-muted: #d8dee4;
+  --gh-fg: #1f2328;
+  --gh-muted: #59636e;
+  --gh-accent: #0969da;
+  --gh-success: #1a7f37;
+  --gh-danger: #d1242f;
+  --gh-attention: #9a6700;
+  --gh-attention-bg: #fff8c5;
+
+  background: var(--gh-canvas);
+  color: var(--gh-fg);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .gh {
+    --gh-canvas: #0d1117;
+    --gh-subtle: #161b22;
+    --gh-inset: #010409;
+    --gh-border: #30363d;
+    --gh-border-muted: #21262d;
+    --gh-fg: #e6edf3;
+    --gh-muted: #8b949e;
+    --gh-accent: #4493f8;
+    --gh-success: #3fb950;
+    --gh-danger: #f85149;
+    --gh-attention: #d29922;
+    --gh-attention-bg: #272115;
+  }
+}
+
+@layer components {
+  /* A bordered container. The unit GitHub builds every list and panel from. */
+  .gh-box {
+    border: 1px solid var(--gh-border);
+    border-radius: 6px;
+    background: var(--gh-canvas);
+    overflow: hidden;
+  }
+
+  .gh-box-header {
+    background: var(--gh-subtle);
+    border-bottom: 1px solid var(--gh-border);
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* One line in a list. Dividers between, never above the first. */
+  .gh-row {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--gh-border-muted);
+  }
+
+  .gh-row:first-child {
+    border-top: 0;
+  }
+
+  .gh-row:hover {
+    background: var(--gh-subtle);
+  }
+
+  .gh-muted {
+    color: var(--gh-muted);
+    font-size: 12px;
+  }
+
+  .gh-link {
+    color: var(--gh-accent);
+  }
+
+  .gh-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Small status pill: "admin", "banned", "open". */
+  .gh-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid var(--gh-border);
+    border-radius: 2rem;
+    padding: 0 0.5rem;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.375rem;
+    color: var(--gh-muted);
+    white-space: nowrap;
+  }
+
+  .gh-label-danger {
+    color: var(--gh-danger);
+    border-color: color-mix(in srgb, var(--gh-danger) 40%, transparent);
+  }
+
+  .gh-label-success {
+    color: var(--gh-success);
+    border-color: color-mix(in srgb, var(--gh-success) 40%, transparent);
+  }
+
+  .gh-label-accent {
+    color: var(--gh-accent);
+    border-color: color-mix(in srgb, var(--gh-accent) 40%, transparent);
+  }
+
+  .gh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border: 1px solid var(--gh-border);
+    border-radius: 6px;
+    background: var(--gh-subtle);
+    padding: 0.3125rem 0.75rem;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gh-fg);
+    white-space: nowrap;
+    transition: background-color 0.12s ease;
+  }
+
+  .gh-btn:hover:not(:disabled) {
+    background: var(--gh-border-muted);
+  }
+
+  .gh-btn:disabled {
+    opacity: 0.6;
+  }
+
+  .gh-btn-danger {
+    color: var(--gh-danger);
+  }
+
+  .gh-btn-danger:hover:not(:disabled) {
+    background: var(--gh-danger);
+    color: #ffffff;
+  }
+
+  .gh-input {
+    width: 100%;
+    border: 1px solid var(--gh-border);
+    border-radius: 6px;
+    background: var(--gh-canvas);
+    padding: 0.3125rem 0.75rem;
+    font-size: 14px;
+    color: var(--gh-fg);
+    outline: none;
+  }
+
+  .gh-input:focus {
+    border-color: var(--gh-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--gh-accent) 25%, transparent);
+  }
+
+  /* Sidebar entry. The selected one gets a weight change and a rule, the way
+     GitHub's settings navigation does, so nothing shifts as you move. */
+  .gh-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 6px;
+    padding: 0.375rem 0.5rem;
+    font-size: 14px;
+    color: var(--gh-fg);
+  }
+
+  .gh-nav-item:hover {
+    background: var(--gh-subtle);
+  }
+
+  .gh-nav-item[aria-current="page"] {
+    background: var(--gh-subtle);
+    font-weight: 600;
+    box-shadow: inset 2px 0 0 #fd8c73;
+  }
+
+  .gh-stat {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+}

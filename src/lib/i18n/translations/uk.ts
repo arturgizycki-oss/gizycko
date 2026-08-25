@@ -102,7 +102,7 @@ export const uk: Dictionary = {
   "profile.mutual": "Спільні",
   "profile.about": "Про себе",
   "profile.noCity": "Місто не вказано",
-  "profile.moderationQueue": "Відкрити чергу модерації",
+  "profile.moderationQueue": "Відкрити панель адміністратора",
   "profile.followersEmpty":
     "Поки ніхто не стежить за вами. Публічні дописи — найшвидший спосіб це змінити.",
   "profile.followingEmpty": "Ви ще ні за ким не стежите.",

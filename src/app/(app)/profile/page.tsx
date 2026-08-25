@@ -35,7 +35,7 @@ export default async function ProfilePage() {
         </p>
         {session.user.role !== "USER" && (
           <Link
-            href="/moderation"
+            href="/admin"
             className="mt-2 inline-block text-sm font-medium text-brand-600 hover:underline"
           >
             {t("profile.moderationQueue")}
