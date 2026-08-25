@@ -56,7 +56,12 @@ export async function signUpload(
   try {
     const signed = await signedUploadUrl(key);
     return { ok: true, key, url: signed.url, token: signed.token };
-  } catch {
+  } catch (cause) {
+    // The member gets a message they can act on; the reason goes to the host's
+    // log, where it can be read. Swallowing it entirely meant a misconfigured
+    // bucket looked exactly like a refused one, and the only way to tell them
+    // apart was to reproduce the call by hand.
+    console.error("signUpload failed", { kind, key, cause });
     return { ok: false, error: "Could not start the upload." };
   }
 }
