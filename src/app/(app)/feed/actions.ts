@@ -1,16 +1,11 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { checkContent } from "@/lib/content-policy";
-import { checkUploadedImage } from "@/lib/image";
-import { checkUploadedAudio, titleFromFileName } from "@/lib/audio";
-import { checkUploadedVideo } from "@/lib/video";
-import { mediaUrl, putObject } from "@/lib/storage";
-import { MAX_POST_IMAGES } from "@/lib/post-media";
+import { readPostMedia } from "@/lib/post-media";
 
 const postSchema = z.object({
   body: z.string().trim().max(5000),
@@ -34,81 +29,27 @@ export async function createPost(
     return { error: "That post is too long (max 5000 characters)." };
   }
 
-  const images = formData
-    .getAll("images")
-    .filter((entry): entry is File => entry instanceof File && entry.size > 0)
-    .slice(0, MAX_POST_IMAGES);
+  const uploaded = await readPostMedia(formData, session.user.id, "posts");
+  if (!uploaded.ok) return { error: uploaded.error };
 
-  const songEntry = formData.get("song");
-  const song = songEntry instanceof File && songEntry.size > 0 ? songEntry : null;
-
-  const videoEntry = formData.get("video");
-  const video = videoEntry instanceof File && videoEntry.size > 0 ? videoEntry : null;
-
-  if (parsed.data.body.length === 0 && images.length === 0 && !song && !video) {
+  if (parsed.data.body.length === 0 && !uploaded.hasAny) {
     return { error: "Write something, or add a photo, a song, or a video." };
   }
 
   const allowed = checkContent(parsed.data.body);
   if (!allowed.ok) return { error: allowed.message };
 
-  // Validate everything before writing any bytes, so a bad song does not leave
-  // orphaned images sitting in storage.
-  const imageUploads: { key: string; bytes: Buffer }[] = [];
-  for (const image of images) {
-    const checked = await checkUploadedImage(image);
-    if (!checked.ok) return { error: checked.error };
-    imageUploads.push({
-      key: `posts/${session.user.id}/${randomUUID()}${checked.kind.extension}`,
-      bytes: checked.bytes,
-    });
-  }
-
-  let songUpload: { key: string; bytes: Buffer; type: string; title: string } | null = null;
-  if (song) {
-    const checked = await checkUploadedAudio(song);
-    if (!checked.ok) return { error: checked.error };
-    songUpload = {
-      key: `songs/${session.user.id}/${randomUUID()}${checked.kind.extension}`,
-      bytes: checked.bytes,
-      type: checked.kind.contentType,
-      title: titleFromFileName(song.name) || "Untitled track",
-    };
-  }
-
-  let videoUpload: { key: string; bytes: Buffer; type: string } | null = null;
-  if (video) {
-    const checked = await checkUploadedVideo(video);
-    if (!checked.ok) return { error: checked.error };
-    videoUpload = {
-      key: `videos/${session.user.id}/${randomUUID()}${checked.kind.extension}`,
-      bytes: checked.bytes,
-      type: checked.kind.contentType,
-    };
-  }
-
-  await Promise.all([
-    ...imageUploads.map((upload) => putObject(upload.key, upload.bytes)),
-    ...(songUpload ? [putObject(songUpload.key, songUpload.bytes)] : []),
-    ...(videoUpload ? [putObject(videoUpload.key, videoUpload.bytes)] : []),
-  ]);
-
   await prisma.post.create({
     data: {
       authorId: session.user.id,
       body: parsed.data.body,
       visibility: parsed.data.visibility,
-      audioUrl: songUpload ? mediaUrl(songUpload.key) : null,
-      audioTitle: songUpload?.title ?? null,
-      audioType: songUpload?.type ?? null,
-      videoUrl: videoUpload ? mediaUrl(videoUpload.key) : null,
-      videoType: videoUpload?.type ?? null,
-      images: {
-        create: imageUploads.map((upload, index) => ({
-          url: mediaUrl(upload.key),
-          position: index,
-        })),
-      },
+      audioUrl: uploaded.media.audioUrl,
+      audioTitle: uploaded.media.audioTitle,
+      audioType: uploaded.media.audioType,
+      videoUrl: uploaded.media.videoUrl,
+      videoType: uploaded.media.videoType,
+      images: { create: uploaded.media.images },
     },
   });
 

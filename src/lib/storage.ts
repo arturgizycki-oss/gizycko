@@ -23,6 +23,9 @@ const CONTENT_TYPES: Record<string, string> = {
   ".ogg": "audio/ogg",
   ".flac": "audio/flac",
   ".wav": "audio/wav",
+  // Browser recordings: same containers as video, served as audio on purpose.
+  ".weba": "audio/webm",
+  ".oga": "audio/ogg",
   ".mp4": "video/mp4",
   ".webm": "video/webm",
   ".mov": "video/quicktime",

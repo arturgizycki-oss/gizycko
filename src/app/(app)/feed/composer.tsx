@@ -2,10 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { createPost, type PostState } from "./actions";
-import { MAX_POST_IMAGES } from "@/lib/post-media";
+import { MAX_POST_IMAGES } from "@/lib/post-limits";
 import { MAX_IMAGE_BYTES } from "@/lib/image";
 import { MAX_AUDIO_BYTES } from "@/lib/audio";
 import { MAX_VIDEO_BYTES } from "@/lib/video";
+import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -204,6 +205,9 @@ function ComposerFields({
             className="sr-only"
           />
         </label>
+
+        <VoiceRecorder />
+        <CameraShot />
 
         <label className="text-xs text-neutral-500">
           Visible to{" "}

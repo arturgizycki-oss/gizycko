@@ -10,6 +10,7 @@ import { checkContent } from "@/lib/content-policy";
 import { checkUploadedImage } from "@/lib/image";
 import { checkUploadedAudio, titleFromFileName } from "@/lib/audio";
 import { checkUploadedVideo } from "@/lib/video";
+import { checkUploadedVoice } from "@/lib/voice";
 import { mediaUrl, putObject } from "@/lib/storage";
 
 export type MessageState = { error?: string; submissionId?: string };
@@ -109,8 +110,11 @@ export async function sendMessage(
   const entry = formData.get("attachment");
   const file = entry instanceof File && entry.size > 0 ? entry : null;
 
-  if (parsed.data.body.length === 0 && !file) {
-    return { error: "Write something, or attach a photo, video, or song." };
+  const voiceEntry = formData.get("voice");
+  const voice = voiceEntry instanceof File && voiceEntry.size > 0 ? voiceEntry : null;
+
+  if (parsed.data.body.length === 0 && !file && !voice) {
+    return { error: "Write something, or attach a photo, video, song, or recording." };
   }
 
   const allowed = checkContent(parsed.data.body);
@@ -131,7 +135,21 @@ export async function sendMessage(
   if (blocked) return { error: "You cannot message this person." };
 
   let attachment: Attachment | null = null;
-  if (file) {
+
+  // A recording arrives in its own field, because a WebM voice note is
+  // byte-identical to a WebM video and only the field says which it is.
+  if (voice) {
+    const checked = await checkUploadedVoice(voice);
+    if (!checked.ok) return { error: checked.error };
+    attachment = {
+      key: `chat-voice/${session.user.id}/${randomUUID()}${checked.kind.extension}`,
+      bytes: checked.bytes,
+      type: checked.kind.contentType,
+      kind: "AUDIO",
+      name: "Voice note",
+    };
+    await putObject(attachment.key, attachment.bytes);
+  } else if (file) {
     const result = await readAttachment(file, session.user.id);
     if (!result.ok) return { error: result.error };
     attachment = result.attachment;

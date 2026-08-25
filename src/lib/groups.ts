@@ -1,7 +1,8 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
+import type { GroupRole } from "./group-roles";
 
-export type GroupRole = "OWNER" | "ADMIN" | "MEMBER";
+export type { GroupRole };
 
 /** This user's role in the group, or null when they are not a member. */
 export const roleInGroup = cache(
@@ -14,11 +15,6 @@ export const roleInGroup = cache(
     return member?.role ?? null;
   },
 );
-
-/** Only owners and admins may invite people or change the group. */
-export function canManage(role: GroupRole | null): boolean {
-  return role === "OWNER" || role === "ADMIN";
-}
 
 /**
  * A group the viewer may look at, or null.

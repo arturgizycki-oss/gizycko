@@ -6,6 +6,7 @@ import { sendMessage, type MessageState } from "./actions";
 import { deleteMessage, toggleMessageReaction } from "../../messages/actions";
 import Image from "next/image";
 import { EmojiPicker } from "@/components/emoji-picker";
+import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 import { isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
 
 export type ChatReaction = { emoji: string; count: number; mine: boolean };
@@ -307,6 +308,9 @@ function Composer({ matchId }: { matchId: string }) {
         >
           🙂
         </button>
+
+        <VoiceRecorder name="voice" />
+        <CameraShot name="attachment" />
 
         <label
           className="btn btn-secondary btn-sm shrink-0 cursor-pointer px-2.5 text-base"

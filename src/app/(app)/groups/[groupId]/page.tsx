@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
-import { canManage, visibleGroup } from "@/lib/groups";
+import { visibleGroup } from "@/lib/groups";
+import { can, ROLE_LABEL } from "@/lib/group-roles";
 import { friendIds, hiddenUserIds } from "@/lib/social";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { Avatar } from "@/components/avatar";
@@ -11,6 +12,8 @@ import { shortWhen } from "@/lib/time";
 import { GroupComposer } from "./group-composer";
 import { InviteFriend } from "./invite-friend";
 import { JoinLeave } from "./join-leave";
+import { MemberControls } from "./member-controls";
+import { GroupSettings } from "./group-settings";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -53,11 +56,11 @@ export default async function GroupPage({
       },
     }),
     hiddenUserIds(me),
-    canManage(role) ? friendIds(me) : Promise.resolve([]),
+    can(role, "invite") ? friendIds(me) : Promise.resolve([]),
   ]);
 
   // Friends who are not in the group yet, for the invite list.
-  const invitable = canManage(role)
+  const invitable = can(role, "invite")
     ? await prisma.user.findMany({
         where: {
           id: { in: friends.filter((id) => !hidden.includes(id)) },
@@ -68,7 +71,7 @@ export default async function GroupPage({
       })
     : [];
 
-  const pendingInvites = canManage(role)
+  const pendingInvites = can(role, "invite")
     ? await prisma.groupInvite.count({ where: { groupId, status: "PENDING" } })
     : 0;
 
@@ -101,7 +104,17 @@ export default async function GroupPage({
         )}
       </section>
 
-      {canManage(role) && (
+      {can(role, "editGroup") && (
+        <GroupSettings
+          groupId={groupId}
+          name={group.name}
+          description={group.description}
+          visibility={group.visibility}
+          canDelete={can(role, "deleteGroup")}
+        />
+      )}
+
+      {can(role, "invite") && (
         <CollapsibleSection
           title="Invite friends"
           count={invitable.length}
@@ -135,31 +148,52 @@ export default async function GroupPage({
       )}
 
       <CollapsibleSection title="Members" count={members.length}>
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <ul className="space-y-1">
           {members.map((member) => {
             const name = member.user.profile?.displayName ?? member.user.name;
             return (
-              <li key={member.id}>
-                <Link
-                  href={member.user.id === me ? "/profile" : `/u/${member.user.id}`}
-                  className="flex items-center gap-2 rounded-xl px-2 py-2 hover:bg-[var(--surface-muted)]"
-                >
+              <li
+                key={member.id}
+                className="flex items-center gap-3 rounded-xl px-2 py-2"
+              >
+                <Link href={member.user.id === me ? "/profile" : `/u/${member.user.id}`}>
                   <Avatar
                     name={name}
                     src={photoUrlOf(member.user.profile)}
-                    size={32}
+                    size={36}
                   />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{name}</span>
-                    {member.role !== "MEMBER" && (
-                      <span className="hint">{member.role.toLowerCase()}</span>
+                </Link>
+
+                <Link
+                  href={member.user.id === me ? "/profile" : `/u/${member.user.id}`}
+                  className="min-w-0 flex-1"
+                >
+                  <span className="block truncate text-sm font-medium">
+                    {name}
+                    {member.user.id === me && (
+                      <span className="hint"> · you</span>
                     )}
                   </span>
+                  <span className="hint">{ROLE_LABEL[member.role]}</span>
                 </Link>
+
+                <MemberControls
+                  groupId={groupId}
+                  userId={member.user.id}
+                  actorRole={role}
+                  targetRole={member.role}
+                  isSelf={member.user.id === me}
+                />
               </li>
             );
           })}
         </ul>
+
+        <p className="hint mt-2 px-2">
+          Owners appoint admins and hand the group over. Admins invite people,
+          remove members, edit the group, and delete any post. Members read and
+          write posts.
+        </p>
       </CollapsibleSection>
 
       {isMember ? (

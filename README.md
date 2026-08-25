@@ -122,9 +122,23 @@ and deleting your own messages.
 write: posts, comments, messages, bios, group names. `src/lib/content-policy.ts`
 holds the word lists. It is a blunt instrument by design — see the caveat below.
 
-**Groups** — create a public or private group, invite friends, post inside it.
-Group posts are scoped to the group and never reach the main feed. A private
-group is invisible to non-members rather than merely unjoinable.
+**Groups** — create a public or private group, invite friends, post inside it
+with the same attachments the main feed takes. Group posts are scoped to the
+group and never reach the main feed; a private group is invisible to
+non-members rather than merely unjoinable.
+
+Three roles, defined as data in `src/lib/group-roles.ts` and asserted directly
+in tests: **owners** appoint admins, hand the group over, and delete it;
+**admins** invite, remove members, edit the group, and delete any post;
+**members** read and write. Rank matters as much as permission — an admin may
+remove members but not another admin, and nobody may act on the owner. The
+owner cannot simply leave: they hand the group over or delete it.
+
+**Recording and camera** — a voice note recorded in the browser, or a photo
+taken with the camera, can be attached to a feed post, a group post, or a chat
+message. A recorded WebM voice note is byte-identical to a WebM video, so the
+form field it arrives in is what marks it as audio, and it is stored with an
+audio extension so it plays back as sound.
 
 **Follows** — one-directional, unlike friendship. Follower and following counts
 appear on your profile and on everyone else's, with a Follow button. Blocking
