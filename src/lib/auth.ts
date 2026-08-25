@@ -10,6 +10,9 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 10,
+    // No session until the address is confirmed. Signing up therefore does not
+    // sign you in, and sign-in is refused until the link in the email is used.
+    requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       await sendMail({
         to: user.email,

@@ -18,9 +18,11 @@ export default function SignUpPage() {
     setPending(true);
 
     const form = new FormData(event.currentTarget);
+    const email = String(form.get("email"));
+
     const { error } = await signUp.email({
       name: String(form.get("name")),
-      email: String(form.get("email")),
+      email,
       password: String(form.get("password")),
     });
 
@@ -29,7 +31,10 @@ export default function SignUpPage() {
       setError(error.message ?? t("auth.createFailed"));
       return;
     }
-    router.push("/onboarding");
+
+    // A confirmation email has just gone out. Sending somebody straight into
+    // the app is how they never learn to look for it.
+    router.push(`/check-email?email=${encodeURIComponent(email)}`);
   }
 
   return (

@@ -25,8 +25,15 @@ export default function SignInPage() {
 
     setPending(false);
     if (error) {
-      // Deliberately vague: do not reveal whether the email exists.
-      setError(t("auth.wrongCredentials"));
+      // One case is worth naming: an account that exists but has never
+      // confirmed its address would otherwise look like a wrong password, and
+      // the member would try the same details forever.
+      setError(
+        error.status === 403
+          ? t("auth.mustVerify")
+          : // Deliberately vague: do not reveal whether the email exists.
+            t("auth.wrongCredentials"),
+      );
       return;
     }
     router.push("/feed");

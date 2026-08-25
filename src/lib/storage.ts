@@ -12,8 +12,7 @@ import { contentTypeFor, type StoredObject } from "./storage-types";
 const driver = process.env.STORAGE_DRIVER === "supabase" ? supabase : local;
 
 /** Whether uploads can be signed and sent straight from the browser. */
-export const SUPPORTS_DIRECT_UPLOAD =
-  process.env.STORAGE_DRIVER === "supabase";
+export const SUPPORTS_DIRECT_UPLOAD = process.env.STORAGE_DRIVER === "supabase";
 
 export function putObject(key: string, data: Buffer): Promise<void> {
   return driver.putObject(key, data);

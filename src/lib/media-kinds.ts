@@ -11,7 +11,9 @@ type Spec = {
   /** Folder the key starts with, so a bucket listing is readable. */
   prefix: string;
   /** Reads the first bytes and returns the real format, or null. */
-  sniff: (bytes: Uint8Array) => { extension: string; contentType: string } | null;
+  sniff: (
+    bytes: Uint8Array,
+  ) => { extension: string; contentType: string } | null;
   /** Everything the sniffer for this kind can recognise. */
   extensions: readonly string[];
 };

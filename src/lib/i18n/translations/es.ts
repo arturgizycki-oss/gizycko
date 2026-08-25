@@ -437,6 +437,18 @@ export const es: Dictionary = {
   "auth.noAccount": "¿Aún no tienes cuenta?",
   "auth.createOne": "Crea una",
   "auth.createAccount": "Crear una cuenta",
+  "auth.checkInbox": "Mira tu correo",
+  "auth.mustVerify":
+    "Confirma tu correo antes de iniciar sesión. El enlace está en tu bandeja.",
+  "auth.confirmFirst":
+    "Abre el enlace para confirmar tu dirección. Después podrás iniciar sesión.",
+  "auth.sentTo": "Hemos enviado un enlace de confirmación a",
+  "auth.confirmWhy":
+    "Ábrelo para confirmar tu dirección. Mientras tanto puedes completar tu perfil.",
+  "auth.continueSetup": "Completar mi perfil",
+  "auth.noEmail": "¿No ha llegado nada? Mira en spam, o",
+  "auth.sendAgain": "envíalo de nuevo",
+  "auth.sentAgain": "Enviado. Dale un minuto.",
   "auth.over18": "Debes tener 18 años o más.",
   "auth.firstName": "Nombre",
   "auth.passwordHint": "Al menos 10 caracteres.",

@@ -28,11 +28,7 @@ function config() {
 
 /** Percent-encode each segment, leaving the slashes that shape the path. */
 function encodeKey(key: string): string {
-  return key
-    .split("/")
-    .filter(Boolean)
-    .map(encodeURIComponent)
-    .join("/");
+  return key.split("/").filter(Boolean).map(encodeURIComponent).join("/");
 }
 
 function objectUrl(key: string): string {

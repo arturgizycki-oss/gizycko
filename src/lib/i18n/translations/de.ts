@@ -438,6 +438,18 @@ export const de: Dictionary = {
   "auth.noAccount": "Noch kein Konto?",
   "auth.createOne": "Eines erstellen",
   "auth.createAccount": "Konto erstellen",
+  "auth.checkInbox": "Sieh in dein Postfach",
+  "auth.mustVerify":
+    "Bestätige deine E-Mail-Adresse, bevor du dich anmeldest. Der Link liegt in deinem Postfach.",
+  "auth.confirmFirst":
+    "Öffne den Link, um deine Adresse zu bestätigen. Danach kannst du dich anmelden.",
+  "auth.sentTo": "Wir haben einen Bestätigungslink geschickt an",
+  "auth.confirmWhy":
+    "Öffne ihn, um deine Adresse zu bestätigen. Dein Profil kannst du inzwischen einrichten.",
+  "auth.continueSetup": "Profil einrichten",
+  "auth.noEmail": "Nichts angekommen? Sieh im Spam nach, oder",
+  "auth.sendAgain": "noch einmal senden",
+  "auth.sentAgain": "Gesendet. Gib ihm eine Minute.",
   "auth.over18": "Du musst 18 oder älter sein.",
   "auth.firstName": "Vorname",
   "auth.passwordHint": "Mindestens 10 Zeichen.",

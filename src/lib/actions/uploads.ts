@@ -1,7 +1,11 @@
 "use server";
 
 import { requireSession } from "@/lib/session";
-import { isMediaKind, MEDIA_KINDS, type MediaKindName } from "@/lib/media-kinds";
+import {
+  isMediaKind,
+  MEDIA_KINDS,
+  type MediaKindName,
+} from "@/lib/media-kinds";
 import { mintKey } from "@/lib/uploads";
 import { signedUploadUrl, SUPPORTS_DIRECT_UPLOAD } from "@/lib/storage";
 

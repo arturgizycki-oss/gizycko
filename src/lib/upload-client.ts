@@ -28,8 +28,7 @@ function extensionOf(file: File): string {
 }
 
 export type UploadResult =
-  | { ok: true; key: string }
-  | { ok: false; error: string };
+  { ok: true; key: string } | { ok: false; error: string };
 
 /**
  * Send one file straight to the bucket and return the key it landed under.

@@ -1,9 +1,5 @@
 import { randomUUID } from "node:crypto";
-import {
-  MEDIA_KINDS,
-  SNIFF_BYTES,
-  type MediaKindName,
-} from "./media-kinds";
+import { MEDIA_KINDS, SNIFF_BYTES, type MediaKindName } from "./media-kinds";
 import { deleteObject, statObject, streamObject } from "./storage";
 
 /** A key nobody can guess, filed under the kind and the person who sent it. */

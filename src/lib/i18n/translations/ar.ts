@@ -426,6 +426,17 @@ export const ar: Dictionary = {
   "auth.noAccount": "ليس لديك حساب؟",
   "auth.createOne": "أنشئ واحدًا",
   "auth.createAccount": "إنشاء حساب",
+  "auth.checkInbox": "تحقق من بريدك",
+  "auth.mustVerify":
+    "أكّد بريدك الإلكتروني قبل تسجيل الدخول. الرابط في صندوق الوارد.",
+  "auth.confirmFirst": "افتح الرابط لتأكيد عنوانك، وبعدها يمكنك تسجيل الدخول.",
+  "auth.sentTo": "أرسلنا رابط تأكيد إلى",
+  "auth.confirmWhy":
+    "افتحه لتأكيد عنوانك. ويمكنك إعداد ملفك الشخصي في هذه الأثناء.",
+  "auth.continueSetup": "إعداد ملفي",
+  "auth.noEmail": "لم يصل شيء؟ تحقق من مجلد الرسائل غير المرغوبة، أو",
+  "auth.sendAgain": "أعد الإرسال",
+  "auth.sentAgain": "تم الإرسال. انتظر دقيقة.",
   "auth.over18": "يجب أن يكون عمرك 18 عامًا أو أكثر.",
   "auth.firstName": "الاسم الأول",
   "auth.passwordHint": "10 أحرف على الأقل.",

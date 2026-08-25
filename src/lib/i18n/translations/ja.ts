@@ -434,6 +434,18 @@ export const ja: Dictionary = {
   "auth.noAccount": "アカウントがまだですか？",
   "auth.createOne": "作成する",
   "auth.createAccount": "アカウントを作る",
+  "auth.checkInbox": "メールをご確認ください",
+  "auth.mustVerify":
+    "ログインの前にメールアドレスを確認してください。リンクは受信トレイにあります。",
+  "auth.confirmFirst":
+    "リンクを開いてアドレスを確認してください。確認後にログインできます。",
+  "auth.sentTo": "確認用のリンクを次の宛先に送りました",
+  "auth.confirmWhy":
+    "リンクを開いてアドレスを確認してください。その間にプロフィールを設定できます。",
+  "auth.continueSetup": "プロフィールを設定",
+  "auth.noEmail": "届きませんか？迷惑メールを確認するか、",
+  "auth.sendAgain": "もう一度送る",
+  "auth.sentAgain": "送信しました。少しお待ちください。",
   "auth.over18": "18歳以上である必要があります。",
   "auth.firstName": "名前",
   "auth.passwordHint": "10文字以上。",

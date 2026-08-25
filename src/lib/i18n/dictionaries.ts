@@ -461,6 +461,18 @@ export const en = {
   "auth.noAccount": "No account yet?",
   "auth.createOne": "Create one",
   "auth.createAccount": "Create an account",
+  "auth.checkInbox": "Check your inbox",
+  "auth.mustVerify":
+    "Confirm your email address before signing in. The link is in your inbox.",
+  "auth.confirmFirst":
+    "Open the link to confirm your address. You can sign in once that is done.",
+  "auth.sentTo": "We have sent a confirmation link to",
+  "auth.confirmWhy":
+    "Open it to confirm your address. You can finish setting up your profile in the meantime.",
+  "auth.continueSetup": "Set up my profile",
+  "auth.noEmail": "Nothing arrived? Check your spam folder, or",
+  "auth.sendAgain": "send it again",
+  "auth.sentAgain": "Sent. Give it a minute.",
   "auth.over18": "You must be 18 or older.",
   "auth.firstName": "First name",
   "auth.passwordHint": "At least 10 characters.",
