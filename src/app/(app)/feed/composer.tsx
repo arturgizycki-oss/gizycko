@@ -8,7 +8,13 @@ import { MAX_AUDIO_BYTES } from "@/lib/audio";
 import { MAX_VIDEO_BYTES } from "@/lib/video";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 import { EmojiPicker } from "@/components/emoji-picker";
-import { FilmIcon, ImageIcon, MusicIcon, SmileIcon } from "@/components/icons";
+import {
+  FilmIcon,
+  ICON_BUTTON_LABELLED,
+  ImageIcon,
+  MusicIcon,
+  SmileIcon,
+} from "@/components/icons";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -39,10 +45,6 @@ export function Composer() {
 }
 
 type Selected = { file: File; preview: string };
-
-/** One control in the composer's toolbar: a line icon with a label. */
-const TOOL =
-  "flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]";
 
 function ComposerFields({
   pending,
@@ -174,27 +176,27 @@ function ComposerFields({
       )}
 
       {song && (
-        <p className="mt-3 flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs dark:bg-neutral-800">
-          <span aria-hidden>🎵</span>
+        <p className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--surface-muted)] px-3 py-2 text-xs">
+          <MusicIcon className="size-4 shrink-0" />
           <span className="truncate font-medium">{song.name}</span>
-          <span className="ml-auto shrink-0 text-neutral-500">
+          <span className="muted ml-auto shrink-0">
             {megabytes(song.size)} MB
           </span>
         </p>
       )}
 
       {video && (
-        <p className="mt-3 flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs dark:bg-neutral-800">
-          <span aria-hidden>🎬</span>
+        <p className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--surface-muted)] px-3 py-2 text-xs">
+          <FilmIcon className="size-4 shrink-0" />
           <span className="truncate font-medium">{video.name}</span>
-          <span className="ml-auto shrink-0 text-neutral-500">
+          <span className="muted ml-auto shrink-0">
             {megabytes(video.size)} MB
           </span>
         </p>
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-1 border-t border-[var(--line)] pt-3">
-        <label className={TOOL} title="Photos">
+        <label className={ICON_BUTTON_LABELLED} title="Photos">
           <ImageIcon className="size-4" />
           Photos
           <input
@@ -207,7 +209,7 @@ function ComposerFields({
           />
         </label>
 
-        <label className={TOOL} title="Song">
+        <label className={ICON_BUTTON_LABELLED} title="Song">
           <MusicIcon className="size-4" />
           Song
           <input
@@ -219,7 +221,7 @@ function ComposerFields({
           />
         </label>
 
-        <label className={TOOL} title="Video">
+        <label className={ICON_BUTTON_LABELLED} title="Video">
           <FilmIcon className="size-4" />
           Video
           <input
@@ -231,8 +233,8 @@ function ComposerFields({
           />
         </label>
 
-        <VoiceRecorder />
-        <CameraShot />
+        <VoiceRecorder label="Voice" />
+        <CameraShot label="Camera" />
 
         <button
           type="button"
@@ -240,7 +242,7 @@ function ComposerFields({
           aria-label="Emoji"
           aria-expanded={showEmoji}
           title="Emoji"
-          className={TOOL}
+          className={ICON_BUTTON_LABELLED}
         >
           <SmileIcon className="size-4" />
         </button>

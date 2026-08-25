@@ -33,11 +33,12 @@ export function PaperclipIcon(props: IconProps) {
   );
 }
 
+/** A rounded square around a lens, matching the reference composer. */
 export function CameraIcon(props: IconProps) {
   return (
     <Svg {...props}>
-      <path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2L8 5h8l1.5 2h2A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" />
-      <circle cx="12" cy="13" r="3.2" />
+      <rect x="3" y="3" width="18" height="18" rx="5.5" />
+      <circle cx="12" cy="12" r="4" />
     </Svg>
   );
 }
@@ -116,3 +117,14 @@ export function FilmIcon(props: IconProps) {
     </Svg>
   );
 }
+
+/**
+ * The shared look for an icon-only control in a composer: no chrome until you
+ * point at it, so a row of them reads as a toolbar rather than a row of buttons.
+ */
+export const ICON_BUTTON =
+  "rounded-full p-2 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)] disabled:opacity-60";
+
+/** The same control with a label beside it, for the wider post composers. */
+export const ICON_BUTTON_LABELLED =
+  "flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]";

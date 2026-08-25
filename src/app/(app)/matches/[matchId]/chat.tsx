@@ -6,9 +6,15 @@ import { sendMessage, type MessageState } from "./actions";
 import { deleteMessage, toggleMessageReaction } from "../../messages/actions";
 import Image from "next/image";
 import { EmojiPicker } from "@/components/emoji-picker";
-import { CameraShot } from "@/components/media-capture";
-import { ChatVoice } from "@/components/chat-capture";
-import { PaperclipIcon, SendIcon, SmileIcon, TrashIcon } from "@/components/icons";
+import { CameraShot, VoiceRecorder } from "@/components/media-capture";
+import {
+  ICON_BUTTON,
+  MusicIcon,
+  PaperclipIcon,
+  SendIcon,
+  SmileIcon,
+  TrashIcon,
+} from "@/components/icons";
 import { isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
 
 export type ChatReaction = { emoji: string; count: number; mine: boolean };
@@ -253,7 +259,7 @@ function Attachment({ media, mine }: { media: ChatMedia; mine: boolean }) {
       }
     >
       <figcaption className="mb-1 flex items-center gap-1.5 px-1 text-xs">
-        <span aria-hidden>🎵</span>
+        <MusicIcon className="size-3.5 shrink-0" />
         <span className="truncate">{media.name ?? "Audio"}</span>
       </figcaption>
       <audio controls preload="none" src={media.url} className="w-full">
@@ -313,7 +319,7 @@ function Composer({ matchId }: { matchId: string }) {
       <div className="flex items-end gap-1">
         <label
           title="Attach a photo, video, or song"
-          className="cursor-pointer rounded-full p-2 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]"
+          className={`${ICON_BUTTON} cursor-pointer`}
         >
           <PaperclipIcon />
           <input
@@ -339,7 +345,7 @@ function Composer({ matchId }: { matchId: string }) {
           onClick={() => setShowPicker((open) => !open)}
           aria-label="Emoji"
           aria-expanded={showPicker}
-          className="rounded-full p-2 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)]"
+          className={ICON_BUTTON}
         >
           <SmileIcon />
         </button>
@@ -354,7 +360,7 @@ function Composer({ matchId }: { matchId: string }) {
             <SendIcon />
           </button>
         ) : (
-          <ChatVoice onRecordedChange={setHasVoice} />
+          <VoiceRecorder onChange={(file) => setHasVoice(file !== null)} />
         )}
       </div>
 

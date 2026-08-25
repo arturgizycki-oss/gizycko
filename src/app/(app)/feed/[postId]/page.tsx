@@ -7,6 +7,7 @@ import { friendIds, hiddenUserIds, matchedUserIds } from "@/lib/social";
 import { ReportDialog } from "@/components/report-dialog";
 import { CommentForm } from "./comment-form";
 import { deleteComment } from "../actions";
+import { MusicIcon } from "@/components/icons";
 
 export default async function PostPage({
   params,
@@ -126,7 +127,7 @@ export default async function PostPage({
         {post.audioUrl && (
           <figure className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-800/50">
             <figcaption className="mb-2 flex items-center gap-2 text-xs font-medium">
-              <span aria-hidden>🎵</span>
+              <MusicIcon className="size-3.5 shrink-0" />
               <span className="truncate">{post.audioTitle ?? "Attached song"}</span>
             </figcaption>
             <audio controls preload="none" src={post.audioUrl} className="w-full">

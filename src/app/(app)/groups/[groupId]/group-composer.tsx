@@ -4,6 +4,12 @@ import { useActionState } from "react";
 import { useState } from "react";
 import { postToGroup, type GroupState } from "../actions";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
+import {
+  FilmIcon,
+  ICON_BUTTON_LABELLED,
+  ImageIcon,
+  MusicIcon,
+} from "@/components/icons";
 import { MAX_POST_IMAGES } from "@/lib/post-limits";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -32,8 +38,9 @@ export function GroupComposer({ groupId }: { groupId: string }) {
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--line)] pt-3">
-        <label className="btn btn-secondary btn-sm cursor-pointer" title="Photos">
-          📷
+        <label className={ICON_BUTTON_LABELLED} title="Photos">
+          <ImageIcon className="size-4" />
+          Photos
           <input
             type="file"
             name="images"
@@ -51,18 +58,20 @@ export function GroupComposer({ groupId }: { groupId: string }) {
           />
         </label>
 
-        <label className="btn btn-secondary btn-sm cursor-pointer" title="Song">
-          🎵
+        <label className={ICON_BUTTON_LABELLED} title="Song">
+          <MusicIcon className="size-4" />
+          Song
           <input type="file" name="song" accept="audio/*" className="sr-only" />
         </label>
 
-        <label className="btn btn-secondary btn-sm cursor-pointer" title="Video">
-          🎬
+        <label className={ICON_BUTTON_LABELLED} title="Video">
+          <FilmIcon className="size-4" />
+          Video
           <input type="file" name="video" accept="video/*" className="sr-only" />
         </label>
 
-        <VoiceRecorder />
-        <CameraShot />
+        <VoiceRecorder label="Voice" />
+        <CameraShot label="Camera" />
 
         <span className="hint ml-auto">Only members can see this.</span>
         <button type="submit" disabled={pending} className="btn btn-primary btn-sm">

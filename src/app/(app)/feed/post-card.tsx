@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Avatar } from "@/components/avatar";
 import { ReportDialog } from "@/components/report-dialog";
 import { deletePost, toggleReaction } from "./actions";
+import { MusicIcon } from "@/components/icons";
 
 type PostCardProps = {
   post: {
@@ -104,7 +105,7 @@ export function PostCard({ post, isMine }: PostCardProps) {
       {post.audioUrl && (
         <figure className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-800/50">
           <figcaption className="mb-2 flex items-center gap-2 text-xs font-medium">
-            <span aria-hidden>🎵</span>
+            <MusicIcon className="size-3.5 shrink-0" />
             <span className="truncate">{post.audioTitle ?? "Attached song"}</span>
           </figcaption>
           <audio controls preload="none" src={post.audioUrl} className="w-full">

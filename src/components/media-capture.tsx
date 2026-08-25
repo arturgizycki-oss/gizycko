@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  CameraIcon,
+  ICON_BUTTON,
+  ICON_BUTTON_LABELLED,
+  MicIcon,
+  StopIcon,
+  TrashIcon,
+} from "./icons";
 
 /**
  * Put a File the browser produced into a real <input type="file"> so it submits
@@ -15,12 +23,19 @@ function fillInput(input: HTMLInputElement | null, file: File | null) {
   input.files = transfer.files;
 }
 
+/** Icon alone in a chat bar, icon plus label in a post composer. */
+function controlClass(label?: string) {
+  return label ? ICON_BUTTON_LABELLED : ICON_BUTTON;
+}
+
 /** Record a voice note with the microphone. */
 export function VoiceRecorder({
   name = "voice",
+  label,
   onChange,
 }: {
   name?: string;
+  label?: string;
   onChange?: (file: File | null) => void;
 }) {
   const input = useRef<HTMLInputElement>(null);
@@ -29,10 +44,9 @@ export function VoiceRecorder({
 
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const [recorded, setRecorded] = useState<{ url: string; size: number } | null>(null);
+  const [recorded, setRecorded] = useState<{ url: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Tick the counter while recording.
   useEffect(() => {
     if (!recording) return;
     const id = setInterval(() => setSeconds((n) => n + 1), 1000);
@@ -51,7 +65,7 @@ export function VoiceRecorder({
     setError(null);
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      setError("This browser cannot record audio.");
+      setError("No microphone available.");
       return;
     }
 
@@ -69,9 +83,8 @@ export function VoiceRecorder({
         const file = new File([blob], "voice-note", { type: media.mimeType });
 
         fillInput(input.current, file);
-        setRecorded({ url: URL.createObjectURL(blob), size: blob.size });
+        setRecorded({ url: URL.createObjectURL(blob) });
         onChange?.(file);
-
         stream.getTracks().forEach((track) => track.stop());
       };
 
@@ -80,7 +93,7 @@ export function VoiceRecorder({
       setSeconds(0);
       setRecording(true);
     } catch {
-      setError("Microphone permission was refused.");
+      setError("Microphone permission refused.");
     }
   }
 
@@ -97,45 +110,49 @@ export function VoiceRecorder({
     onChange?.(null);
   }
 
+  const clock = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(
+    seconds % 60,
+  ).padStart(2, "0")}`;
+
   return (
     <>
       <input ref={input} type="file" name={name} accept="audio/*" className="sr-only" />
 
-      {!recording && !recorded && (
-        <button
-          type="button"
-          onClick={start}
-          title="Record a voice note"
-          className="btn btn-secondary btn-sm cursor-pointer px-2.5 text-base"
-        >
-          🎤
-        </button>
-      )}
-
-      {recording && (
-        <button
-          type="button"
-          onClick={stop}
-          className="btn btn-sm cursor-pointer bg-rose-600 px-2.5 text-white"
-        >
-          ⏹ {String(Math.floor(seconds / 60)).padStart(2, "0")}:
-          {String(seconds % 60).padStart(2, "0")}
-        </button>
-      )}
-
-      {recorded && (
-        <span className="flex min-w-0 items-center gap-2 rounded-full border border-[var(--line)] px-2 py-1">
-          <span aria-hidden>🎤</span>
-          <audio controls src={recorded.url} className="h-7 max-w-40" />
+      {recorded ? (
+        <span className="flex min-w-0 items-center gap-1.5">
+          <audio controls src={recorded.url} className="h-8 max-w-36" />
           <button
             type="button"
             onClick={discard}
             aria-label="Discard recording"
-            className="muted text-xs hover:text-rose-600"
+            className={ICON_BUTTON}
           >
-            ✕
+            <TrashIcon className="size-4" />
           </button>
         </span>
+      ) : recording ? (
+        <span className="flex items-center gap-1.5">
+          <span className="text-xs tabular-nums text-rose-600">{clock}</span>
+          <button
+            type="button"
+            onClick={stop}
+            aria-label="Stop recording"
+            className={`${ICON_BUTTON} text-rose-600`}
+          >
+            <StopIcon className="size-4" />
+          </button>
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={start}
+          aria-label="Record a voice note"
+          title="Record a voice note"
+          className={controlClass(label)}
+        >
+          <MicIcon className="size-4" />
+          {label}
+        </button>
       )}
 
       {error && (
@@ -150,9 +167,11 @@ export function VoiceRecorder({
 /** Take a photo with the camera. */
 export function CameraShot({
   name = "images",
+  label,
   onChange,
 }: {
   name?: string;
+  label?: string;
   onChange?: (file: File | null) => void;
 }) {
   const input = useRef<HTMLInputElement>(null);
@@ -174,7 +193,7 @@ export function CameraShot({
     setError(null);
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      setError("This browser cannot use the camera.");
+      setError("No camera available.");
       return;
     }
 
@@ -193,7 +212,7 @@ export function CameraShot({
         }
       });
     } catch {
-      setError("Camera permission was refused.");
+      setError("Camera permission refused.");
     }
   }
 
@@ -212,15 +231,19 @@ export function CameraShot({
     canvas.height = element.videoHeight;
     canvas.getContext("2d")?.drawImage(element, 0, 0);
 
-    canvas.toBlob((blob) => {
-      if (!blob) return;
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
 
-      const file = new File([blob], "camera-shot.jpg", { type: "image/jpeg" });
-      fillInput(input.current, file);
-      setShot(URL.createObjectURL(blob));
-      onChange?.(file);
-      close();
-    }, "image/jpeg", 0.9);
+        const file = new File([blob], "camera-shot.jpg", { type: "image/jpeg" });
+        fillInput(input.current, file);
+        setShot(URL.createObjectURL(blob));
+        onChange?.(file);
+        close();
+      },
+      "image/jpeg",
+      0.9,
+    );
   }
 
   function discard() {
@@ -234,31 +257,31 @@ export function CameraShot({
     <>
       <input ref={input} type="file" name={name} accept="image/*" className="sr-only" />
 
-      {!live && !shot && (
-        <button
-          type="button"
-          onClick={open}
-          title="Take a photo"
-          className="btn btn-secondary btn-sm cursor-pointer px-2.5 text-base"
-        >
-          📸
-        </button>
-      )}
-
-      {shot && (
-        <span className="flex items-center gap-2 rounded-full border border-[var(--line)] px-2 py-1">
+      {shot ? (
+        <span className="flex items-center gap-1.5">
           {/* A blob: URL from the camera — next/image needs a known source. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={shot} alt="" className="size-8 rounded object-cover" />
+          <img src={shot} alt="" className="size-8 rounded-lg object-cover" />
           <button
             type="button"
             onClick={discard}
             aria-label="Discard photo"
-            className="muted text-xs hover:text-rose-600"
+            className={ICON_BUTTON}
           >
-            ✕
+            <TrashIcon className="size-4" />
           </button>
         </span>
+      ) : (
+        <button
+          type="button"
+          onClick={open}
+          aria-label="Take a photo"
+          title="Take a photo"
+          className={controlClass(label)}
+        >
+          <CameraIcon className="size-4" />
+          {label}
+        </button>
       )}
 
       {live && (
