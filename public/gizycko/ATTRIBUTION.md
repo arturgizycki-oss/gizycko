@@ -1,25 +1,19 @@
-# Photographs of Giżycko
+# Photograph of Giżycko
 
-Real photographs of the town, from Wikimedia Commons. Three of the four are
-CC BY-SA, which **requires visible attribution wherever the image appears** —
-`PhotoCredit` renders that credit, and `src/lib/photo-credits.ts` holds the
-data. Do not display one of these without its credit line.
+`bridge.jpg` — the swing bridge over the Łuczański Canal, used as the landing
+page hero.
 
-| File | Used on | Photographer | Licence |
-| --- | --- | --- | --- |
-| `port.jpg` | dashboard / app shell | MOs810 | CC BY-SA 4.0 |
-| `sunset.jpg` | sign-in | Margoz | CC BY-SA 4.0 |
-| `lake.jpg` | sign-up | Muggmag | Public domain |
-| `bridge.jpg` | landing hero | Ludwig Schneider / Wikimedia | CC BY-SA 3.0 |
+| Photographer | Licence | Source |
+| --- | --- | --- |
+| Ludwig Schneider / Wikimedia | CC BY-SA 3.0 | [Commons](https://commons.wikimedia.org/wiki/File:Gi%C5%BCycko_Most_Obrotowy_006.jpg) |
 
-Source pages are linked from each credit line in the UI.
+CC BY-SA **requires visible attribution wherever the image appears**, which
+`PhotoCreditLine` renders over the hero. Do not use it without that credit.
 
-## Share-alike
+Share-alike does not reach your own code: displaying a photograph is not a
+derivative work. Editing the image — cropping, recolouring, compositing — would
+produce one, and that result must carry the same licence. Simpler to leave it
+unedited.
 
-CC BY-SA is share-alike. Displaying a photograph on a page is not a derivative
-work, so the licence does not reach your own code. If you *edit* one of these
-images — crop, recolour, composite — the result must be released under the same
-licence. Simpler to leave them unedited.
-
-Unlike `public/demo/`, these are safe to keep in production: they show a place,
-not identifiable people presented as members.
+The other backgrounds are now the owner's own images (`public/dashboard-background.jpg`
+and `public/login-background.jpg`), which carry no such condition.
