@@ -38,14 +38,14 @@ gif () {
     "$(stat -c %s "$out" | awk '{print $1/1048576}')"
 }
 
-# The four beats, then the mark: the part that works without sound, without
+# The five beats, then the mark: the part that works without sound, without
 # context, and at a size a messaging app will accept.
-ffmpeg -y -loglevel error -i "$MARKETING/gizycko-ad-30s.mp4" -filter_complex \
-  "[0:v]trim=8.35:12.75,setpts=PTS-STARTPTS[a];\
-[0:v]trim=24.2:27.2,setpts=PTS-STARTPTS[b];\
+ffmpeg -y -loglevel error -i "$MARKETING/gizycko-ad-20s.mp4" -filter_complex \
+  "[0:v]trim=4.95:8.95,setpts=PTS-STARTPTS[a];\
+[0:v]trim=16.2:19.0,setpts=PTS-STARTPTS[b];\
 [a][b]concat=n=2:v=1[v]" \
   -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 \
   -movflags +faststart "$MARKETING/gizycko-ad-7s.mp4"
 
-gif "$MARKETING/gizycko-ad-30s.mp4" "$MARKETING/gizycko-ad-30s.gif" 480 10 128
+gif "$MARKETING/gizycko-ad-20s.mp4" "$MARKETING/gizycko-ad-20s.gif" 480 10 128
 gif "$MARKETING/gizycko-ad-7s.mp4"  "$MARKETING/gizycko-ad-7s.gif"  560 12 160
