@@ -71,6 +71,7 @@ export default async function AppLayout({
           </NavIconLink>
 
           <UserMenu
+            isStaff={session.user.role !== "USER"}
             name={profile?.displayName ?? session.user.name}
             photo={photoUrlOf(profile) ?? session.user.image ?? null}
             labels={{

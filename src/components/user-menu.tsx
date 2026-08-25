@@ -45,13 +45,19 @@ export function UserMenu({
   name,
   photo,
   labels,
-  isStaff = false,
+  isStaff,
 }: {
   name: string;
   photo: string | null;
   labels: UserMenuLabels;
-  /** Moderators and admins see the way into the admin area. */
-  isStaff?: boolean;
+  /**
+   * Whether the reader is a moderator or admin.
+   *
+   * Required, not optional with a default. An optional flag defaulting to
+   * false is exactly how this shipped greyed-out for an admin: the caller
+   * forgot to pass it and nothing complained.
+   */
+  isStaff: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
