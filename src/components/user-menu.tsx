@@ -13,16 +13,20 @@ import {
   UserIcon,
 } from "./icons";
 
-/** Same line-art family as the composer icons, so the chrome reads as one set. */
+/**
+ * Same line-art family as the composer icons, so the chrome reads as one set.
+ *
+ * Admin sits under Profile and is shown to everybody, greyed out unless the
+ * reader is staff. Greying rather than hiding is a presentation choice, not a
+ * protection: /admin checks the role again on the server and answers a 404 to
+ * anyone else, whether or not they saw this entry.
+ */
 const ITEMS = [
-  { href: "/profile", key: "profile", Icon: UserIcon },
-  { href: "/settings", key: "settings", Icon: SettingsIcon },
-  { href: "/help", key: "help", Icon: HelpIcon },
+  { href: "/profile", key: "profile", Icon: UserIcon, staffOnly: false },
+  { href: "/admin", key: "admin", Icon: ShieldIcon, staffOnly: true },
+  { href: "/settings", key: "settings", Icon: SettingsIcon, staffOnly: false },
+  { href: "/help", key: "help", Icon: HelpIcon, staffOnly: false },
 ] as const;
-
-/** Staff get one more entry. Hiding it from everybody else is presentation,
- *  not security - /admin checks the role again on the server. */
-const ADMIN_ITEM = { href: "/admin", key: "admin", Icon: ShieldIcon } as const;
 
 export type UserMenuLabels = {
   account: string;
@@ -106,9 +110,24 @@ export function UserMenu({
           <p className="truncate px-3 py-2 text-sm font-medium">{name}</p>
           <div className="my-1 border-t border-[var(--line)]" />
 
-          {(isStaff ? [ADMIN_ITEM, ...ITEMS] : ITEMS).map((item) => {
+          {ITEMS.map((item) => {
             const active =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+            // Present but inert for anyone who is not staff.
+            if (item.staffOnly && !isStaff) {
+              return (
+                <span
+                  key={item.href}
+                  role="menuitem"
+                  aria-disabled="true"
+                  className="flex cursor-not-allowed items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--ink-muted)] opacity-50"
+                >
+                  <item.Icon className="size-4 shrink-0" />
+                  {labels[item.key]}
+                </span>
+              );
+            }
 
             return (
               <Link
