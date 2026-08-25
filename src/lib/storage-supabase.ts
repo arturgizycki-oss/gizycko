@@ -36,8 +36,17 @@ function objectUrl(key: string): string {
   return `${base}/object/${bucket}/${encodeKey(key)}`;
 }
 
+/*
+ * Both headers, deliberately.
+ *
+ * Supabase's newer keys (sb_secret_...) are not JWTs, and Storage rejects them
+ * in Authorization alone with "Invalid Compact JWS". It accepts them as
+ * apikey. The older service_role keys are JWTs and work either way, so sending
+ * both covers a project of either vintage.
+ */
 function authHeader(): Record<string, string> {
-  return { Authorization: `Bearer ${config().key}` };
+  const { key } = config();
+  return { apikey: key, Authorization: `Bearer ${key}` };
 }
 
 export async function putObject(key: string, data: Buffer): Promise<void> {
