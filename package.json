@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "build:only": "next build",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "db:restart": "bash scripts/db-restart.sh"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",

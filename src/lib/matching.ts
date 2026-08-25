@@ -35,6 +35,7 @@ export async function recordSwipe(
   });
 
   if (!reciprocal || reciprocal.direction === "PASS") {
+    await notifyOfLike(fromUserId, toUserId);
     return { matched: false, matchId: null };
   }
 
@@ -59,7 +60,64 @@ export async function recordSwipe(
         { userId: toUserId, type: "MATCH", actorId: fromUserId },
       ],
     });
+
+    /*
+     * Clear the earlier "liked your profile" between these two.
+     *
+     * Whoever swiped first was announced as a like, and that line is now both
+     * redundant and behind the times - it would sit in the list under a match
+     * with the same person, still inviting them to go and look.
+     */
+    await prisma.notification.deleteMany({
+      where: {
+        type: "PROFILE_LIKE",
+        OR: [
+          { userId: fromUserId, actorId: toUserId },
+          { userId: toUserId, actorId: fromUserId },
+        ],
+      },
+    });
   }
 
   return { matched: true, matchId: match.id };
+}
+
+/**
+ * Tell somebody they have been liked, when it did not make a match.
+ *
+ * Without this a one-sided like is silent, and two people who like each other
+ * days apart never find out unless both happen to swipe. On a small site that
+ * is the difference between a place with people in it and an empty room: the
+ * notification is what sends somebody back to a profile to like in return.
+ *
+ * Once per pair. Somebody flipping between like and pass should not ring a
+ * bell each time, and a second announcement carries no news anyway.
+ */
+async function notifyOfLike(
+  fromUserId: string,
+  toUserId: string,
+): Promise<void> {
+  const [blocked, already] = await Promise.all([
+    prisma.block.findFirst({
+      where: {
+        OR: [
+          { blockerId: fromUserId, blockedId: toUserId },
+          { blockerId: toUserId, blockedId: fromUserId },
+        ],
+      },
+      select: { id: true },
+    }),
+    prisma.notification.findFirst({
+      where: { userId: toUserId, actorId: fromUserId, type: "PROFILE_LIKE" },
+      select: { id: true },
+    }),
+  ]);
+
+  // Discover hides a blocked member, so this only catches a hand-made request -
+  // but a block that still lets someone tap you on the shoulder is no block.
+  if (blocked || already) return;
+
+  await prisma.notification.create({
+    data: { userId: toUserId, type: "PROFILE_LIKE", actorId: fromUserId },
+  });
 }
