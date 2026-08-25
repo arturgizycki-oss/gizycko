@@ -2,8 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { GIZYCKO_PHOTOS } from "@/lib/photo-credits";
-import { PhotoCreditLine } from "@/components/photo-backdrop";
 import { Brand } from "@/components/brand";
 
 const SHOWCASE = [
@@ -12,119 +10,95 @@ const SHOWCASE = [
   { name: "Ania", age: 31, line: "Climber · Gdańsk", src: "/demo/ania.jpg" },
 ];
 
+const FEATURES = [
+  {
+    title: "Match honestly",
+    body: "Preferences, age range, and distance you actually control.",
+  },
+  {
+    title: "Talk properly",
+    body: "Every match gets a private conversation. No paywall to reply.",
+  },
+  {
+    title: "Stay safe",
+    body: "Block and report from any profile, post, or message.",
+  },
+];
+
 export default async function LandingPage() {
   const session = await getSession();
   if (session) redirect("/feed");
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-white dark:bg-neutral-950">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(244,63,94,0.18),transparent_60%),radial-gradient(50%_45%_at_85%_10%,rgba(251,146,60,0.16),transparent_60%)]"
-      />
+    <main className="relative min-h-dvh">
+      {/*
+        The photograph carries the page, so the hero is one centred column over
+        it rather than text beside a second picture. The scrim is what keeps the
+        headline readable — without it the bright sky washes the text out.
+      */}
+      <div aria-hidden className="fixed inset-0 -z-10">
+        <Image
+          src="/landing-background.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/60 to-white/85 dark:from-neutral-950/75 dark:via-neutral-950/70 dark:to-neutral-950/90" />
+      </div>
 
-      <div className="relative mx-auto flex min-h-dvh max-w-6xl flex-col px-6">
+      <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-6">
         <header className="flex items-center justify-between py-6">
           <Brand href="/" size={34} className="text-lg" />
           <Link
             href="/sign-in"
-            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+            className="text-sm font-medium text-[var(--ink-muted)] hover:text-[var(--ink)]"
           >
             Sign in
           </Link>
         </header>
 
-        <section className="grid flex-1 items-center gap-12 py-10 lg:grid-cols-2">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-3 py-1 text-xs font-medium text-brand-700 backdrop-blur dark:border-brand-900 dark:bg-neutral-900/70 dark:text-brand-200">
-              <span className="size-1.5 rounded-full bg-brand-500" />
-              Now open in Poland
+        <section className="flex flex-1 flex-col items-center justify-center py-16 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-3 py-1 text-xs font-medium text-brand-700 backdrop-blur dark:border-brand-900 dark:bg-neutral-900/70 dark:text-brand-200">
+            <span className="size-1.5 rounded-full bg-brand-500" />
+            Now open around Giżycko
+          </span>
+
+          <h1 className="mt-6 max-w-3xl text-4xl font-bold tracking-tight text-balance sm:text-6xl">
+            Meet people nearby.
+            <br />
+            <span className="bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent">
+              Stay for the community.
             </span>
+          </h1>
 
-            <h1 className="mt-5 text-4xl font-bold tracking-tight text-balance sm:text-6xl">
-              Meet people nearby.
-              <br />
-              <span className="bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent">
-                Stay for the community.
-              </span>
-            </h1>
+          <p className="mt-6 max-w-xl text-lg text-[var(--ink-muted)]">
+            A dating app with a real social side — match, chat, and share what
+            you are up to with the people you actually know.
+          </p>
 
-            <p className="mt-6 max-w-lg text-lg text-neutral-600 dark:text-neutral-400">
-              A dating app with a real social side — match, chat, and share what
-              you are up to with the people you actually know.
-            </p>
-
-            <div className="mt-10 flex flex-wrap gap-3">
-              <Link
-                href="/sign-up"
-                className="btn btn-primary btn-lg"
-              >
-                Create an account
-              </Link>
-              <Link
-                href="/sign-in"
-                className="btn btn-secondary btn-lg"
-              >
-                I already have one
-              </Link>
-            </div>
-
-            <p className="mt-8 text-sm text-neutral-500">
-              18+ only. Be kind — every profile is a real person.
-            </p>
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <Link href="/sign-up" className="btn btn-primary btn-lg">
+              Create an account
+            </Link>
+            <Link href="/sign-in" className="btn btn-secondary btn-lg">
+              I already have one
+            </Link>
           </div>
 
-          <div className="relative">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-2xl shadow-neutral-900/20 sm:aspect-[5/4] lg:aspect-[4/5]">
-              <Image
-                src={GIZYCKO_PHOTOS.bridge.src}
-                alt={GIZYCKO_PHOTOS.bridge.alt}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 560px"
-                className="object-cover"
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-neutral-950/70 via-neutral-950/10 to-transparent"
-              />
-              <p className="absolute right-6 bottom-8 left-6 text-lg font-semibold text-white">
-                Someone in Giżycko is free this weekend.
-              </p>
-              <PhotoCreditLine photo={GIZYCKO_PHOTOS.bridge} />
-            </div>
-
-            {/* Overlapping profile card, the way a match actually looks. */}
-            <article className="absolute -bottom-6 -left-4 hidden w-48 overflow-hidden rounded-2xl border border-white/70 bg-white shadow-xl shadow-neutral-900/20 sm:block dark:border-neutral-800 dark:bg-neutral-900">
-              <div className="relative aspect-square">
-                <Image
-                  src={SHOWCASE[0].src}
-                  alt=""
-                  fill
-                  sizes="192px"
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-3">
-                <p className="text-sm font-semibold">
-                  {SHOWCASE[0].name}, {SHOWCASE[0].age}
-                </p>
-                <p className="text-xs text-neutral-500">{SHOWCASE[0].line}</p>
-              </div>
-            </article>
-          </div>
+          <p className="mt-8 text-sm text-[var(--ink-muted)]">
+            18+ only. Be kind — every profile is a real person.
+          </p>
         </section>
 
-        <section className="pt-16 pb-10">
-          <h2 className="text-sm font-semibold text-neutral-500">
+        <section className="pb-10">
+          <h2 className="text-sm font-semibold text-[var(--ink-muted)]">
             People already here
           </h2>
           <ul className="mt-4 grid grid-cols-3 gap-4">
             {SHOWCASE.map((person) => (
-              <li
-                key={person.name}
-                className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
-              >
+              <li key={person.name} className="card-glass overflow-hidden">
                 <div className="relative aspect-[4/5]">
                   <Image
                     src={person.src}
@@ -138,7 +112,7 @@ export default async function LandingPage() {
                   <p className="text-sm font-semibold">
                     {person.name}, {person.age}
                   </p>
-                  <p className="text-xs text-neutral-500">{person.line}</p>
+                  <p className="hint">{person.line}</p>
                 </div>
               </li>
             ))}
@@ -146,33 +120,15 @@ export default async function LandingPage() {
         </section>
 
         <section className="grid gap-4 pb-12 sm:grid-cols-3">
-          {[
-            {
-              title: "Match honestly",
-              body: "Preferences, age range, and distance you actually control.",
-            },
-            {
-              title: "Talk properly",
-              body: "Every match gets a private conversation. No paywall to reply.",
-            },
-            {
-              title: "Stay safe",
-              body: "Block and report from any profile, post, or message.",
-            },
-          ].map((feature) => (
-            <div
-              key={feature.title}
-              className="card-glass p-4"
-            >
+          {FEATURES.map((feature) => (
+            <div key={feature.title} className="card-glass p-4">
               <h2 className="text-sm font-semibold">{feature.title}</h2>
-              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                {feature.body}
-              </p>
+              <p className="mt-1 text-sm text-[var(--ink-muted)]">{feature.body}</p>
             </div>
           ))}
         </section>
 
-        <footer className="border-t border-neutral-200 py-6 text-sm text-neutral-500 dark:border-neutral-800">
+        <footer className="border-t border-[var(--line)] py-6 text-sm text-[var(--ink-muted)]">
           <nav className="flex gap-6">
             <Link href="/terms" className="hover:underline">
               Terms
