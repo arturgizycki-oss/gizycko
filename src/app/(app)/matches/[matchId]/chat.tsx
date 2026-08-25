@@ -340,15 +340,28 @@ function Composer({ matchId }: { matchId: string }) {
           onInput={(value) => setHasText(value.trim().length > 0)}
         />
 
-        <button
-          type="button"
-          onClick={() => setShowPicker((open) => !open)}
-          aria-label="Emoji"
-          aria-expanded={showPicker}
-          className={ICON_BUTTON}
-        >
-          <SmileIcon />
-        </button>
+        <span className="relative">
+          <button
+            type="button"
+            onClick={() => setShowPicker((open) => !open)}
+            aria-label="Emoji"
+            aria-expanded={showPicker}
+            className={ICON_BUTTON}
+          >
+            <SmileIcon />
+          </button>
+
+          {/* The chat bar sits at the bottom of the panel, and the button is
+              near the right edge, so the keyboard opens up and to the left. */}
+          {showPicker && (
+            <EmojiPicker
+              placement="top"
+              align="right"
+              onPick={insert}
+              onClose={() => setShowPicker(false)}
+            />
+          )}
+        </span>
 
         {canSend ? (
           <button
@@ -363,10 +376,6 @@ function Composer({ matchId }: { matchId: string }) {
           <VoiceRecorder onChange={(file) => setHasVoice(file !== null)} />
         )}
       </div>
-
-      {showPicker && (
-        <EmojiPicker onPick={insert} onClose={() => setShowPicker(false)} />
-      )}
 
       {state.error && (
         <p role="alert" className="mt-2 px-2 text-sm text-rose-600">

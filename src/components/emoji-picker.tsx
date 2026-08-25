@@ -4,15 +4,24 @@ import { useEffect, useRef, useState } from "react";
 import { EMOJI_GROUPS, searchEmoji } from "@/lib/emoji";
 
 /**
- * Emoji keyboard. Rendered inline above the composer rather than in a portal,
- * so it scrolls and closes with the form it belongs to.
+ * Emoji keyboard.
+ *
+ * Positioned against whichever element wraps it, so it must be rendered inside
+ * a `relative` container around the button that opens it — not at the top of a
+ * form, or it lands wherever that form happens to start.
  */
 export function EmojiPicker({
   onPick,
   onClose,
+  placement = "top",
+  align = "left",
 }: {
   onPick: (emoji: string) => void;
   onClose: () => void;
+  /** Above the button, or below it when there is no room above. */
+  placement?: "top" | "bottom";
+  /** Which edge it lines up with, so it does not run off the side. */
+  align?: "left" | "right";
 }) {
   const [group, setGroup] = useState(0);
   const [query, setQuery] = useState("");
@@ -45,7 +54,11 @@ export function EmojiPicker({
       ref={panel}
       role="dialog"
       aria-label="Choose an emoji"
-      className="card absolute bottom-full left-0 z-30 mb-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden"
+      className={[
+        "card absolute z-30 w-[min(22rem,calc(100vw-2rem))] overflow-hidden",
+        placement === "top" ? "bottom-full mb-2" : "top-full mt-2",
+        align === "left" ? "left-0" : "right-0",
+      ].join(" ")}
     >
       <div className="flex gap-1 border-b border-[var(--line)] p-1.5">
         {EMOJI_GROUPS.map((item, at) => (

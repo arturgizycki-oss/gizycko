@@ -236,16 +236,26 @@ function ComposerFields({
         <VoiceRecorder label="Voice" />
         <CameraShot label="Camera" />
 
-        <button
-          type="button"
-          onClick={() => setShowEmoji((open) => !open)}
-          aria-label="Emoji"
-          aria-expanded={showEmoji}
-          title="Emoji"
-          className={ICON_BUTTON_LABELLED}
-        >
-          <SmileIcon className="size-4" />
-        </button>
+        <span className="relative">
+          <button
+            type="button"
+            onClick={() => setShowEmoji((open) => !open)}
+            aria-label="Emoji"
+            aria-expanded={showEmoji}
+            title="Emoji"
+            className={ICON_BUTTON_LABELLED}
+          >
+            <SmileIcon className="size-4" />
+          </button>
+
+          {showEmoji && (
+            <EmojiPicker
+              placement="bottom"
+              onPick={insertEmoji}
+              onClose={() => setShowEmoji(false)}
+            />
+          )}
+        </span>
 
         <label className="ml-auto flex items-center gap-1.5 text-xs text-[var(--ink-muted)]">
           Visible to{" "}
@@ -269,10 +279,6 @@ function ComposerFields({
           {pending ? "Posting…" : "Post"}
         </button>
       </div>
-
-      {showEmoji && (
-        <EmojiPicker onPick={insertEmoji} onClose={() => setShowEmoji(false)} />
-      )}
 
       {error && (
         <p role="alert" className="mt-2 text-sm text-rose-600">
