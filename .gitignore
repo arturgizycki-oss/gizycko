@@ -47,3 +47,7 @@ next-env.d.ts
 
 # local object storage (photos)
 /.storage
+
+# Rendered adverts. The scripts that build them are committed; the video is
+# not - git handles source badly and these are regenerated in a minute.
+marketing/*.mp4
