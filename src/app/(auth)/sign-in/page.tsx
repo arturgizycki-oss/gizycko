@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
 import { useT } from "@/lib/i18n/provider";
+import { useErrorToast } from "@/components/toast";
 
 export default function SignInPage() {
   const t = useT();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  useErrorToast(error);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -68,12 +70,6 @@ export default function SignInPage() {
             className="input mt-1"
           />
         </label>
-
-        {error && (
-          <p role="alert" className="text-sm text-rose-600">
-            {error}
-          </p>
-        )}
 
         <button
           type="submit"

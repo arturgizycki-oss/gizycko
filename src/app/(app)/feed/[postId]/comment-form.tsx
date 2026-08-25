@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { addComment, type PostState } from "../actions";
 import { useT } from "@/lib/i18n/provider";
+import { useErrorToast } from "@/components/toast";
 
 export function CommentForm({ postId }: { postId: string }) {
   const t = useT();
@@ -12,6 +13,7 @@ export function CommentForm({ postId }: { postId: string }) {
     action,
     {},
   );
+  useErrorToast(state.error, state.submissionId);
 
   useEffect(() => {
     if (!pending && !state.error) formRef.current?.reset();
@@ -27,12 +29,6 @@ export function CommentForm({ postId }: { postId: string }) {
         placeholder={t("feed.commentPlaceholder")}
         className="w-full resize-none rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 dark:border-neutral-700 dark:bg-neutral-900"
       />
-
-      {state.error && (
-        <p role="alert" className="mt-1 text-sm text-rose-600">
-          {state.error}
-        </p>
-      )}
 
       <button type="submit" disabled={pending} className="btn btn-primary mt-2">
         {pending ? t("action.posting") : t("feed.comment")}

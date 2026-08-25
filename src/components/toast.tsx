@@ -113,3 +113,23 @@ export function useToast() {
     [context],
   );
 }
+
+/**
+ * Raise a toast whenever an error appears.
+ *
+ * Form and action errors arrive as state rather than as an event, so they need
+ * watching rather than calling. Pass `nonce` - a submission id, say - when the
+ * same message can legitimately happen twice in a row and should be shown
+ * again rather than swallowed as unchanged.
+ */
+export function useErrorToast(
+  error: string | null | undefined,
+  nonce?: unknown,
+) {
+  const toast = useToast();
+
+  useEffect(() => {
+    if (error) toast(error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error, nonce]);
+}

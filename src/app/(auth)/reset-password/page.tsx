@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useT } from "@/lib/i18n/provider";
+import { useErrorToast } from "@/components/toast";
 
 function ResetPasswordForm() {
   const t = useT();
@@ -13,6 +14,7 @@ function ResetPasswordForm() {
   const token = params.get("token");
 
   const [error, setError] = useState<string | null>(null);
+  useErrorToast(error);
   const [pending, setPending] = useState(false);
 
   if (!token) {
@@ -94,12 +96,6 @@ function ResetPasswordForm() {
             className="input mt-1"
           />
         </label>
-
-        {error && (
-          <p role="alert" className="text-sm text-rose-600">
-            {error}
-          </p>
-        )}
 
         <button
           type="submit"

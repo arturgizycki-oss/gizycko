@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { completeOnboarding, type OnboardingState } from "./actions";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
+import { useErrorToast } from "@/components/toast";
 
 /** Gender values as stored, paired with the key that names each one. */
 const GENDER_LABELS: Record<string, MessageKey> = {
@@ -21,6 +22,7 @@ export function OnboardingForm({ defaultName }: { defaultName: string }) {
     OnboardingState,
     FormData
   >(completeOnboarding, {});
+  useErrorToast(state.error);
 
   return (
     <form action={formAction} className="mt-8 space-y-5">
@@ -102,12 +104,6 @@ export function OnboardingForm({ defaultName }: { defaultName: string }) {
           className={inputClass}
         />
       </label>
-
-      {state.error && (
-        <p role="alert" className="text-sm text-rose-600">
-          {state.error}
-        </p>
-      )}
 
       <button
         type="submit"

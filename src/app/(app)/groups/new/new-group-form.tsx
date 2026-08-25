@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { createGroup, type GroupState } from "../actions";
 import { useT } from "@/lib/i18n/provider";
+import { useErrorToast } from "@/components/toast";
 
 export function NewGroupForm() {
   const t = useT();
@@ -10,6 +11,7 @@ export function NewGroupForm() {
     createGroup,
     {},
   );
+  useErrorToast(state.error);
 
   return (
     <form action={formAction} className="card space-y-4 p-4">
@@ -60,12 +62,6 @@ export function NewGroupForm() {
           </label>
         </div>
       </fieldset>
-
-      {state.error && (
-        <p role="alert" className="text-sm text-rose-600">
-          {state.error}
-        </p>
-      )}
 
       <button type="submit" disabled={pending} className="btn btn-primary">
         {pending ? t("groups.creating") : t("groups.createGroup")}

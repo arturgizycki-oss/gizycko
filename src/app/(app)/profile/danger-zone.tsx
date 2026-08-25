@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useT } from "@/lib/i18n/provider";
+import { useErrorToast } from "@/components/toast";
 
 export function DangerZone() {
   const t = useT();
@@ -11,6 +12,7 @@ export function DangerZone() {
   const [confirming, setConfirming] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  useErrorToast(error);
   const [pending, setPending] = useState(false);
 
   async function onDelete() {
@@ -65,12 +67,6 @@ export function DangerZone() {
               className="input mt-1 max-w-xs"
             />
           </label>
-
-          {error && (
-            <p role="alert" className="text-sm text-rose-600">
-              {error}
-            </p>
-          )}
 
           <div className="flex flex-wrap gap-2">
             <button

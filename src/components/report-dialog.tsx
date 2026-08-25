@@ -5,6 +5,7 @@ import { submitReport, type SafetyState } from "@/lib/actions/safety";
 import { REPORT_REASONS } from "@/lib/report-reasons";
 import { useT } from "@/lib/i18n/provider";
 import { FlagIcon } from "./icons";
+import { useErrorToast } from "@/components/toast";
 
 type ReportTarget = {
   reportedUserId?: string;
@@ -27,6 +28,7 @@ export function ReportDialog({
     submitReport,
     {},
   );
+  useErrorToast(state.error);
 
   if (state.ok) {
     return <p className="text-xs text-emerald-600">{t("report.done")}</p>;
@@ -82,12 +84,6 @@ export function ReportDialog({
         placeholder={t("report.details")}
         className="w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm dark:border-neutral-700 dark:bg-neutral-950"
       />
-
-      {state.error && (
-        <p role="alert" className="text-xs text-rose-600">
-          {state.error}
-        </p>
-      )}
 
       <div className="flex gap-2">
         <button

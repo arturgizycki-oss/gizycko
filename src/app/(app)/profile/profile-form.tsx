@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { updateProfile, type ActionState } from "./actions";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
+import { useErrorToast } from "@/components/toast";
 
 /** Gender values as stored, paired with the key that names each one. */
 const GENDER_LABELS: Record<string, MessageKey> = {
@@ -33,6 +34,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
     updateProfile,
     {},
   );
+  useErrorToast(state.error);
 
   return (
     <form
@@ -149,11 +151,6 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
         {t("profile.showInDiscover")}
       </label>
 
-      {state.error && (
-        <p role="alert" className="text-sm text-rose-600">
-          {state.error}
-        </p>
-      )}
       {state.ok && (
         <p className="text-sm text-emerald-600">{t("profile.saved")}</p>
       )}

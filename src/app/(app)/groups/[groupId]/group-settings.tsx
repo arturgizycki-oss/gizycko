@@ -4,6 +4,7 @@ import { useActionState, useTransition } from "react";
 import { deleteGroup, updateGroup, type GroupState } from "../actions";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { useT } from "@/lib/i18n/provider";
+import { useErrorToast } from "@/components/toast";
 
 const RULES_PLACEHOLDER = `One rule per line, for example:
 Keep it about sailing.
@@ -31,6 +32,7 @@ export function GroupSettings({
     action,
     {},
   );
+  useErrorToast(state.error);
   const [deleting, startDelete] = useTransition();
 
   return (
@@ -100,12 +102,6 @@ export function GroupSettings({
             </label>
           </div>
         </fieldset>
-
-        {state.error && (
-          <p role="alert" className="text-sm text-rose-600">
-            {state.error}
-          </p>
-        )}
 
         <button
           type="submit"

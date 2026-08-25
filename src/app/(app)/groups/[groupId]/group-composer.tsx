@@ -12,7 +12,7 @@ import {
 } from "@/components/icons";
 import { MAX_POST_IMAGES } from "@/lib/post-limits";
 import { useT } from "@/lib/i18n/provider";
-import { useToast } from "@/components/toast";
+import { useErrorToast, useToast } from "@/components/toast";
 import { prepareUploads } from "@/lib/upload-form";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -28,6 +28,7 @@ export function GroupComposer({ groupId }: { groupId: string }) {
     action,
     {},
   );
+  useErrorToast(state.error);
 
   // Same as the main composer: bytes to the bucket first, keys with the
   // action, because the host refuses a large body outright.
@@ -115,12 +116,6 @@ export function GroupComposer({ groupId }: { groupId: string }) {
           {pending || uploading ? t("action.posting") : t("action.post")}
         </button>
       </div>
-
-      {state.error && (
-        <p role="alert" className="mt-2 text-sm text-rose-600">
-          {state.error}
-        </p>
-      )}
     </form>
   );
 }
