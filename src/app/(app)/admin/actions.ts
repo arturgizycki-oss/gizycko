@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireModerator } from "@/lib/session";
+import { deleteMemberFiles } from "@/lib/member-files";
 
 export type AdminResult = { error?: string };
 
@@ -118,6 +119,44 @@ export async function setVisibility(
     where: { userId },
     data: { isVisible: visible },
   });
+
+  revalidatePath("/admin/members");
+  return {};
+}
+
+/**
+ * Delete a member and everything they uploaded.
+ *
+ * Admin only, and irreversible: the row cascades to their profile, photos,
+ * posts, comments, messages, matches and group memberships, and their files
+ * are removed from the bucket first. A ban is the reversible tool; this is for
+ * an erasure request, or an account that should never have existed.
+ *
+ * Files go first. If the row went first there would be nothing left naming
+ * them, and they would sit in storage forever.
+ */
+export async function deleteMember(userId: string): Promise<AdminResult> {
+  const session = await requireAdmin();
+  if (!session) return { error: "Only an admin can delete an account." };
+
+  if (userId === session.user.id) {
+    return { error: "You cannot delete your own account here." };
+  }
+
+  const target = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (!target) return { error: "That account is already gone." };
+
+  if (target.role === "ADMIN") {
+    const admins = await prisma.user.count({ where: { role: "ADMIN" } });
+    if (admins <= 1) return { error: "That is the only admin left." };
+  }
+
+  await deleteMemberFiles(userId);
+  await prisma.user.delete({ where: { id: userId } });
 
   revalidatePath("/admin/members");
   return {};

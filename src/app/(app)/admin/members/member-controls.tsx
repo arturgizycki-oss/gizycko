@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { banMember, setRole, setVisibility, unbanMember } from "../actions";
+import {
+  banMember,
+  deleteMember,
+  setRole,
+  setVisibility,
+  unbanMember,
+} from "../actions";
 import { useToast } from "@/components/toast";
 
 export type AdminMember = {
@@ -29,6 +35,7 @@ export function MemberControls({
 }) {
   const toast = useToast();
   const [banning, setBanning] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [reason, setReason] = useState("");
   const [pending, startTransition] = useTransition();
 
@@ -37,6 +44,34 @@ export function MemberControls({
       const result = await work();
       if (result?.error) toast(result.error);
     });
+  }
+
+  if (deleting) {
+    return (
+      <span className="flex flex-wrap items-center gap-2">
+        <span style={{ color: "var(--gh-danger)" }}>
+          Delete permanently? Their posts, messages, photos and matches go too.
+        </span>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => {
+            run(() => deleteMember(member.id));
+            setDeleting(false);
+          }}
+          className="gh-btn gh-btn-danger"
+        >
+          Delete
+        </button>
+        <button
+          type="button"
+          onClick={() => setDeleting(false)}
+          className="gh-btn"
+        >
+          Cancel
+        </button>
+      </span>
+    );
   }
 
   if (banning) {
@@ -97,6 +132,17 @@ export function MemberControls({
           className="gh-btn"
         >
           {member.visible ? "Hide from Discover" : "Show in Discover"}
+        </button>
+      )}
+
+      {viewerIsAdmin && !isSelf && (
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => setDeleting(true)}
+          className="gh-btn gh-btn-danger"
+        >
+          Delete
         </button>
       )}
 
