@@ -12,12 +12,16 @@ import {
 } from "@/components/icons";
 import { MAX_POST_IMAGES } from "@/lib/post-limits";
 import { useT } from "@/lib/i18n/provider";
+import { useToast } from "@/components/toast";
+import { prepareUploads } from "@/lib/upload-form";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export function GroupComposer({ groupId }: { groupId: string }) {
   const t = useT();
+  const toast = useToast();
   const [attached, setAttached] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const action = postToGroup.bind(null, groupId);
   const [state, formAction, pending] = useActionState<GroupState, FormData>(
@@ -25,8 +29,26 @@ export function GroupComposer({ groupId }: { groupId: string }) {
     {},
   );
 
+  // Same as the main composer: bytes to the bucket first, keys with the
+  // action, because the host refuses a large body outright.
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const form = event.currentTarget;
+    event.preventDefault();
+
+    setUploading(true);
+    const prepared = await prepareUploads(form);
+    setUploading(false);
+
+    if (!prepared.ok) {
+      toast(prepared.error);
+      return;
+    }
+
+    formAction(prepared.data);
+  }
+
   return (
-    <form action={formAction} className="card p-4">
+    <form onSubmit={onSubmit} className="card p-4">
       <textarea
         name="body"
         rows={3}
@@ -87,10 +109,10 @@ export function GroupComposer({ groupId }: { groupId: string }) {
         <span className="hint ml-auto">{t("groups.membersOnly")}</span>
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || uploading}
           className="btn btn-primary btn-sm"
         >
-          {pending ? t("action.posting") : t("action.post")}
+          {pending || uploading ? t("action.posting") : t("action.post")}
         </button>
       </div>
 

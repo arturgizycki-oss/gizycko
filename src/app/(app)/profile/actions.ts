@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { verifyUploaded } from "@/lib/uploads";
 import { checkContent } from "@/lib/content-policy";
 import { checkUploadedImage, MAX_PROFILE_PHOTOS } from "@/lib/image";
 import {
@@ -34,8 +35,15 @@ export async function uploadPhoto(
   const session = await requireSession();
   const profile = await myProfile(session.user.id);
 
+  // Either the browser put the file in the bucket and sent its key, or the
+  // file itself is in the body. The second only works on a local disk: a
+  // serverless host refuses a body this size before any of this runs.
+  const uploadedKey = formData.get("photoKey");
   const file = formData.get("photo");
-  if (!(file instanceof File)) return { error: "Choose an image first." };
+
+  if (typeof uploadedKey !== "string" && !(file instanceof File)) {
+    return { error: "Choose an image first." };
+  }
 
   const existing = await prisma.photo.findMany({
     where: { profileId: profile.id },
@@ -51,11 +59,24 @@ export async function uploadPhoto(
   // reuse a position that is already taken. Take the next one after the last.
   const nextPosition = existing.length === 0 ? 0 : existing[0].position + 1;
 
-  const checked = await checkUploadedImage(file);
-  if (!checked.ok) return { error: checked.error };
+  let key: string;
 
-  const key = `photos/${session.user.id}/${randomUUID()}${checked.kind.extension}`;
-  await putObject(key, checked.bytes);
+  if (typeof uploadedKey === "string" && uploadedKey.length > 0) {
+    // A key is a claim. Size and magic bytes are checked before it is kept.
+    const verified = await verifyUploaded(
+      uploadedKey,
+      "image",
+      session.user.id,
+    );
+    if (!verified.ok) return { error: verified.error };
+    key = uploadedKey;
+  } else {
+    const checked = await checkUploadedImage(file as File);
+    if (!checked.ok) return { error: checked.error };
+
+    key = `photos/${session.user.id}/${randomUUID()}${checked.kind.extension}`;
+    await putObject(key, checked.bytes);
+  }
 
   await prisma.photo.create({
     data: {

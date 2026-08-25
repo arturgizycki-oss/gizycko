@@ -17,6 +17,7 @@ import {
 } from "@/components/icons";
 import { useT } from "@/lib/i18n/provider";
 import { useToast } from "@/components/toast";
+import { prepareUploads } from "@/lib/upload-form";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -25,18 +26,42 @@ function megabytes(bytes: number) {
 }
 
 export function Composer() {
+  const toast = useToast();
   const [state, formAction, pending] = useActionState<PostState, FormData>(
     createPost,
     {},
   );
+  const [uploading, setUploading] = useState(false);
+
+  /*
+   * Attachments go to the bucket before the form is submitted, and only their
+   * keys travel with the action. Sent inline, anything over a few megabytes is
+   * refused by the host before our code runs, which the browser shows as a
+   * blank error page rather than something a member can act on.
+   */
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const form = event.currentTarget;
+    event.preventDefault();
+
+    setUploading(true);
+    const prepared = await prepareUploads(form);
+    setUploading(false);
+
+    if (!prepared.ok) {
+      toast(prepared.error);
+      return;
+    }
+
+    formAction(prepared.data);
+  }
 
   return (
-    <form action={formAction} className="card relative p-4">
+    <form onSubmit={onSubmit} className="card relative p-4">
       {/* Remounting on a new submission id clears the text, the files, and the
           previews without resetting state from inside an effect. */}
       <ComposerFields
         key={state.submissionId ?? "new"}
-        pending={pending}
+        pending={pending || uploading}
         serverError={state.error}
       />
     </form>

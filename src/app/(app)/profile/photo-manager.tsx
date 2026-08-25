@@ -12,6 +12,7 @@ import { MAX_IMAGE_BYTES, MAX_PROFILE_PHOTOS } from "@/lib/image";
 import { Lightbox } from "@/components/photo-lightbox";
 import { ConfirmButton } from "@/components/confirm-button";
 import { useToast } from "@/components/toast";
+import { prepareUploadOne } from "@/lib/upload-form";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
 
@@ -33,6 +34,8 @@ const MODERATION_LABEL: Record<PhotoItem["moderation"], MessageKey> = {
 
 export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
   const t = useT();
+  const toast = useToast();
+  const [uploading, setUploading] = useState(false);
   const [viewing, setViewing] = useState<number | null>(null);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     uploadPhoto,
@@ -115,12 +118,30 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
       )}
 
       {photos.length < MAX_PROFILE_PHOTOS && (
-        <form action={formAction} className="mt-4">
+        <form
+          onSubmit={async (event) => {
+            const form = event.currentTarget;
+            event.preventDefault();
+
+            // Straight to the bucket first. A 5 MB photograph sent through the
+            // action is refused by the host before any of our code runs.
+            setUploading(true);
+            const prepared = await prepareUploadOne(form, "photo", "photoKey");
+            setUploading(false);
+
+            if (!prepared.ok) {
+              toast(prepared.error);
+              return;
+            }
+            formAction(prepared.data);
+          }}
+          className="mt-4"
+        >
           {/* Remounting on a new submission id clears the picker, rather than
               resetting state from inside an effect. */}
           <UploadFields
             key={state.submissionId ?? "new"}
-            pending={pending}
+            pending={pending || uploading}
             serverError={state.error}
           />
         </form>

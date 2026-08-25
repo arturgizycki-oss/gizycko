@@ -31,6 +31,7 @@ import {
 import { isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
 import { useT } from "@/lib/i18n/provider";
 import { useToast } from "@/components/toast";
+import { prepareChatUpload } from "@/lib/upload-form";
 
 export type ChatReaction = { emoji: string; count: number; mine: boolean };
 
@@ -465,6 +466,7 @@ function Composer({
   const [hasVoice, setHasVoice] = useState(false);
   const [hasText, setHasText] = useState(false);
   const [saving, startSaving] = useTransition();
+  const [sending, setSending] = useState(false);
 
   const action = sendMessage.bind(null, matchId);
   const [state, formAction, pending] = useActionState<MessageState, FormData>(
@@ -538,10 +540,25 @@ function Composer({
   // the same swap every chat app makes.
   const canSend = hasText || attached !== null || hasVoice;
 
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const element = event.currentTarget;
+    event.preventDefault();
+
+    setSending(true);
+    const prepared = await prepareChatUpload(element);
+    setSending(false);
+
+    if (!prepared.ok) {
+      toast(prepared.error);
+      return;
+    }
+    formAction(prepared.data);
+  }
+
   return (
     <form
       ref={form}
-      action={formAction}
+      onSubmit={onSubmit}
       className="relative border-t border-[var(--line)] p-2"
     >
       {draft && (
@@ -660,7 +677,7 @@ function Composer({
         ) : canSend ? (
           <button
             type="submit"
-            disabled={pending}
+            disabled={pending || sending}
             aria-label={t("action.send")}
             className="rounded-full bg-brand-600 p-2 text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
           >

@@ -12,6 +12,8 @@ import { checkUploadedAudio, titleFromFileName } from "@/lib/audio";
 import { checkUploadedVideo } from "@/lib/video";
 import { checkUploadedVoice } from "@/lib/voice";
 import { mediaUrl, putObject } from "@/lib/storage";
+import { verifyUploaded } from "@/lib/uploads";
+import { isMediaKind } from "@/lib/media-kinds";
 
 export type MessageState = { error?: string; submissionId?: string };
 
@@ -168,7 +170,27 @@ export async function sendMessage(
 
   // A recording arrives in its own field, because a WebM voice note is
   // byte-identical to a WebM video and only the field says which it is.
-  if (voice) {
+  const uploadedKey = formData.get("attachmentKey");
+  const uploadedKind = formData.get("attachmentKind");
+
+  if (typeof uploadedKey === "string" && uploadedKey.length > 0) {
+    // Put in the bucket by the browser, because a serverless request body
+    // cannot carry a video. Verified before it is attached to anything.
+    const kind = isMediaKind(uploadedKind) ? uploadedKind : "image";
+    const verified = await verifyUploaded(uploadedKey, kind, session.user.id);
+    if (!verified.ok) return { error: verified.error };
+
+    attachment = {
+      key: uploadedKey,
+      bytes: Buffer.alloc(0),
+      type: verified.media.contentType,
+      kind: kind === "video" ? "VIDEO" : kind === "image" ? "IMAGE" : "AUDIO",
+      name:
+        kind === "voice"
+          ? "Voice note"
+          : String(formData.get("attachmentName") ?? "Attachment"),
+    };
+  } else if (voice) {
     const checked = await checkUploadedVoice(voice);
     if (!checked.ok) return { error: checked.error };
     attachment = {
