@@ -16,10 +16,12 @@ import {
 /**
  * Same line-art family as the composer icons, so the chrome reads as one set.
  *
- * Admin sits under Profile and is shown to everybody, greyed out unless the
- * reader is staff. Greying rather than hiding is a presentation choice, not a
- * protection: /admin checks the role again on the server and answers a 404 to
- * anyone else, whether or not they saw this entry.
+ * Admin sits under Profile and only staff see it at all. It was shown to
+ * everybody greyed out, which told every member there is an admin area and
+ * offered them a door they could not open.
+ *
+ * Hiding it is tidiness rather than protection: /admin checks the role again on
+ * the server and answers 404 to anyone else, whether or not they saw the entry.
  */
 const ITEMS = [
   { href: "/profile", key: "profile", Icon: UserIcon, staffOnly: false },
@@ -120,20 +122,7 @@ export function UserMenu({
             const active =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-            // Present but inert for anyone who is not staff.
-            if (item.staffOnly && !isStaff) {
-              return (
-                <span
-                  key={item.href}
-                  role="menuitem"
-                  aria-disabled="true"
-                  className="flex cursor-not-allowed items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[var(--ink-muted)] opacity-50"
-                >
-                  <item.Icon className="size-4 shrink-0" />
-                  {labels[item.key]}
-                </span>
-              );
-            }
+            if (item.staffOnly && !isStaff) return null;
 
             return (
               <Link

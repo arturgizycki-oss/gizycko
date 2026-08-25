@@ -10,6 +10,7 @@ import {
   HomeIcon,
   UsersIcon,
 } from "./icons";
+import { useUnread } from "./unread";
 
 const NAV = [
   { href: "/feed", key: "feed", Icon: HomeIcon, badge: false },
@@ -31,7 +32,7 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function Badge({ count, onBrand }: { count: number; onBrand: boolean }) {
+export function Badge({ count, onBrand }: { count: number; onBrand: boolean }) {
   if (count === 0) return null;
 
   return (
@@ -51,14 +52,9 @@ function Badge({ count, onBrand }: { count: number; onBrand: boolean }) {
  * Six words plus a logo, a bell, and an avatar do not fit a phone, so below
  * `sm` this collapses to nothing and `BottomNav` takes over.
  */
-export function NavLinks({
-  unreadMessages,
-  labels,
-}: {
-  unreadMessages: number;
-  labels: NavLabels;
-}) {
+export function NavLinks({ labels }: { labels: NavLabels }) {
   const pathname = usePathname();
+  const { messages } = useUnread();
 
   return (
     <nav className="hidden flex-1 items-center gap-1 text-sm sm:flex">
@@ -81,7 +77,7 @@ export function NavLinks({
             }`}
           >
             {labels[item.key] ?? item.key}
-            {item.badge && <Badge count={unreadMessages} onBrand={active} />}
+            {item.badge && <Badge count={messages} onBrand={active} />}
           </Link>
         );
       })}
@@ -97,14 +93,9 @@ export function NavLinks({
  * fixed descendants - a bar nested in there would anchor to the bottom of the
  * header and cover the bell and avatar instead of sitting on the viewport.
  */
-export function BottomNav({
-  unreadMessages,
-  labels,
-}: {
-  unreadMessages: number;
-  labels: NavLabels;
-}) {
+export function BottomNav({ labels }: { labels: NavLabels }) {
   const pathname = usePathname();
+  const { messages } = useUnread();
 
   return (
     <nav
@@ -126,9 +117,7 @@ export function BottomNav({
               >
                 <span className="relative">
                   <item.Icon className="size-5" />
-                  {item.badge && (
-                    <Badge count={unreadMessages} onBrand={false} />
-                  )}
+                  {item.badge && <Badge count={messages} onBrand={false} />}
                 </span>
                 <span className="w-full truncate text-center">
                   {labels[item.key] ?? item.key}
