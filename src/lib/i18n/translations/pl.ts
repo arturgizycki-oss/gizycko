@@ -484,4 +484,15 @@ export const pl: Dictionary = {
   "onboarding.intro": "To zobaczą inni. Możesz to zmienić w każdej chwili.",
   "onboarding.ageNote": "Innym pokazujemy tylko wiek, nigdy dokładnej daty.",
   "onboarding.iAm": "Jestem",
+
+  "email.newMessageSubject": "Nowa wiadomość od {name}",
+  "email.newMessageBody": "{name} wysłał(a) Ci wiadomość na gizycko.",
+  "email.newMessageOpen": "Przeczytaj ją tutaj:",
+  "email.newMessageWhy":
+    "Dostajesz to, ponieważ powiadomienia e-mail są włączone. Możesz je wyłączyć w Ustawieniach.",
+  "settings.emailOnMessage": "Powiadamiaj mnie e-mailem o nowych wiadomościach",
+  "settings.emailOnMessageHint":
+    "Tylko gdy dłuższy czas Cię nie było, i najwyżej raz na godzinę.",
+  "settings.emailSaveFailed": "Nie udało się zapisać. Spróbuj ponownie.",
+  "settings.notifications": "Powiadomienia",
 };

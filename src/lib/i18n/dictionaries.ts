@@ -514,6 +514,17 @@ export const en = {
   "onboarding.ageNote":
     "Only your age is shown to others, never the exact date.",
   "onboarding.iAm": "I am",
+
+  "email.newMessageSubject": "New message from {name}",
+  "email.newMessageBody": "{name} sent you a message on gizycko.",
+  "email.newMessageOpen": "Read it here:",
+  "email.newMessageWhy":
+    "You are getting this because email notifications are on. Turn them off in Settings.",
+  "settings.emailOnMessage": "Email me about new messages",
+  "settings.emailOnMessageHint":
+    "Only when you have been away a while, and at most once an hour.",
+  "settings.emailSaveFailed": "Could not save that. Try again.",
+  "settings.notifications": "Notifications",
 } as const;
 
 export type MessageKey = keyof typeof en;

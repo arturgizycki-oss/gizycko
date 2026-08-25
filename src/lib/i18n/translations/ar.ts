@@ -475,4 +475,15 @@ export const ar: Dictionary = {
   "onboarding.intro": "هذا ما سيراه الآخرون، ويمكنك تغييره في أي وقت.",
   "onboarding.ageNote": "يظهر عمرك فقط للآخرين، لا التاريخ الدقيق.",
   "onboarding.iAm": "أنا",
+
+  "email.newMessageSubject": "رسالة جديدة من {name}",
+  "email.newMessageBody": "أرسل {name} إليك رسالة على gizycko.",
+  "email.newMessageOpen": "اقرأها هنا:",
+  "email.newMessageWhy":
+    "وصلتك هذه الرسالة لأن إشعارات البريد مُفعّلة. يمكنك إيقافها من الإعدادات.",
+  "settings.emailOnMessage": "أرسل لي بريدًا عند وصول رسائل جديدة",
+  "settings.emailOnMessageHint":
+    "فقط بعد فترة من الغياب، ومرة واحدة في الساعة على الأكثر.",
+  "settings.emailSaveFailed": "تعذّر الحفظ. حاول مرة أخرى.",
+  "settings.notifications": "الإشعارات",
 };

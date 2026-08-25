@@ -490,4 +490,17 @@ export const de: Dictionary = {
   "onboarding.ageNote":
     "Anderen wird nur dein Alter gezeigt, nie das genaue Datum.",
   "onboarding.iAm": "Ich bin",
+
+  "email.newMessageSubject": "Neue Nachricht von {name}",
+  "email.newMessageBody":
+    "{name} hat dir eine Nachricht auf gizycko geschickt.",
+  "email.newMessageOpen": "Hier lesen:",
+  "email.newMessageWhy":
+    "Du erhältst das, weil E-Mail-Benachrichtigungen aktiviert sind. In den Einstellungen abschaltbar.",
+  "settings.emailOnMessage": "Bei neuen Nachrichten eine E-Mail senden",
+  "settings.emailOnMessageHint":
+    "Nur wenn du länger weg warst, und höchstens einmal pro Stunde.",
+  "settings.emailSaveFailed":
+    "Konnte nicht gespeichert werden. Bitte erneut versuchen.",
+  "settings.notifications": "Benachrichtigungen",
 };

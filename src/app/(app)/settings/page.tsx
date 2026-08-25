@@ -6,6 +6,7 @@ import { LanguagePicker } from "@/components/language-picker";
 import { getLocale, getTranslator } from "@/lib/i18n";
 import { TRANSLATED_LOCALES } from "@/lib/i18n/dictionaries";
 import { ChevronRightIcon } from "@/components/icons";
+import { EmailToggle } from "@/components/email-toggle";
 
 export const metadata = { title: "Settings" };
 
@@ -18,7 +19,12 @@ export default async function SettingsPage() {
     prisma.block.count({ where: { blockerId: session.user.id } }),
     prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { email: true, emailVerified: true, createdAt: true },
+      select: {
+        email: true,
+        emailVerified: true,
+        createdAt: true,
+        emailOnMessage: true,
+      },
     }),
   ]);
 
@@ -66,6 +72,13 @@ export default async function SettingsPage() {
             untranslatedLabel={t("language.untranslated")}
           />
         </div>
+      </section>
+
+      <section className="card divide-y divide-[var(--line)]">
+        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">
+          {t("settings.notifications")}
+        </h2>
+        <EmailToggle enabled={user?.emailOnMessage ?? true} />
       </section>
 
       <section className="card divide-y divide-[var(--line)]">

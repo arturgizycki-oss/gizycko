@@ -485,4 +485,15 @@ export const uk: Dictionary = {
   "onboarding.intro": "Це побачать інші. Ви можете змінити це будь-коли.",
   "onboarding.ageNote": "Іншим показують лише вік, а не точну дату.",
   "onboarding.iAm": "Я",
+
+  "email.newMessageSubject": "Нове повідомлення від {name}",
+  "email.newMessageBody": "{name} надіслав(ла) вам повідомлення на gizycko.",
+  "email.newMessageOpen": "Прочитати тут:",
+  "email.newMessageWhy":
+    "Ви отримуєте це, бо увімкнені сповіщення поштою. Вимкнути можна в Налаштуваннях.",
+  "settings.emailOnMessage": "Сповіщати поштою про нові повідомлення",
+  "settings.emailOnMessageHint":
+    "Лише коли вас довго немає, і не частіше разу на годину.",
+  "settings.emailSaveFailed": "Не вдалося зберегти. Спробуйте ще раз.",
+  "settings.notifications": "Сповіщення",
 };

@@ -465,4 +465,14 @@ export const zhHans: Dictionary = {
   "onboarding.intro": "这些内容其他人都会看到，随时可以修改。",
   "onboarding.ageNote": "其他人只会看到你的年龄，不会看到具体日期。",
   "onboarding.iAm": "我是",
+
+  "email.newMessageSubject": "{name} 给你发了新消息",
+  "email.newMessageBody": "{name} 在 gizycko 上给你发了一条消息。",
+  "email.newMessageOpen": "在这里查看：",
+  "email.newMessageWhy":
+    "你收到这封邮件是因为开启了邮件通知。可以在设置中关闭。",
+  "settings.emailOnMessage": "有新消息时给我发邮件",
+  "settings.emailOnMessageHint": "仅在你离开一段时间后发送，且每小时最多一封。",
+  "settings.emailSaveFailed": "无法保存，请重试。",
+  "settings.notifications": "通知",
 };

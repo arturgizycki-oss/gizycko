@@ -487,4 +487,15 @@ export const ja: Dictionary = {
   "onboarding.ageNote":
     "他の人に表示されるのは年齢だけで、正確な日付は表示されません。",
   "onboarding.iAm": "わたしは",
+
+  "email.newMessageSubject": "{name} さんから新しいメッセージ",
+  "email.newMessageBody": "{name} さんが gizycko でメッセージを送りました。",
+  "email.newMessageOpen": "こちらから読めます:",
+  "email.newMessageWhy":
+    "メール通知がオンのため送信しています。設定からオフにできます。",
+  "settings.emailOnMessage": "新しいメッセージをメールで知らせる",
+  "settings.emailOnMessageHint":
+    "しばらく離れていたときだけ、1時間に1通までです。",
+  "settings.emailSaveFailed": "保存できませんでした。もう一度お試しください。",
+  "settings.notifications": "通知",
 };

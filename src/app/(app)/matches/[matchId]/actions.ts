@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -14,6 +15,7 @@ import { checkUploadedVoice } from "@/lib/voice";
 import { mediaUrl, putObject } from "@/lib/storage";
 import { verifyUploaded } from "@/lib/uploads";
 import { isMediaKind } from "@/lib/media-kinds";
+import { emailAboutMessage } from "@/lib/message-email";
 
 export type MessageState = { error?: string; submissionId?: string };
 
@@ -237,6 +239,17 @@ export async function sendMessage(
 
   revalidatePath(`/matches/${matchId}`);
   revalidatePath("/messages");
+
+  /*
+   * Nudge the other person by email, after this reply has gone back.
+   *
+   * A notification inside the site only reaches somebody who returns of their
+   * own accord, which is why a message here could sit unseen for a week. This
+   * decides for itself whether to send - see emailAboutMessage - and it runs in
+   * `after` so a slow mail provider never delays the send or fails it.
+   */
+  after(() => emailAboutMessage(otherId, session.user.name, matchId));
+
   // A fresh id tells the composer this send landed, so it can clear itself.
   return { submissionId: randomUUID() };
 }

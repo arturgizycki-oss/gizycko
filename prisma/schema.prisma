@@ -124,6 +124,13 @@ model User {
   /// BCP 47 tag for the language the interface is shown in.
   locale String @default("en") @db.VarChar(12)
 
+  /// Whether to email this member when a message lands while they are away.
+  emailOnMessage Boolean @default(true)
+
+  /// When we last emailed them about an unread message. One nudge per quiet
+  /// period, so ten messages in a row do not become ten emails.
+  messageEmailAt DateTime?
+
   sessions Session[]
   accounts Account[]
   profile  Profile?
