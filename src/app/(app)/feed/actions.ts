@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -12,13 +13,34 @@ const postSchema = z.object({
   visibility: z.enum(["PUBLIC", "FRIENDS", "MATCHES", "PRIVATE"]),
 });
 
-export type PostState = { error?: string; submissionId?: string };
+export type PostState = {
+  error?: string;
+  /* Changes only on success. The composer's fields are keyed on it, so a new
+     one clears them; a failure carries the old one forward and keeps the text. */
+  submissionId?: string;
+  /* Changes on every attempt, successful or not, so that the same complaint
+     twice running is still announced rather than deduplicated away. */
+  attempt?: string;
+};
 
 export async function createPost(
-  _prev: PostState,
+  prev: PostState,
   formData: FormData,
 ): Promise<PostState> {
   const session = await requireSession();
+
+  /*
+   * A failure carries the previous id forward on purpose.
+   *
+   * The composer's fields are keyed on it, so changing it remounts them. That
+   * is what clears a sent post, and it is also what would throw away a refused
+   * one - leaving somebody who tripped the word filter to type it all again.
+   */
+  const failed = (error: string): PostState => ({
+    error,
+    submissionId: prev.submissionId,
+    attempt: randomUUID(),
+  });
 
   const parsed = postSchema.safeParse({
     body: formData.get("body"),
@@ -26,18 +48,18 @@ export async function createPost(
   });
 
   if (!parsed.success) {
-    return { error: "That post is too long (max 5000 characters)." };
+    return failed("That post is too long (max 5000 characters).");
   }
 
   const uploaded = await readPostMedia(formData, session.user.id, "posts");
-  if (!uploaded.ok) return { error: uploaded.error };
+  if (!uploaded.ok) return failed(uploaded.error);
 
   if (parsed.data.body.length === 0 && !uploaded.hasAny) {
-    return { error: "Write something, or add a photo, a song, or a video." };
+    return failed("Write something, or add a photo, a song, or a video.");
   }
 
   const allowed = checkContent(parsed.data.body);
-  if (!allowed.ok) return { error: allowed.message };
+  if (!allowed.ok) return failed(allowed.message);
 
   await prisma.post.create({
     data: {
@@ -54,7 +76,16 @@ export async function createPost(
   });
 
   revalidatePath("/feed");
-  return {};
+
+  /*
+   * A fresh id on every success, which is what clears the composer.
+   *
+   * The fields are keyed on it, so a new one remounts them and takes the text,
+   * the chosen files, and their previews with it. Returning an empty object
+   * left the key unchanged, and a posted video stayed listed as though it were
+   * still waiting to be sent.
+   */
+  return { submissionId: randomUUID(), attempt: randomUUID() };
 }
 
 export async function toggleReaction(postId: string) {
@@ -115,7 +146,7 @@ export async function addComment(
   }
 
   revalidatePath(`/feed/${postId}`);
-  return {};
+  return { submissionId: randomUUID() };
 }
 
 /** Soft delete, so replies and reports keep their anchor. */

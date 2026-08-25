@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  CameraIcon,
-  ICON_BUTTON,
-  ICON_BUTTON_LABELLED,
-  MicIcon,
-  StopIcon,
-  TrashIcon,
-} from "./icons";
+import { CameraIcon, ICON_BUTTON, MicIcon, StopIcon, TrashIcon } from "./icons";
 import { useT } from "@/lib/i18n/provider";
 import { useToast } from "./toast";
 
@@ -25,28 +18,12 @@ function fillInput(input: HTMLInputElement | null, file: File | null) {
   input.files = transfer.files;
 }
 
-/** Icon alone in a chat bar, icon plus label in a post composer. */
-function controlClass(label?: string) {
-  return label ? ICON_BUTTON_LABELLED : ICON_BUTTON;
-}
-
-/**
- * The glyph matches whatever else sits in that row: 16px beside a label in the
- * post composer, 20px on its own in the chat bar. Hard-coding one size made the
- * microphone and camera smaller than the paperclip next to them.
- */
-function iconSize(label?: string) {
-  return label ? "size-4" : "size-5";
-}
-
 /** Record a voice note with the microphone. */
 export function VoiceRecorder({
   name = "voice",
-  label,
   onChange,
 }: {
   name?: string;
-  label?: string;
   onChange?: (file: File | null) => void;
 }) {
   const t = useT();
@@ -143,7 +120,7 @@ export function VoiceRecorder({
             aria-label={t("media.discardRecording")}
             className={ICON_BUTTON}
           >
-            <TrashIcon className={iconSize(label)} />
+            <TrashIcon className="size-5" />
           </button>
         </span>
       ) : recording ? (
@@ -155,7 +132,7 @@ export function VoiceRecorder({
             aria-label={t("media.stopRecording")}
             className={`${ICON_BUTTON} text-rose-600`}
           >
-            <StopIcon className={iconSize(label)} />
+            <StopIcon className="size-5" />
           </button>
         </span>
       ) : (
@@ -164,10 +141,9 @@ export function VoiceRecorder({
           onClick={start}
           aria-label={t("media.recordVoice")}
           title={t("media.recordVoice")}
-          className={controlClass(label)}
+          className={ICON_BUTTON}
         >
-          <MicIcon className={iconSize(label)} />
-          {label}
+          <MicIcon className="size-5" />
         </button>
       )}
     </>
@@ -177,11 +153,9 @@ export function VoiceRecorder({
 /** Take a photo with the camera. */
 export function CameraShot({
   name = "images",
-  label,
   onChange,
 }: {
   name?: string;
-  label?: string;
   onChange?: (file: File | null) => void;
 }) {
   const t = useT();
@@ -285,7 +259,7 @@ export function CameraShot({
             aria-label={t("media.discardPhoto")}
             className={ICON_BUTTON}
           >
-            <TrashIcon className={iconSize(label)} />
+            <TrashIcon className="size-5" />
           </button>
         </span>
       ) : (
@@ -294,10 +268,9 @@ export function CameraShot({
           onClick={open}
           aria-label={t("media.takePhoto")}
           title={t("media.takePhoto")}
-          className={controlClass(label)}
+          className={ICON_BUTTON}
         >
-          <CameraIcon className={iconSize(label)} />
-          {label}
+          <CameraIcon className="size-5" />
         </button>
       )}
 

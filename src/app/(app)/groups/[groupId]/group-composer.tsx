@@ -6,7 +6,7 @@ import { postToGroup, type GroupState } from "../actions";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 import {
   FilmIcon,
-  ICON_BUTTON_LABELLED,
+  ICON_BUTTON,
   ImageIcon,
   MusicIcon,
 } from "@/components/icons";
@@ -18,17 +18,16 @@ import { prepareUploads } from "@/lib/upload-form";
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export function GroupComposer({ groupId }: { groupId: string }) {
-  const t = useT();
   const toast = useToast();
-  const [attached, setAttached] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
 
   const action = postToGroup.bind(null, groupId);
   const [state, formAction, pending] = useActionState<GroupState, FormData>(
     action,
     {},
   );
-  useErrorToast(state.error);
+  useErrorToast(state.error, state.submissionId);
+
+  const [uploading, setUploading] = useState(false);
 
   // Same as the main composer: bytes to the bucket first, keys with the
   // action, because the host refuses a large body outright.
@@ -50,6 +49,22 @@ export function GroupComposer({ groupId }: { groupId: string }) {
 
   return (
     <form onSubmit={onSubmit} className="card p-4">
+      {/* Remounting on a new submission id clears the text and the list of
+          attachments, the same way the main composer does. */}
+      <GroupComposerFields
+        key={state.submissionId ?? "new"}
+        pending={pending || uploading}
+      />
+    </form>
+  );
+}
+
+function GroupComposerFields({ pending }: { pending: boolean }) {
+  const t = useT();
+  const [attached, setAttached] = useState<string[]>([]);
+
+  return (
+    <>
       <textarea
         name="body"
         rows={3}
@@ -65,9 +80,9 @@ export function GroupComposer({ groupId }: { groupId: string }) {
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--line)] pt-3">
-        <label className={ICON_BUTTON_LABELLED} title={t("composer.photos")}>
-          <ImageIcon className="size-4" />
-          Photos
+        <label className={ICON_BUTTON} title={t("composer.photos")}>
+          <ImageIcon className="size-5" />
+          <span className="sr-only">{t("composer.photos")}</span>
           <input
             type="file"
             name="images"
@@ -87,15 +102,15 @@ export function GroupComposer({ groupId }: { groupId: string }) {
           />
         </label>
 
-        <label className={ICON_BUTTON_LABELLED} title={t("composer.song")}>
-          <MusicIcon className="size-4" />
-          Song
+        <label className={ICON_BUTTON} title={t("composer.song")}>
+          <MusicIcon className="size-5" />
+          <span className="sr-only">{t("composer.song")}</span>
           <input type="file" name="song" accept="audio/*" className="sr-only" />
         </label>
 
-        <label className={ICON_BUTTON_LABELLED} title={t("composer.video")}>
-          <FilmIcon className="size-4" />
-          Video
+        <label className={ICON_BUTTON} title={t("composer.video")}>
+          <FilmIcon className="size-5" />
+          <span className="sr-only">{t("composer.video")}</span>
           <input
             type="file"
             name="video"
@@ -104,18 +119,18 @@ export function GroupComposer({ groupId }: { groupId: string }) {
           />
         </label>
 
-        <VoiceRecorder label="Voice" />
-        <CameraShot label={t("composer.camera")} />
+        <VoiceRecorder />
+        <CameraShot />
 
         <span className="hint ml-auto">{t("groups.membersOnly")}</span>
         <button
           type="submit"
-          disabled={pending || uploading}
+          disabled={pending}
           className="btn btn-primary btn-sm"
         >
-          {pending || uploading ? t("action.posting") : t("action.post")}
+          {pending ? t("action.posting") : t("action.post")}
         </button>
       </div>
-    </form>
+    </>
   );
 }

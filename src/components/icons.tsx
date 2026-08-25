@@ -354,7 +354,7 @@ export function CheckIcon(props: IconProps) {
  * point at it, so a row of them reads as a toolbar rather than a row of buttons.
  */
 export const ICON_BUTTON =
-  "rounded-full p-2 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)] disabled:opacity-60";
+  "cursor-pointer rounded-full p-2 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--ink)] disabled:opacity-60";
 
 /** The same control with a label beside it, for the wider post composers. */
 export const ICON_BUTTON_LABELLED =

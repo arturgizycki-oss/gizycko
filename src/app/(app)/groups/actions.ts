@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -11,7 +12,7 @@ import { can, canActOn, canLeave } from "@/lib/group-roles";
 import { readPostMedia } from "@/lib/post-media";
 import { hiddenUserIds } from "@/lib/social";
 
-export type GroupState = { error?: string };
+export type GroupState = { error?: string; submissionId?: string };
 
 const groupSchema = z.object({
   name: z.string().trim().min(3).max(80),
@@ -231,7 +232,9 @@ export async function postToGroup(
   });
 
   revalidatePath(`/groups/${groupId}`);
-  return {};
+
+  // A fresh id clears the composer: its fields are keyed on this. See createPost.
+  return { submissionId: randomUUID() };
 }
 
 /** Promote a member to admin, or demote an admin back to member. */

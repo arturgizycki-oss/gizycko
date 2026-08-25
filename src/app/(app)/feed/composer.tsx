@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { createPost, type PostState } from "./actions";
 import { MAX_POST_IMAGES } from "@/lib/post-limits";
 import { MAX_IMAGE_BYTES } from "@/lib/image";
@@ -10,13 +10,13 @@ import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 import { EmojiPicker } from "@/components/emoji-picker";
 import {
   FilmIcon,
-  ICON_BUTTON_LABELLED,
+  ICON_BUTTON,
   ImageIcon,
   MusicIcon,
   SmileIcon,
 } from "@/components/icons";
 import { useT } from "@/lib/i18n/provider";
-import { useToast } from "@/components/toast";
+import { useErrorToast, useToast } from "@/components/toast";
 import { prepareUploads } from "@/lib/upload-form";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -63,6 +63,7 @@ export function Composer() {
         key={state.submissionId ?? "new"}
         pending={pending || uploading}
         serverError={state.error}
+        attempt={state.attempt}
       />
     </form>
   );
@@ -73,18 +74,27 @@ type Selected = { file: File; preview: string };
 function ComposerFields({
   pending,
   serverError,
+  attempt,
 }: {
   pending: boolean;
   serverError?: string;
+  attempt?: string;
 }) {
   const t = useT();
-  const toast = useToast();
   const body = useRef<HTMLTextAreaElement>(null);
   const [showEmoji, setShowEmoji] = useState(false);
   const [images, setImages] = useState<Selected[]>([]);
   const [song, setSong] = useState<File | null>(null);
   const [video, setVideo] = useState<File | null>(null);
-  const [clientError, setClientError] = useState<string | null>(null);
+  const [clientError, setClientError] = useState<{
+    text: string;
+    nonce: number;
+  } | null>(null);
+  const refusals = useRef(0);
+
+  function refuse(text: string) {
+    setClientError({ text, nonce: (refusals.current += 1) });
+  }
 
   function replaceImages(next: Selected[]) {
     setImages((current) => {
@@ -98,7 +108,7 @@ function ComposerFields({
     const chosen = Array.from(event.target.files ?? []);
 
     if (chosen.length > MAX_POST_IMAGES) {
-      setClientError(`You can attach at most ${MAX_POST_IMAGES} photos.`);
+      refuse(`You can attach at most ${MAX_POST_IMAGES} photos.`);
       event.target.value = "";
       replaceImages([]);
       return;
@@ -108,7 +118,7 @@ function ComposerFields({
       (file) => !IMAGE_TYPES.includes(file.type) || file.size > MAX_IMAGE_BYTES,
     );
     if (bad) {
-      setClientError(
+      refuse(
         bad.size > MAX_IMAGE_BYTES
           ? `${bad.name} is ${megabytes(bad.size)} MB. Photos must be under 5 MB.`
           : `${bad.name} is not a JPEG, PNG, WebP, or GIF.`,
@@ -128,7 +138,7 @@ function ComposerFields({
     const file = event.target.files?.[0] ?? null;
 
     if (file && file.size > MAX_AUDIO_BYTES) {
-      setClientError(
+      refuse(
         `${file.name} is ${megabytes(file.size)} MB. Songs must be under 10 MB.`,
       );
       event.target.value = "";
@@ -144,7 +154,7 @@ function ComposerFields({
     const file = event.target.files?.[0] ?? null;
 
     if (file && file.size > MAX_VIDEO_BYTES) {
-      setClientError(
+      refuse(
         `${file.name} is ${megabytes(file.size)} MB. Videos must be under 30 MB.`,
       );
       event.target.value = "";
@@ -168,11 +178,8 @@ function ComposerFields({
     field.selectionStart = field.selectionEnd = start + emoji.length;
   }
 
-  const error = clientError ?? serverError;
-
-  useEffect(() => {
-    if (error) toast(error);
-  }, [error, toast]);
+  const error = clientError?.text ?? serverError;
+  useErrorToast(error, clientError ? `own-${clientError.nonce}` : attempt);
 
   return (
     <>
@@ -226,9 +233,9 @@ function ComposerFields({
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-1 border-t border-[var(--line)] pt-3">
-        <label className={ICON_BUTTON_LABELLED} title={t("composer.photos")}>
-          <ImageIcon className="size-4" />
-          {t("composer.photos")}
+        <label className={ICON_BUTTON} title={t("composer.photos")}>
+          <ImageIcon className="size-5" />
+          <span className="sr-only">{t("composer.photos")}</span>
           <input
             type="file"
             name="images"
@@ -239,9 +246,9 @@ function ComposerFields({
           />
         </label>
 
-        <label className={ICON_BUTTON_LABELLED} title={t("composer.song")}>
-          <MusicIcon className="size-4" />
-          {t("composer.song")}
+        <label className={ICON_BUTTON} title={t("composer.song")}>
+          <MusicIcon className="size-5" />
+          <span className="sr-only">{t("composer.song")}</span>
           <input
             type="file"
             name="song"
@@ -251,9 +258,9 @@ function ComposerFields({
           />
         </label>
 
-        <label className={ICON_BUTTON_LABELLED} title={t("composer.video")}>
-          <FilmIcon className="size-4" />
-          {t("composer.video")}
+        <label className={ICON_BUTTON} title={t("composer.video")}>
+          <FilmIcon className="size-5" />
+          <span className="sr-only">{t("composer.video")}</span>
           <input
             type="file"
             name="video"
@@ -263,8 +270,8 @@ function ComposerFields({
           />
         </label>
 
-        <VoiceRecorder label={t("composer.voice")} />
-        <CameraShot label={t("composer.camera")} />
+        <VoiceRecorder />
+        <CameraShot />
 
         <span className="relative">
           <button
@@ -273,9 +280,9 @@ function ComposerFields({
             aria-label={t("composer.emoji")}
             aria-expanded={showEmoji}
             title={t("composer.emoji")}
-            className={ICON_BUTTON_LABELLED}
+            className={ICON_BUTTON}
           >
-            <SmileIcon className="size-4" />
+            <SmileIcon className="size-5" />
           </button>
 
           {showEmoji && (
