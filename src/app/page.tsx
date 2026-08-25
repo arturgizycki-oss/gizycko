@@ -1,14 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { Brand } from "@/components/brand";
-
-const SHOWCASE = [
-  { name: "Kasia", age: 28, line: "Photographer · Kraków", src: "/demo/kasia.jpg" },
-  { name: "Marek", age: 33, line: "Developer · Warszawa", src: "/demo/marek.jpg" },
-  { name: "Ania", age: 31, line: "Climber · Gdańsk", src: "/demo/ania.jpg" },
-];
+import { Avatar } from "@/components/avatar";
+import { topFollowed } from "@/lib/follows";
+import { PageBackdrop } from "@/components/page-backdrop";
+import landingBackground from "@/assets/landing.jpg";
 
 const FEATURES = [
   {
@@ -29,6 +26,11 @@ export default async function LandingPage() {
   const session = await getSession();
   if (session) redirect("/feed");
 
+  const ranked = await topFollowed(10);
+  // A leaderboard of zeros says nothing good about a new site, so it only
+  // appears once somebody is actually being followed.
+  const showRanking = ranked.some((member) => member.followers > 0);
+
   return (
     <main className="relative min-h-dvh">
       {/*
@@ -36,17 +38,7 @@ export default async function LandingPage() {
         it rather than text beside a second picture. The scrim is what keeps the
         headline readable — without it the bright sky washes the text out.
       */}
-      <div aria-hidden className="fixed inset-0 -z-10">
-        <Image
-          src="/landing-background.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/60 to-white/85 dark:from-neutral-950/75 dark:via-neutral-950/70 dark:to-neutral-950/90" />
-      </div>
+      <PageBackdrop image={landingBackground} scrim="gradient" />
 
       <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-6">
         <header className="flex items-center justify-between py-6">
@@ -92,32 +84,44 @@ export default async function LandingPage() {
           </p>
         </section>
 
-        <section className="pb-10">
-          <h2 className="text-sm font-semibold text-[var(--ink-muted)]">
-            People already here
-          </h2>
-          <ul className="mt-4 grid grid-cols-3 gap-4">
-            {SHOWCASE.map((person) => (
-              <li key={person.name} className="card-glass overflow-hidden">
-                <div className="relative aspect-[4/5]">
-                  <Image
-                    src={person.src}
-                    alt=""
-                    fill
-                    sizes="(max-width: 640px) 33vw, 200px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-3">
-                  <p className="text-sm font-semibold">
-                    {person.name}, {person.age}
-                  </p>
-                  <p className="hint">{person.line}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {showRanking && (
+          <section className="pb-10">
+            <h2 className="text-sm font-semibold text-[var(--ink-muted)]">
+              Most followed
+            </h2>
+
+            <ol className="mt-4 grid gap-3 sm:grid-cols-2">
+              {ranked.map((member) => (
+                <li key={member.id} className="card-glass flex items-center gap-3 p-3">
+                  <span className="w-6 shrink-0 text-center text-sm font-semibold text-[var(--ink-muted)] tabular-nums">
+                    {member.rank}
+                  </span>
+
+                  <Avatar name={member.name} src={member.photo} size={44} />
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold">
+                      {member.name}
+                    </span>
+                    <span className="hint block truncate">
+                      {[member.occupation, member.city].filter(Boolean).join(" · ") ||
+                        "On Gizycko"}
+                    </span>
+                  </span>
+
+                  <span className="shrink-0 text-right">
+                    <span className="block text-sm font-semibold tabular-nums">
+                      {member.followers}
+                    </span>
+                    <span className="hint">
+                      {member.followers === 1 ? "follower" : "followers"}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
 
         <section className="grid gap-4 pb-12 sm:grid-cols-3">
           {FEATURES.map((feature) => (

@@ -96,3 +96,61 @@ export async function followingOf(
     photo: following.profile?.photos[0]?.url ?? null,
   }));
 }
+
+export type RankedMember = {
+  rank: number;
+  id: string;
+  name: string;
+  photo: string | null;
+  city: string | null;
+  occupation: string | null;
+  followers: number;
+};
+
+/**
+ * The most-followed members, for the public landing page.
+ *
+ * Only profiles their owner has set visible in Discover, and only accounts in
+ * good standing. That setting is the closest thing to consent we have — see the
+ * note in the README about asking for it explicitly before real members arrive.
+ */
+export async function topFollowed(limit = 10): Promise<RankedMember[]> {
+  const users = await prisma.user.findMany({
+    where: {
+      bannedAt: null,
+      profile: { is: { isVisible: true, completedAt: { not: null } } },
+      // Somebody with no followers does not belong in "most followed"; without
+      // this the list pads itself out with zeros.
+      followers: { some: {} },
+    },
+    orderBy: [{ followers: { _count: "desc" } }],
+    take: limit,
+    select: {
+      id: true,
+      name: true,
+      profile: {
+        select: {
+          displayName: true,
+          city: true,
+          occupation: true,
+          photos: {
+            where: { isPrimary: true, moderation: { not: "REJECTED" } },
+            select: { url: true },
+            take: 1,
+          },
+        },
+      },
+      _count: { select: { followers: true } },
+    },
+  });
+
+  return users.map((user, index) => ({
+    rank: index + 1,
+    id: user.id,
+    name: user.profile?.displayName ?? user.name,
+    photo: user.profile?.photos[0]?.url ?? null,
+    city: user.profile?.city ?? null,
+    occupation: user.profile?.occupation ?? null,
+    followers: user._count.followers,
+  }));
+}

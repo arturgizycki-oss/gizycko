@@ -1,25 +1,25 @@
-import Image from "next/image";
+"use client";
+
+import { usePathname } from "next/navigation";
+import { PageBackdrop } from "./page-backdrop";
+import dashboardBackground from "@/assets/dashboard.jpg";
+import groupBackground from "@/assets/group.jpg";
 
 /**
- * The photograph behind the whole signed-in app.
+ * The photograph behind the signed-in app, chosen by where you are.
  *
- * Fixed and behind everything, with a heavy scrim over it: the picture sets the
- * mood, but every card and every line of text has to stay readable on top of
- * it, so the scrim does most of the work and the photograph shows through at
- * the edges.
+ * One backdrop that swaps its image, rather than a second one layered over the
+ * first from a nested layout: two stacked backdrops would both download, and
+ * which appeared on top would depend on document order rather than intent.
  */
 export function AppBackdrop() {
+  const pathname = usePathname();
+  const inGroups = pathname === "/groups" || pathname.startsWith("/groups/");
+
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
-      <Image
-        src="/dashboard-background.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-      />
-      <div className="absolute inset-0 bg-white/88 dark:bg-neutral-950/90" />
-    </div>
+    <PageBackdrop
+      image={inGroups ? groupBackground : dashboardBackground}
+      scrim="heavy"
+    />
   );
 }

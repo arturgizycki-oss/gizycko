@@ -193,6 +193,29 @@ async function seedSocial(byEmail: Map<string, string>) {
     });
   }
 
+  // A few follows, so the landing page's ranking has something to rank.
+  const FOLLOWS: [string, string][] = [
+    ["ania@seed.test", "kasia@seed.test"],
+    ["marek@seed.test", "kasia@seed.test"],
+    ["piotr@seed.test", "kasia@seed.test"],
+    ["ania@seed.test", "marek@seed.test"],
+    ["kasia@seed.test", "marek@seed.test"],
+    ["kasia@seed.test", "piotr@seed.test"],
+  ];
+
+  for (const [follower, following] of FOLLOWS) {
+    await prisma.follow.upsert({
+      where: {
+        followerId_followingId: {
+          followerId: id(follower),
+          followingId: id(following),
+        },
+      },
+      create: { followerId: id(follower), followingId: id(following) },
+      update: {},
+    });
+  }
+
   if ((await prisma.post.count()) > 0) {
     console.log("posts already seeded — skipping those");
     return;
