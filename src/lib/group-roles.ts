@@ -9,6 +9,8 @@ export type GroupAction =
   | "invite"
   /** Remove a member. Who exactly is decided by canActOn. */
   | "removeMember"
+  /** Bar someone from coming back. */
+  | "banMember"
   /** Change the name, description, or visibility. */
   | "editGroup"
   /** Promote a member to admin, or demote an admin. */
@@ -30,12 +32,20 @@ const PERMISSIONS: Record<GroupRole, readonly GroupAction[]> = {
     "moderatePosts",
     "invite",
     "removeMember",
+    "banMember",
     "editGroup",
     "manageAdmins",
     "transferOwnership",
     "deleteGroup",
   ],
-  ADMIN: ["post", "moderatePosts", "invite", "removeMember", "editGroup"],
+  ADMIN: [
+    "post",
+    "moderatePosts",
+    "invite",
+    "removeMember",
+    "banMember",
+    "editGroup",
+  ],
   MEMBER: ["post"],
 };
 
@@ -81,6 +91,6 @@ export const ROLE_SUMMARY: Record<GroupRole, string> = {
   OWNER:
     "Runs the group: everything an admin can do, plus appointing admins, handing the group over, and deleting it.",
   ADMIN:
-    "Invites people, removes members, edits the group, and deletes any post.",
+    "Invites people, removes and bans members, edits the group, and deletes any post.",
   MEMBER: "Reads and writes posts.",
 };

@@ -9,6 +9,7 @@ import { checkContent } from "@/lib/content-policy";
 import { roleInGroup } from "@/lib/groups";
 import { can, canActOn, canLeave } from "@/lib/group-roles";
 import { readPostMedia } from "@/lib/post-media";
+import { hiddenUserIds } from "@/lib/social";
 
 export type GroupState = { error?: string };
 
@@ -64,6 +65,12 @@ export async function inviteToGroup(groupId: string, userId: string) {
   });
   if (already) return;
 
+  const banned = await prisma.groupBan.findUnique({
+    where: { groupId_userId: { groupId, userId } },
+    select: { id: true },
+  });
+  if (banned) return;
+
   const blocked = await prisma.block.findFirst({
     where: {
       OR: [
@@ -115,7 +122,12 @@ export async function respondToInvite(inviteId: string, accept: boolean) {
     data: { status: accept ? "ACCEPTED" : "DECLINED" },
   });
 
-  if (accept) {
+  const banned = await prisma.groupBan.findUnique({
+    where: { groupId_userId: { groupId: invite.groupId, userId: session.user.id } },
+    select: { id: true },
+  });
+
+  if (accept && !banned) {
     await prisma.groupMember.upsert({
       where: { groupId_userId: { groupId: invite.groupId, userId: session.user.id } },
       create: { groupId: invite.groupId, userId: session.user.id },
@@ -137,6 +149,12 @@ export async function joinGroup(groupId: string) {
 
   // Private groups are invitation-only.
   if (!group || group.visibility !== "PUBLIC") return;
+
+  const banned = await prisma.groupBan.findUnique({
+    where: { groupId_userId: { groupId, userId: session.user.id } },
+    select: { id: true },
+  });
+  if (banned) return;
 
   await prisma.groupMember.upsert({
     where: { groupId_userId: { groupId, userId: session.user.id } },
@@ -294,6 +312,7 @@ export async function transferOwnership(groupId: string, userId: string) {
 const editSchema = z.object({
   name: z.string().trim().min(3).max(80),
   description: z.string().trim().max(1000).optional(),
+  rules: z.string().trim().max(2000).optional(),
   visibility: z.enum(["PUBLIC", "PRIVATE"]),
 });
 
@@ -310,16 +329,27 @@ export async function updateGroup(
   const parsed = editSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description") || undefined,
+    rules: formData.get("rules") || undefined,
     visibility: formData.get("visibility") ?? "PUBLIC",
   });
   if (!parsed.success) {
     return { error: "Give the group a name of at least 3 characters." };
   }
 
-  const allowed = checkContent(`${parsed.data.name} ${parsed.data.description ?? ""}`);
+  const allowed = checkContent(
+    `${parsed.data.name} ${parsed.data.description ?? ""} ${parsed.data.rules ?? ""}`,
+  );
   if (!allowed.ok) return { error: allowed.message };
 
-  await prisma.group.update({ where: { id: groupId }, data: parsed.data });
+  await prisma.group.update({
+    where: { id: groupId },
+    data: {
+      ...parsed.data,
+      // An emptied box clears the rules rather than leaving the old text.
+      description: parsed.data.description ?? null,
+      rules: parsed.data.rules ?? null,
+    },
+  });
 
   revalidatePath(`/groups/${groupId}`);
   revalidatePath("/groups");
@@ -360,4 +390,107 @@ export async function deleteGroup(groupId: string) {
 
   revalidatePath("/groups");
   redirect("/groups");
+}
+
+export type Invitable = { id: string; name: string; photo: string | null };
+
+/**
+ * Find people to invite by name.
+ *
+ * Not limited to friends: an owner building a group often wants somebody they
+ * have not befriended. Blocked people in either direction never appear, nor do
+ * banned accounts or anyone already in the group.
+ */
+export async function searchPeopleToInvite(
+  groupId: string,
+  query: string,
+): Promise<Invitable[]> {
+  const session = await requireSession();
+  const role = await roleInGroup(groupId, session.user.id);
+  if (!can(role, "invite")) return [];
+
+  const needle = query.trim();
+  if (needle.length < 2) return [];
+
+  const hidden = await hiddenUserIds(session.user.id);
+
+  const profiles = await prisma.profile.findMany({
+    where: {
+      completedAt: { not: null },
+      displayName: { contains: needle, mode: "insensitive" },
+      userId: { notIn: [session.user.id, ...hidden] },
+      user: { bannedAt: null, groupMembers: { none: { groupId } } },
+    },
+    orderBy: { lastActiveAt: "desc" },
+    take: 10,
+    select: {
+      userId: true,
+      displayName: true,
+      photos: {
+        where: { isPrimary: true, moderation: { not: "REJECTED" } },
+        select: { url: true },
+        take: 1,
+      },
+    },
+  });
+
+  return profiles.map((profile) => ({
+    id: profile.userId,
+    name: profile.displayName,
+    photo: profile.photos[0]?.url ?? null,
+  }));
+}
+
+/**
+ * Bar someone from the group. Unlike removal, this survives: they cannot rejoin
+ * a public group, accept an old invitation, or be invited again until unbanned.
+ */
+export async function banFromGroup(
+  groupId: string,
+  userId: string,
+  reason: string,
+) {
+  const session = await requireSession();
+  const actor = await roleInGroup(groupId, session.user.id);
+
+  if (!can(actor, "banMember")) return;
+  if (userId === session.user.id) return;
+
+  const target = await prisma.groupMember.findUnique({
+    where: { groupId_userId: { groupId, userId } },
+    select: { role: true },
+  });
+
+  // Rank applies to bans as it does to removal: nobody may ban the owner, and
+  // an admin may not ban another admin. Somebody who already left can be
+  // banned pre-emptively, so a missing membership is not a blocker.
+  if (target && !canActOn(actor, target.role)) return;
+
+  await prisma.$transaction([
+    prisma.groupBan.upsert({
+      where: { groupId_userId: { groupId, userId } },
+      create: {
+        groupId,
+        userId,
+        bannedById: session.user.id,
+        reason: reason.trim().slice(0, 200) || null,
+      },
+      update: { bannedById: session.user.id, reason: reason.trim().slice(0, 200) || null },
+    }),
+    prisma.groupMember.deleteMany({ where: { groupId, userId } }),
+    prisma.groupInvite.deleteMany({ where: { groupId, invitedUserId: userId } }),
+  ]);
+
+  revalidatePath(`/groups/${groupId}`);
+}
+
+export async function unbanFromGroup(groupId: string, userId: string) {
+  const session = await requireSession();
+  const actor = await roleInGroup(groupId, session.user.id);
+
+  if (!can(actor, "banMember")) return;
+
+  await prisma.groupBan.deleteMany({ where: { groupId, userId } });
+
+  revalidatePath(`/groups/${groupId}`);
 }

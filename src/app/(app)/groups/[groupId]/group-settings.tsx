@@ -4,16 +4,23 @@ import { useActionState, useTransition } from "react";
 import { deleteGroup, updateGroup, type GroupState } from "../actions";
 import { CollapsibleSection } from "@/components/collapsible-section";
 
+const RULES_PLACEHOLDER = `One rule per line, for example:
+Keep it about sailing.
+No selling.
+Be civil or leave.`;
+
 export function GroupSettings({
   groupId,
   name,
   description,
+  rules,
   visibility,
   canDelete,
 }: {
   groupId: string;
   name: string;
   description: string | null;
+  rules: string | null;
   visibility: "PUBLIC" | "PRIVATE";
   canDelete: boolean;
 }) {
@@ -48,6 +55,21 @@ export function GroupSettings({
             defaultValue={description ?? ""}
             className="input mt-1 resize-none"
           />
+        </label>
+
+        <label className="block">
+          <span className="label">Group rules</span>
+          <textarea
+            name="rules"
+            rows={4}
+            maxLength={2000}
+            defaultValue={rules ?? ""}
+            placeholder={RULES_PLACEHOLDER}
+            className="input mt-1 resize-none"
+          />
+          <span className="hint">
+            Shown to everyone who opens the group. Leave empty for none.
+          </span>
         </label>
 
         <fieldset>

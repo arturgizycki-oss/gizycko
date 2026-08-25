@@ -14,6 +14,9 @@ import { InviteFriend } from "./invite-friend";
 import { JoinLeave } from "./join-leave";
 import { MemberControls } from "./member-controls";
 import { GroupSettings } from "./group-settings";
+import { BannedList } from "./banned-list";
+import { InvitePeople } from "./invite-people";
+import { deleteGroupPost } from "../actions";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -75,6 +78,16 @@ export default async function GroupPage({
     ? await prisma.groupInvite.count({ where: { groupId, status: "PENDING" } })
     : 0;
 
+  const banned = can(role, "banMember")
+    ? await prisma.groupBan.findMany({
+        where: { groupId },
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
+        },
+      })
+    : [];
+
   return (
     <div className="space-y-4">
       <Link href="/groups" className="muted text-sm hover:underline">
@@ -104,11 +117,21 @@ export default async function GroupPage({
         )}
       </section>
 
+      {group.rules && (
+        <section className="card p-4">
+          <h2 className="text-sm font-medium">Group rules</h2>
+          <p className="mt-2 text-sm whitespace-pre-wrap text-[var(--ink-muted)]">
+            {group.rules}
+          </p>
+        </section>
+      )}
+
       {can(role, "editGroup") && (
         <GroupSettings
           groupId={groupId}
           name={group.name}
           description={group.description}
+          rules={group.rules}
           visibility={group.visibility}
           canDelete={can(role, "deleteGroup")}
         />
@@ -120,6 +143,10 @@ export default async function GroupPage({
           count={invitable.length}
           hint={pendingInvites > 0 ? `${pendingInvites} pending` : undefined}
         >
+          <InvitePeople groupId={groupId} />
+
+          <p className="label mt-3 px-2">Your friends</p>
+
           {invitable.length === 0 ? (
             <p className="muted px-2 py-3 text-sm">
               All your friends are already here, or invited.
@@ -196,6 +223,20 @@ export default async function GroupPage({
         </p>
       </CollapsibleSection>
 
+      {can(role, "banMember") && (
+        <CollapsibleSection title="Banned" count={banned.length}>
+          <BannedList
+            groupId={groupId}
+            people={banned.map((ban) => ({
+              userId: ban.user.id,
+              name: ban.user.profile?.displayName ?? ban.user.name,
+              photo: photoUrlOf(ban.user.profile),
+              reason: ban.reason,
+            }))}
+          />
+        </CollapsibleSection>
+      )}
+
       {isMember ? (
         <>
           <GroupComposer groupId={groupId} />
@@ -216,10 +257,21 @@ export default async function GroupPage({
                         src={photoUrlOf(post.author.profile)}
                         size={32}
                       />
-                      <div>
+                      <div className="flex-1">
                         <p className="text-sm font-medium">{name}</p>
                         <p className="hint">{shortWhen(post.createdAt)}</p>
                       </div>
+
+                      {(post.authorId === me || can(role, "moderatePosts")) && (
+                        <form action={deleteGroupPost.bind(null, post.id)}>
+                          <button
+                            type="submit"
+                            className="muted text-xs hover:text-rose-600"
+                          >
+                            Delete
+                          </button>
+                        </form>
+                      )}
                     </div>
                     <p className="mt-3 text-sm whitespace-pre-wrap">{post.body}</p>
                   </li>

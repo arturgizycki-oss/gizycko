@@ -15,6 +15,7 @@ describe("what each role may do", () => {
     moderatePosts: ["OWNER", "ADMIN"],
     invite: ["OWNER", "ADMIN"],
     removeMember: ["OWNER", "ADMIN"],
+    banMember: ["OWNER", "ADMIN"],
     editGroup: ["OWNER", "ADMIN"],
     manageAdmins: ["OWNER"],
     transferOwnership: ["OWNER"],

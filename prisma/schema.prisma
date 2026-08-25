@@ -146,6 +146,8 @@ model User {
   groupMembers GroupMember[]
   groupInvites GroupInvite[] @relation("GroupInvitee")
   groupInvitesSent GroupInvite[] @relation("GroupInviter")
+  groupBans        GroupBan[]   @relation("GroupBanned")
+  groupBansIssued  GroupBan[]   @relation("GroupBanner")
 
   following Follow[] @relation("Follower")
   followers Follow[] @relation("Following")
@@ -510,6 +512,8 @@ model Group {
   id          String          @id @default(cuid())
   name        String          @db.VarChar(80)
   description String?         @db.VarChar(1000)
+  /// House rules the owner sets, shown to everyone who opens the group.
+  rules       String?         @db.VarChar(2000)
   visibility  GroupVisibility @default(PUBLIC)
 
   ownerId String
@@ -519,6 +523,7 @@ model Group {
 
   members GroupMember[]
   invites GroupInvite[]
+  bans    GroupBan[]
   posts   Post[]
 
   @@index([visibility, createdAt])
@@ -540,6 +545,28 @@ model GroupMember {
   @@unique([groupId, userId])
   @@index([userId])
   @@map("group_member")
+}
+
+/// Someone barred from a group. Removing a member only takes them out; a
+/// public group would let them walk straight back in. A ban keeps them out.
+model GroupBan {
+  id String @id @default(cuid())
+
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation("GroupBanned", fields: [userId], references: [id], onDelete: Cascade)
+
+  bannedById String
+  bannedBy   User   @relation("GroupBanner", fields: [bannedById], references: [id], onDelete: Cascade)
+
+  reason    String?  @db.VarChar(200)
+  createdAt DateTime @default(now())
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@map("group_ban")
 }
 
 model GroupInvite {
