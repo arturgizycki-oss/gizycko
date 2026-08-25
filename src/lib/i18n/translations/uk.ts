@@ -12,6 +12,7 @@ export const uk: Dictionary = {
 
   "menu.profile": "Профіль",
   "menu.settings": "Налаштування",
+  "menu.admin": "Адміністрування",
   "menu.help": "Довідка",
   "menu.logout": "Вийти",
 

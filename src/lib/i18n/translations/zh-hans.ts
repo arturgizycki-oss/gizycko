@@ -12,6 +12,7 @@ export const zhHans: Dictionary = {
 
   "menu.profile": "个人资料",
   "menu.settings": "设置",
+  "menu.admin": "管理后台",
   "menu.help": "帮助",
   "menu.logout": "退出登录",
 

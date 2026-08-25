@@ -12,6 +12,7 @@ export const ja: Dictionary = {
 
   "menu.profile": "プロフィール",
   "menu.settings": "設定",
+  "menu.admin": "管理",
   "menu.help": "ヘルプ",
   "menu.logout": "ログアウト",
 

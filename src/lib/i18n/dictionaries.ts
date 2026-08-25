@@ -29,6 +29,7 @@ export const en = {
 
   "menu.profile": "Profile",
   "menu.settings": "Settings",
+  "menu.admin": "Admin",
   "menu.help": "Help",
   "menu.logout": "Log out",
 

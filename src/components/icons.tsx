@@ -286,6 +286,14 @@ export function MoreIcon(props: IconProps) {
   );
 }
 
+export function ShieldIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3.2 5 6v5.4c0 4 3 7.5 7 9.4 4-1.9 7-5.4 7-9.4V6z" />
+    </Svg>
+  );
+}
+
 export function UserIcon(props: IconProps) {
   return (
     <Svg {...props}>

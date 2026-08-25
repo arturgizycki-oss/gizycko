@@ -12,6 +12,7 @@ export const fr: Dictionary = {
 
   "menu.profile": "Profil",
   "menu.settings": "Paramètres",
+  "menu.admin": "Espace admin",
   "menu.help": "Aide",
   "menu.logout": "Se déconnecter",
 

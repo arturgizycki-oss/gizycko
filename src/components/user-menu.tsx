@@ -5,7 +5,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "./avatar";
 import { signOut } from "@/lib/auth-client";
-import { HelpIcon, LogoutIcon, SettingsIcon, UserIcon } from "./icons";
+import {
+  HelpIcon,
+  LogoutIcon,
+  SettingsIcon,
+  ShieldIcon,
+  UserIcon,
+} from "./icons";
 
 /** Same line-art family as the composer icons, so the chrome reads as one set. */
 const ITEMS = [
@@ -14,12 +20,17 @@ const ITEMS = [
   { href: "/help", key: "help", Icon: HelpIcon },
 ] as const;
 
+/** Staff get one more entry. Hiding it from everybody else is presentation,
+ *  not security - /admin checks the role again on the server. */
+const ADMIN_ITEM = { href: "/admin", key: "admin", Icon: ShieldIcon } as const;
+
 export type UserMenuLabels = {
   account: string;
   profile: string;
   settings: string;
   help: string;
   logout: string;
+  admin: string;
 };
 
 /**
@@ -30,10 +41,13 @@ export function UserMenu({
   name,
   photo,
   labels,
+  isStaff = false,
 }: {
   name: string;
   photo: string | null;
   labels: UserMenuLabels;
+  /** Moderators and admins see the way into the admin area. */
+  isStaff?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -92,7 +106,7 @@ export function UserMenu({
           <p className="truncate px-3 py-2 text-sm font-medium">{name}</p>
           <div className="my-1 border-t border-[var(--line)]" />
 
-          {ITEMS.map((item) => {
+          {(isStaff ? [ADMIN_ITEM, ...ITEMS] : ITEMS).map((item) => {
             const active =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
 

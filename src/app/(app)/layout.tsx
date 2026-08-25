@@ -79,6 +79,7 @@ export default async function AppLayout({
               settings: t("menu.settings"),
               help: t("menu.help"),
               logout: t("menu.logout"),
+              admin: t("menu.admin"),
             }}
           />
         </div>

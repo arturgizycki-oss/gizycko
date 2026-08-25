@@ -12,6 +12,7 @@ export const de: Dictionary = {
 
   "menu.profile": "Profil",
   "menu.settings": "Einstellungen",
+  "menu.admin": "Adminbereich",
   "menu.help": "Hilfe",
   "menu.logout": "Abmelden",
 

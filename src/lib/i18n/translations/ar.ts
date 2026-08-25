@@ -12,6 +12,7 @@ export const ar: Dictionary = {
 
   "menu.profile": "الملف الشخصي",
   "menu.settings": "الإعدادات",
+  "menu.admin": "الإدارة",
   "menu.help": "المساعدة",
   "menu.logout": "تسجيل الخروج",
 
