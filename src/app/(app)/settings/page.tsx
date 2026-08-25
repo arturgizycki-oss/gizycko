@@ -5,6 +5,7 @@ import { DangerZone } from "../profile/danger-zone";
 import { LanguagePicker } from "@/components/language-picker";
 import { getLocale, getTranslator } from "@/lib/i18n";
 import { TRANSLATED_LOCALES } from "@/lib/i18n/dictionaries";
+import { ChevronRightIcon } from "@/components/icons";
 
 export const metadata = { title: "Settings" };
 
@@ -23,7 +24,9 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold tracking-tight">{t("settings.title")}</h1>
+      <h1 className="text-xl font-semibold tracking-tight">
+        {t("settings.title")}
+      </h1>
 
       <section className="card p-4">
         <h2 className="text-sm font-medium">{t("settings.account")}</h2>
@@ -33,13 +36,18 @@ export default async function SettingsPage() {
             <dd className="truncate">{user?.email}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="muted">Email confirmed</dt>
-            <dd>{user?.emailVerified ? "Yes" : "Not yet"}</dd>
+            <dt className="muted">{t("settings.emailConfirmed")}</dt>
+            <dd>
+              {user?.emailVerified
+                ? t("settings.emailYes")
+                : t("settings.emailNo")}
+            </dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="muted">{t("settings.memberSince")}</dt>
             <dd>
-              {user?.createdAt.toLocaleDateString(undefined, {
+              {/* Formatted in the member's own language, not the server's. */}
+              {user?.createdAt.toLocaleDateString(locale, {
                 month: "long",
                 year: "numeric",
               })}
@@ -61,38 +69,52 @@ export default async function SettingsPage() {
       </section>
 
       <section className="card divide-y divide-[var(--line)]">
-        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">{t("settings.privacy")}</h2>
+        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">
+          {t("settings.privacy")}
+        </h2>
 
         <SettingsLink
           href="/profile"
-          title="Edit your profile"
-          detail="Photos, bio, and who you want to meet"
+          title={t("settings.editProfile")}
+          detail={t("settings.editProfileHint")}
         />
         <SettingsLink
           href="/settings/blocked"
           title={t("settings.blocked")}
           detail={
-            blockedCount === 0
-              ? "Nobody blocked"
-              : `${blockedCount} blocked`
+            blockedCount === 0 ? t("settings.blockedNone") : `${blockedCount}`
           }
         />
         <SettingsLink
           href="/profile"
-          title="Visibility in Discover"
+          title={t("settings.visibility")}
           detail={
             profile.isVisible
-              ? "Your profile is shown to others"
-              : "Your profile is hidden"
+              ? t("settings.visibilityShown")
+              : t("settings.visibilityHidden")
           }
         />
       </section>
 
       <section className="card divide-y divide-[var(--line)]">
-        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">{t("settings.reading")}</h2>
-        <SettingsLink href="/terms" title="Terms of service" detail="What you agree to" />
-        <SettingsLink href="/privacy" title="Privacy policy" detail="What we hold, and why" />
-        <SettingsLink href="/safety" title="Staying safe" detail="Advice before you meet someone" />
+        <h2 className="px-4 pt-4 pb-2 text-sm font-medium">
+          {t("settings.reading")}
+        </h2>
+        <SettingsLink
+          href="/terms"
+          title={t("settings.terms")}
+          detail={t("settings.termsHint")}
+        />
+        <SettingsLink
+          href="/privacy"
+          title={t("settings.privacyPolicy")}
+          detail={t("settings.privacyPolicyHint")}
+        />
+        <SettingsLink
+          href="/safety"
+          title={t("settings.safety")}
+          detail={t("settings.safetyHint")}
+        />
       </section>
 
       <DangerZone />
@@ -118,9 +140,7 @@ function SettingsLink({
         <span className="block text-sm font-medium">{title}</span>
         <span className="hint">{detail}</span>
       </span>
-      <span aria-hidden className="muted">
-        ›
-      </span>
+      <ChevronRightIcon className="muted size-4 shrink-0" />
     </Link>
   );
 }

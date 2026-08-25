@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp } from "@/lib/auth-client";
+import { useT } from "@/lib/i18n/provider";
 
 export default function SignUpPage() {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -24,7 +26,7 @@ export default function SignUpPage() {
 
     setPending(false);
     if (error) {
-      setError(error.message ?? "Could not create the account.");
+      setError(error.message ?? t("auth.createFailed"));
       return;
     }
     router.push("/onboarding");
@@ -32,33 +34,44 @@ export default function SignUpPage() {
 
   return (
     <>
-      <h1 className="text-xl font-semibold tracking-tight">Create an account</h1>
-      <p className="mt-1 text-sm text-neutral-500">You must be 18 or older.</p>
+      <h1 className="text-xl font-semibold tracking-tight">
+        {t("auth.createAccount")}
+      </h1>
+      <p className="mt-1 text-sm text-neutral-500">{t("auth.over18")}</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <Field label="First name" name="name" type="text" autoComplete="given-name" />
-        <Field label="Email" name="email" type="email" autoComplete="email" />
         <Field
-          label="Password"
+          label={t("auth.firstName")}
+          name="name"
+          type="text"
+          autoComplete="given-name"
+        />
+        <Field
+          label={t("auth.email")}
+          name="email"
+          type="email"
+          autoComplete="email"
+        />
+        <Field
+          label={t("auth.password")}
           name="password"
           type="password"
           autoComplete="new-password"
           minLength={10}
-          hint="At least 10 characters."
+          hint={t("auth.passwordHint")}
         />
 
         <label className="flex items-start gap-2 text-sm text-neutral-600 dark:text-neutral-400">
           <input type="checkbox" name="terms" required className="mt-0.5" />
           <span>
-            I am 18 or older and accept the{" "}
+            {t("auth.termsAccept")}{" "}
             <Link href="/terms" className="underline">
-              Terms
+              {t("auth.terms")}
             </Link>{" "}
-            and{" "}
+            {t("auth.and")}{" "}
             <Link href="/privacy" className="underline">
-              Privacy Policy
+              {t("auth.privacy")}
             </Link>
-            .
           </span>
         </label>
 
@@ -73,14 +86,14 @@ export default function SignUpPage() {
           disabled={pending}
           className="btn btn-primary btn-lg w-full"
         >
-          {pending ? "Creating…" : "Create account"}
+          {pending ? t("auth.creating") : t("auth.createAccount")}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-neutral-500">
-        Already have an account?{" "}
+        {t("auth.haveAccount")}{" "}
         <Link href="/sign-in" className="font-medium underline">
-          Sign in
+          {t("auth.signIn")}
         </Link>
       </p>
     </>
@@ -98,12 +111,10 @@ function Field({
   return (
     <label className="block">
       <span className="text-sm font-medium">{label}</span>
-      <input
-        required
-        {...props}
-        className="input mt-1"
-      />
-      {hint && <span className="mt-1 block text-xs text-neutral-500">{hint}</span>}
+      <input required {...props} className="input mt-1" />
+      {hint && (
+        <span className="mt-1 block text-xs text-neutral-500">{hint}</span>
+      )}
     </label>
   );
 }

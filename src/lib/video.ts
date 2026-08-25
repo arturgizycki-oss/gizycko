@@ -6,7 +6,16 @@ const ascii = (bytes: Uint8Array, start: number, length: number) =>
   String.fromCharCode(...bytes.subarray(start, start + length));
 
 /** MP4 brands that mean video. M4A/M4B are audio and belong to sniffAudio. */
-const VIDEO_BRANDS = ["isom", "iso2", "mp41", "mp42", "avc1", "dash", "MSNV", "M4V "];
+const VIDEO_BRANDS = [
+  "isom",
+  "iso2",
+  "mp41",
+  "mp42",
+  "avc1",
+  "dash",
+  "MSNV",
+  "M4V ",
+];
 
 /**
  * Identify a video by its magic bytes, never by filename or the content type
@@ -41,8 +50,7 @@ export function sniffVideo(bytes: Uint8Array): VideoKind | null {
 }
 
 export type VideoCheck =
-  | { ok: true; kind: VideoKind; bytes: Buffer }
-  | { ok: false; error: string };
+  { ok: true; kind: VideoKind; bytes: Buffer } | { ok: false; error: string };
 
 export async function checkUploadedVideo(file: File): Promise<VideoCheck> {
   if (file.size === 0) return { ok: false, error: "That video file is empty." };

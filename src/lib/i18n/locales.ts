@@ -1,11 +1,12 @@
-export type LocaleRegion = "Europe" | "Americas" | "Africa" | "Middle East" | "Asia";
+export type LocaleRegion =
+  "Europe" | "Americas" | "Africa" | "Middle East" | "Asia";
 
 export type Locale = {
   /** BCP 47 tag, and the key a dictionary file is named after. */
   code: string;
   /** English name, for our own lists and logs. */
   name: string;
-  /** What speakers call it — what the picker shows. */
+  /** What speakers call it - what the picker shows. */
   native: string;
   region: LocaleRegion;
   /** Written right to left, so the page direction flips. */
@@ -15,7 +16,7 @@ export type Locale = {
 /**
  * Languages offered in the picker.
  *
- * Listing a language is a promise the app *works* in it — the direction is
+ * Listing a language is a promise the app *works* in it - the direction is
  * right, dates and numbers format correctly, nothing overflows. It is not a
  * promise every string is translated: a locale with no dictionary falls back to
  * English, and the picker says so rather than pretending otherwise.
@@ -53,10 +54,30 @@ export const LOCALES: Locale[] = [
   { code: "ga", name: "Irish", native: "Gaeilge", region: "Europe" },
 
   // Americas
-  { code: "pt-BR", name: "Portuguese (Brazil)", native: "Português (Brasil)", region: "Americas" },
-  { code: "es-MX", name: "Spanish (Mexico)", native: "Español (México)", region: "Americas" },
-  { code: "fr-CA", name: "French (Canada)", native: "Français (Canada)", region: "Americas" },
-  { code: "ht", name: "Haitian Creole", native: "Kreyòl ayisyen", region: "Americas" },
+  {
+    code: "pt-BR",
+    name: "Portuguese (Brazil)",
+    native: "Português (Brasil)",
+    region: "Americas",
+  },
+  {
+    code: "es-MX",
+    name: "Spanish (Mexico)",
+    native: "Español (México)",
+    region: "Americas",
+  },
+  {
+    code: "fr-CA",
+    name: "French (Canada)",
+    native: "Français (Canada)",
+    region: "Americas",
+  },
+  {
+    code: "ht",
+    name: "Haitian Creole",
+    native: "Kreyòl ayisyen",
+    region: "Americas",
+  },
   { code: "qu", name: "Quechua", native: "Runa Simi", region: "Americas" },
 
   // Africa
@@ -69,20 +90,59 @@ export const LOCALES: Locale[] = [
   { code: "af", name: "Afrikaans", native: "Afrikaans", region: "Africa" },
   { code: "so", name: "Somali", native: "Soomaali", region: "Africa" },
 
-  // Middle East — right to left
-  { code: "ar", name: "Arabic", native: "العربية", region: "Middle East", rtl: true },
-  { code: "arz", name: "Egyptian Arabic", native: "مصرى", region: "Middle East", rtl: true },
-  { code: "he", name: "Hebrew", native: "עברית", region: "Middle East", rtl: true },
-  { code: "fa", name: "Persian", native: "فارسی", region: "Middle East", rtl: true },
+  // Middle East - right to left
+  {
+    code: "ar",
+    name: "Arabic",
+    native: "العربية",
+    region: "Middle East",
+    rtl: true,
+  },
+  {
+    code: "arz",
+    name: "Egyptian Arabic",
+    native: "مصرى",
+    region: "Middle East",
+    rtl: true,
+  },
+  {
+    code: "he",
+    name: "Hebrew",
+    native: "עברית",
+    region: "Middle East",
+    rtl: true,
+  },
+  {
+    code: "fa",
+    name: "Persian",
+    native: "فارسی",
+    region: "Middle East",
+    rtl: true,
+  },
 
   // Asia
-  { code: "zh-Hans", name: "Chinese (Simplified)", native: "简体中文", region: "Asia" },
-  { code: "zh-Hant", name: "Chinese (Traditional)", native: "繁體中文", region: "Asia" },
+  {
+    code: "zh-Hans",
+    name: "Chinese (Simplified)",
+    native: "简体中文",
+    region: "Asia",
+  },
+  {
+    code: "zh-Hant",
+    name: "Chinese (Traditional)",
+    native: "繁體中文",
+    region: "Asia",
+  },
   { code: "ja", name: "Japanese", native: "日本語", region: "Asia" },
   { code: "ko", name: "Korean", native: "한국어", region: "Asia" },
   { code: "hi", name: "Hindi", native: "हिन्दी", region: "Asia" },
   { code: "vi", name: "Vietnamese", native: "Tiếng Việt", region: "Asia" },
-  { code: "id", name: "Indonesian", native: "Bahasa Indonesia", region: "Asia" },
+  {
+    code: "id",
+    name: "Indonesian",
+    native: "Bahasa Indonesia",
+    region: "Asia",
+  },
 ];
 
 export const DEFAULT_LOCALE = "en";

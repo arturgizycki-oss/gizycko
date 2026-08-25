@@ -19,7 +19,7 @@ export const roleInGroup = cache(
 /**
  * A group the viewer may look at, or null.
  *
- * A private group is invisible to everyone but its members — not merely
+ * A private group is invisible to everyone but its members - not merely
  * unjoinable, so a stray link gives nothing away.
  */
 export async function visibleGroup(groupId: string, userId: string) {

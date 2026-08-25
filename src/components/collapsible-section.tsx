@@ -54,7 +54,11 @@ export function CollapsibleSection({
           strokeWidth="1.75"
           className="ml-auto size-4 shrink-0 text-[var(--ink-muted)] transition-transform duration-200 group-open:rotate-180"
         >
-          <path d="M5 7.5 10 12.5 15 7.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M5 7.5 10 12.5 15 7.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </summary>
 

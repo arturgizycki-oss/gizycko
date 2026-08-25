@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { friendIds, hiddenUserIds, matchedUserIds } from "@/lib/social";
@@ -8,6 +8,13 @@ import { ReportDialog } from "@/components/report-dialog";
 import { CommentForm } from "./comment-form";
 import { deleteComment } from "../actions";
 import { MusicIcon } from "@/components/icons";
+import { CopyLink } from "@/components/copy-link";
+import { getLocale, getTranslator } from "@/lib/i18n";
+import { ChevronLeftIcon } from "@/components/icons";
+import { ConfirmButton } from "@/components/confirm-button";
+
+/** How many comments one page loads. */
+const MAX_COMMENTS = 200;
 
 export default async function PostPage({
   params,
@@ -17,6 +24,7 @@ export default async function PostPage({
   const { postId } = await params;
   const { session } = await requireProfile();
   const me = session.user.id;
+  const [t, locale] = await Promise.all([getTranslator(), getLocale()]);
 
   const post = await prisma.post.findUnique({
     where: { id: postId },
@@ -31,6 +39,7 @@ export default async function PostPage({
       images: { orderBy: { position: "asc" } },
       comments: {
         orderBy: { createdAt: "asc" },
+        take: MAX_COMMENTS,
         include: {
           author: {
             select: {
@@ -46,6 +55,11 @@ export default async function PostPage({
 
   if (!post || post.deletedAt) notFound();
 
+  // Group posts live on their group page, which is where their audience and
+  // their moderation rules are. Sending them here would show them stripped of
+  // both.
+  if (post.groupId) redirect(`/groups/${post.groupId}`);
+
   const [hidden, friends, matches] = await Promise.all([
     hiddenUserIds(me),
     friendIds(me),
@@ -53,13 +67,14 @@ export default async function PostPage({
   ]);
 
   // A block hides that person's comments here too, not just their posts.
+  const hiddenSet = new Set(hidden);
   const comments = post.comments.filter(
-    (comment) => !hidden.includes(comment.authorId),
+    (comment) => !hiddenSet.has(comment.authorId),
   );
 
   const canSee =
     post.authorId === me ||
-    (!hidden.includes(post.authorId) &&
+    (!hiddenSet.has(post.authorId) &&
       (post.visibility === "PUBLIC" ||
         (post.visibility === "FRIENDS" && friends.includes(post.authorId)) ||
         (post.visibility === "MATCHES" && matches.includes(post.authorId))));
@@ -71,25 +86,32 @@ export default async function PostPage({
   return (
     <div className="space-y-6">
       <Link href="/feed" className="text-sm text-neutral-500 hover:underline">
-        ← Feed
+        <ChevronLeftIcon className="size-4" />
+        {t("nav.feed")}
       </Link>
 
       <article className="card p-4">
         <header className="flex items-start justify-between">
           <div>
-            <Link href={`/u/${post.author.id}`} className="text-sm font-medium hover:underline">
+            <Link
+              href={`/u/${post.author.id}`}
+              className="text-sm font-medium hover:underline"
+            >
               {authorName}
             </Link>
             <time
               dateTime={post.createdAt.toISOString()}
               className="block text-xs text-neutral-500"
             >
-              {post.createdAt.toLocaleString()}
+              {post.createdAt.toLocaleString(locale)}
             </time>
           </div>
-          {post.authorId !== me && (
-            <ReportDialog target={{ postId: post.id }} />
-          )}
+          <div className="flex shrink-0 items-center gap-3">
+            <CopyLink path={`/feed/${post.id}`} label={t("action.share")} />
+            {post.authorId !== me && (
+              <ReportDialog target={{ postId: post.id }} />
+            )}
+          </div>
         </header>
 
         {post.body && (
@@ -99,7 +121,10 @@ export default async function PostPage({
         {post.images.length > 0 && (
           <ul className="mt-3 grid grid-cols-2 gap-2">
             {post.images.map((image) => (
-              <li key={image.id} className="relative overflow-hidden rounded-xl">
+              <li
+                key={image.id}
+                className="relative overflow-hidden rounded-xl"
+              >
                 <Image
                   src={image.url}
                   alt=""
@@ -120,7 +145,7 @@ export default async function PostPage({
             src={post.videoUrl}
             className="mt-3 max-h-[28rem] w-full rounded-xl bg-black"
           >
-            Your browser cannot play this video.
+            {t("chat.noVideo")}
           </video>
         )}
 
@@ -128,10 +153,17 @@ export default async function PostPage({
           <figure className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-800/50">
             <figcaption className="mb-2 flex items-center gap-2 text-xs font-medium">
               <MusicIcon className="size-3.5 shrink-0" />
-              <span className="truncate">{post.audioTitle ?? "Attached song"}</span>
+              <span className="truncate">
+                {post.audioTitle ?? t("feed.attachedSong")}
+              </span>
             </figcaption>
-            <audio controls preload="none" src={post.audioUrl} className="w-full">
-              Your browser cannot play this audio.
+            <audio
+              controls
+              preload="none"
+              src={post.audioUrl}
+              className="w-full"
+            >
+              {t("chat.noAudio")}
             </audio>
           </figure>
         )}
@@ -139,18 +171,16 @@ export default async function PostPage({
 
       <section>
         <h2 className="mb-3 text-sm font-medium">
-          {comments.filter((c) => !c.deletedAt).length} comments
+          {comments.filter((c) => !c.deletedAt).length}{" "}
+          {t("feed.commentsCount")}
         </h2>
 
         <ul className="space-y-3">
           {comments.map((comment) => (
-            <li
-              key={comment.id}
-              className="card p-3"
-            >
+            <li key={comment.id} className="card p-3">
               {comment.deletedAt ? (
                 <p className="text-sm text-neutral-400 italic">
-                  This comment was deleted.
+                  {t("feed.commentDeleted")}
                 </p>
               ) : (
                 <>
@@ -159,29 +189,30 @@ export default async function PostPage({
                       href={`/u/${comment.author.id}`}
                       className="text-sm font-medium hover:underline"
                     >
-                      {comment.author.profile?.displayName ?? comment.author.name}
+                      {comment.author.profile?.displayName ??
+                        comment.author.name}
                     </Link>
                     <div className="flex items-center gap-3">
                       {comment.authorId === me ? (
-                        <form action={deleteComment.bind(null, comment.id)}>
-                          <button
-                            type="submit"
-                            className="text-xs text-neutral-500 hover:text-rose-600"
-                          >
-                            Delete
-                          </button>
-                        </form>
+                        <ConfirmButton
+                          label={t("action.delete")}
+                          question={t("confirm.deleteComment")}
+                          destructive
+                          formAction={deleteComment.bind(null, comment.id)}
+                        />
                       ) : (
                         <ReportDialog target={{ commentId: comment.id }} />
                       )}
                     </div>
                   </div>
-                  <p className="mt-1 text-sm whitespace-pre-wrap">{comment.body}</p>
+                  <p className="mt-1 text-sm whitespace-pre-wrap">
+                    {comment.body}
+                  </p>
                   <time
                     dateTime={comment.createdAt.toISOString()}
                     className="mt-1 block text-xs text-neutral-500"
                   >
-                    {comment.createdAt.toLocaleString()}
+                    {comment.createdAt.toLocaleString(locale)}
                   </time>
                 </>
               )}

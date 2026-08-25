@@ -1,6 +1,6 @@
 /**
  * `user.image` is Better Auth's OAuth avatar field and is null for anyone who
- * signed up with email — the picture people actually upload lives in the Photo
+ * signed up with email - the picture people actually upload lives in the Photo
  * table. Every avatar in the app should prefer that.
  */
 

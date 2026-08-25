@@ -7,6 +7,10 @@ import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { FriendButton } from "@/components/friend-button";
 import { openConversation } from "@/lib/actions/conversations";
+import { getTranslator } from "@/lib/i18n";
+import { SearchField } from "@/components/search-field";
+import { readQuery, searchPeople } from "@/lib/search";
+import type { FriendState } from "@/components/friend-button";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -18,15 +22,25 @@ const rowClass =
 
 const emptyClass = "px-2 py-3 text-sm text-neutral-500";
 
-export default async function FriendsPage() {
+export default async function FriendsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { session } = await requireProfile();
   const me = session.user.id;
+  const t = await getTranslator();
 
+  const query = readQuery((await searchParams).q);
   const hidden = await hiddenUserIds(me);
 
   const [incoming, accepted, suggestions] = await Promise.all([
     prisma.friendship.findMany({
-      where: { addresseeId: me, status: "PENDING", requesterId: { notIn: hidden } },
+      where: {
+        addresseeId: me,
+        status: "PENDING",
+        requesterId: { notIn: hidden },
+      },
       include: {
         requester: {
           select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
@@ -74,23 +88,80 @@ export default async function FriendsPage() {
     row.requesterId === me ? row.addressee : row.requester,
   );
 
+  if (query) {
+    const found = await searchPeople(me, query);
+    const states = await friendStates(
+      me,
+      found.map((person) => person.id),
+    );
+
+    return (
+      <div className="space-y-4">
+        <h1 className="text-xl font-semibold tracking-tight">
+          {t("friends.title")}
+        </h1>
+
+        <SearchField placeholder={t("search.people")} initial={query} />
+
+        <section className="card p-2">
+          <p className="label px-2 pt-1 pb-2">
+            {t("search.results")} ({found.length})
+          </p>
+
+          {found.length === 0 ? (
+            <p className={emptyClass}>{t("search.noPeople")}</p>
+          ) : (
+            <ul>
+              {found.map((person) => (
+                <li key={person.id} className={rowClass}>
+                  <Link href={`/u/${person.id}`} aria-label={person.name}>
+                    <Avatar name={person.name} src={person.photo} size={40} />
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/u/${person.id}`}
+                      className="block truncate text-sm font-medium hover:underline"
+                    >
+                      {person.name}
+                    </Link>
+                    {person.city && <p className="hint">{person.city}</p>}
+                  </div>
+                  <FriendButton
+                    userId={person.id}
+                    state={states.get(person.id)?.state ?? "none"}
+                    friendshipId={states.get(person.id)?.id ?? null}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold tracking-tight">Friends</h1>
+      <h1 className="text-xl font-semibold tracking-tight">
+        {t("friends.title")}
+      </h1>
+
+      <SearchField placeholder={t("search.people")} />
 
       <CollapsibleSection
-        title="Requests"
+        title={t("friends.requests")}
         count={incoming.length}
-        hint="waiting for your answer"
+        hint={t("friends.requestsHint")}
         defaultOpen={incoming.length > 0}
       >
         {incoming.length === 0 ? (
-          <p className={emptyClass}>No requests right now.</p>
+          <p className={emptyClass}>{t("friends.requestsEmpty")}</p>
         ) : (
           <ul>
             {incoming.map((request) => {
               const name =
-                request.requester.profile?.displayName ?? request.requester.name;
+                request.requester.profile?.displayName ??
+                request.requester.name;
 
               return (
                 <li key={request.id} className={rowClass}>
@@ -120,14 +191,12 @@ export default async function FriendsPage() {
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="Your friends"
+        title={t("friends.yours")}
         count={friends.length}
         defaultOpen={friends.length > 0}
       >
         {friends.length === 0 ? (
-          <p className={emptyClass}>
-            No friends yet. Add someone from the suggestions below.
-          </p>
+          <p className={emptyClass}>{t("friends.yoursEmpty")}</p>
         ) : (
           <ul>
             {friends.map((friend) => {
@@ -150,7 +219,7 @@ export default async function FriendsPage() {
                   </Link>
                   <form action={openConversation.bind(null, friend.id)}>
                     <button type="submit" className="btn btn-primary btn-sm">
-                      Message
+                      {t("action.message")}
                     </button>
                   </form>
                 </li>
@@ -161,19 +230,20 @@ export default async function FriendsPage() {
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="People you could add"
+        title={t("friends.suggestions")}
         count={suggestions.length}
-        hint="not connected yet"
+        hint={t("friends.suggestionsHint")}
       >
         {suggestions.length === 0 ? (
-          <p className={emptyClass}>
-            Nobody new to suggest. Try Discover to meet more people.
-          </p>
+          <p className={emptyClass}>{t("friends.suggestionsEmpty")}</p>
         ) : (
           <ul>
             {suggestions.map((person) => (
               <li key={person.userId} className={rowClass}>
-                <Link href={`/u/${person.userId}`} aria-label={person.displayName}>
+                <Link
+                  href={`/u/${person.userId}`}
+                  aria-label={person.displayName}
+                >
                   <Avatar
                     name={person.displayName}
                     src={photoUrlOf(person)}
@@ -203,4 +273,48 @@ export default async function FriendsPage() {
       </CollapsibleSection>
     </div>
   );
+}
+
+/**
+ * Where the viewer stands with each of these people, in one query.
+ *
+ * The friend button needs a state per row, and asking per row would be a query
+ * per result.
+ */
+async function friendStates(
+  me: string,
+  userIds: string[],
+): Promise<Map<string, { state: FriendState; id: string | null }>> {
+  const states = new Map<string, { state: FriendState; id: string | null }>();
+  if (userIds.length === 0) return states;
+
+  const rows = await prisma.friendship.findMany({
+    where: {
+      OR: [
+        { requesterId: me, addresseeId: { in: userIds } },
+        { addresseeId: me, requesterId: { in: userIds } },
+      ],
+    },
+    select: {
+      id: true,
+      status: true,
+      requesterId: true,
+      addresseeId: true,
+    },
+  });
+
+  for (const row of rows) {
+    const other = row.requesterId === me ? row.addresseeId : row.requesterId;
+
+    if (row.status === "ACCEPTED") {
+      states.set(other, { state: "friends", id: row.id });
+    } else if (row.status === "PENDING") {
+      states.set(other, {
+        state: row.requesterId === me ? "requested" : "incoming",
+        id: row.id,
+      });
+    }
+  }
+
+  return states;
 }

@@ -19,7 +19,7 @@ export const auth = betterAuth({
           "",
           `Open this link to choose a new one: ${url}`,
           "",
-          "The link expires in one hour. If this was not you, ignore this email —",
+          "The link expires in one hour. If this was not you, ignore this email -",
           "your password stays as it is.",
         ].join("\n"),
       });

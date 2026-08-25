@@ -4,26 +4,34 @@ import { requireProfile } from "@/lib/session";
 import { Avatar } from "@/components/avatar";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { MarkRead } from "./mark-read";
+import { getLocale, getTranslator } from "@/lib/i18n";
+import type { MessageKey } from "@/lib/i18n";
 
 const PROFILE_AVATAR = {
   displayName: true,
   photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
 };
 
-const TEXT: Record<string, string> = {
-  MATCH: "matched with you",
-  MESSAGE: "sent you a message",
-  PROFILE_LIKE: "liked your profile",
-  FRIEND_REQUEST: "sent you a friend request",
-  FRIEND_ACCEPTED: "accepted your friend request",
-  POST_REACTION: "reacted to your post",
-  POST_COMMENT: "commented on your post",
+/** Notification type to the phrase that follows the actor's name. */
+const TEXT: Record<string, MessageKey> = {
+  MATCH: "notifications.match",
+  MESSAGE: "notifications.message",
+  PROFILE_LIKE: "notifications.profileLike",
+  FRIEND_REQUEST: "notifications.friendRequest",
+  FRIEND_ACCEPTED: "notifications.friendAccepted",
+  POST_REACTION: "notifications.postReaction",
+  POST_COMMENT: "notifications.postComment",
 };
 
-function hrefFor(type: string, entityId: string | null, actorId: string | null) {
+function hrefFor(
+  type: string,
+  entityId: string | null,
+  actorId: string | null,
+) {
   if (type === "MESSAGE" && entityId) return `/matches/${entityId}`;
   if (type === "MATCH") return "/matches";
-  if (type === "FRIEND_REQUEST" || type === "FRIEND_ACCEPTED") return "/friends";
+  if (type === "FRIEND_REQUEST" || type === "FRIEND_ACCEPTED")
+    return "/friends";
   if ((type === "POST_COMMENT" || type === "POST_REACTION") && entityId) {
     return `/feed/${entityId}`;
   }
@@ -33,6 +41,7 @@ function hrefFor(type: string, entityId: string | null, actorId: string | null) 
 
 export default async function NotificationsPage() {
   const { session } = await requireProfile();
+  const [t, locale] = await Promise.all([getTranslator(), getLocale()]);
 
   const notifications = await prisma.notification.findMany({
     where: { userId: session.user.id },
@@ -50,19 +59,19 @@ export default async function NotificationsPage() {
   return (
     <div>
       <MarkRead unread={unread} />
-      <h1 className="mb-6 text-xl font-semibold tracking-tight">Notifications</h1>
+      <h1 className="mb-6 text-xl font-semibold tracking-tight">
+        {t("notifications.title")}
+      </h1>
 
       {notifications.length === 0 ? (
-        <p className="empty-state">
-          Nothing yet.
-        </p>
+        <p className="empty-state">{t("notifications.empty")}</p>
       ) : (
         <ul className="card divide-y divide-[var(--line)] overflow-hidden">
           {notifications.map((notification) => {
             const actorName =
               notification.actor?.profile?.displayName ??
               notification.actor?.name ??
-              "Someone";
+              t("notifications.someone");
 
             return (
               <li
@@ -74,7 +83,10 @@ export default async function NotificationsPage() {
                 }
               >
                 {notification.actorId ? (
-                  <Link href={`/u/${notification.actorId}`} aria-label={actorName}>
+                  <Link
+                    href={`/u/${notification.actorId}`}
+                    aria-label={actorName}
+                  >
                     <Avatar
                       name={actorName}
                       src={photoUrlOf(notification.actor?.profile)}
@@ -94,13 +106,13 @@ export default async function NotificationsPage() {
                 >
                   <p className="text-sm">
                     <span className="font-medium">{actorName}</span>{" "}
-                    {TEXT[notification.type] ?? "did something"}
+                    {t(TEXT[notification.type] ?? "notifications.other")}
                   </p>
                   <time
                     dateTime={notification.createdAt.toISOString()}
                     className="text-xs text-neutral-500"
                   >
-                    {notification.createdAt.toLocaleString()}
+                    {notification.createdAt.toLocaleString(locale)}
                   </time>
                 </Link>
               </li>

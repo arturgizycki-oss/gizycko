@@ -1,22 +1,27 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireProfile } from "@/lib/session";
+import { requireProfileWithPhotos } from "@/lib/session";
 import { ageFrom } from "@/lib/age";
 import { followCounts, followersOf, followingOf } from "@/lib/follows";
 import { Avatar } from "@/components/avatar";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { PhotoManager } from "./photo-manager";
 import { ProfileForm } from "./profile-form";
+import { getTranslator } from "@/lib/i18n";
+import { ArrowRightIcon } from "@/components/icons";
 
 export default async function ProfilePage() {
-  const { session, profile } = await requireProfile();
+  const { session, profile, photos } = await requireProfileWithPhotos();
   const me = session.user.id;
+  const t = await getTranslator();
 
   const [counts, followers, following, postCount] = await Promise.all([
     followCounts(me),
     followersOf(me, me),
     followingOf(me, me),
-    prisma.post.count({ where: { authorId: me, deletedAt: null, groupId: null } }),
+    prisma.post.count({
+      where: { authorId: me, deletedAt: null, groupId: null },
+    }),
   ]);
 
   return (
@@ -26,24 +31,25 @@ export default async function ProfilePage() {
           {profile.displayName}, {ageFrom(profile.birthDate)}
         </h1>
         <p className="muted text-sm">
-          {profile.city ?? "No city set"} · {session.user.email}
+          {profile.city ?? t("profile.noCity")} · {session.user.email}
         </p>
         {session.user.role !== "USER" && (
           <Link
             href="/moderation"
             className="mt-2 inline-block text-sm font-medium text-brand-600 hover:underline"
           >
-            Open the moderation queue →
+            {t("profile.moderationQueue")}
+            <ArrowRightIcon className="size-4" />
           </Link>
         )}
       </header>
 
-      <dl className="card grid grid-cols-4 divide-x divide-[var(--line)] text-center">
+      <dl className="card grid grid-cols-2 divide-[var(--line)] text-center sm:grid-cols-4 sm:divide-x">
         {[
-          { label: "Followers", value: counts.followers },
-          { label: "Following", value: counts.following },
-          { label: "Posts", value: postCount },
-          { label: "Photos", value: profile.photos.length },
+          { label: t("profile.followers"), value: counts.followers },
+          { label: t("profile.followingCount"), value: counts.following },
+          { label: t("profile.posts"), value: postCount },
+          { label: t("profile.photos"), value: photos.length },
         ].map((stat) => (
           <div key={stat.label} className="py-3">
             <dd className="text-lg font-semibold">{stat.value}</dd>
@@ -52,35 +58,26 @@ export default async function ProfilePage() {
         ))}
       </dl>
 
-      <CollapsibleSection title="Followers" count={counts.followers}>
-        <PeopleList
-          people={followers}
-          empty="Nobody follows you yet. Posting publicly is the fastest way to change that."
-        />
+      <CollapsibleSection
+        title={t("profile.followers")}
+        count={counts.followers}
+      >
+        <PeopleList people={followers} empty={t("profile.followersEmpty")} />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Following" count={counts.following}>
-        <PeopleList
-          people={following}
-          empty="You are not following anyone yet."
-        />
+      <CollapsibleSection
+        title={t("profile.followingCount")}
+        count={counts.following}
+      >
+        <PeopleList people={following} empty={t("profile.followingEmpty")} />
       </CollapsibleSection>
 
-      <PhotoManager
-        photos={profile.photos.map((photo) => ({
-          id: photo.id,
-          url: photo.url,
-          isPrimary: photo.isPrimary,
-          moderation: photo.moderation,
-        }))}
-      />
+      <PhotoManager photos={photos} />
 
       <p className="hint">
-        Your data, blocked people, and account deletion are in{" "}
         <Link href="/settings" className="underline">
-          Settings
+          {t("profile.settingsNote")}
         </Link>
-        .
       </p>
 
       <ProfileForm

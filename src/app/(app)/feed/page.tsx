@@ -6,11 +6,17 @@ import type { Prisma } from "@/generated/prisma/client";
 import { Composer } from "./composer";
 import { FeedFilters } from "./feed-filters";
 import { PostCard } from "./post-card";
+import { getTranslator } from "@/lib/i18n";
 
 type Search = Record<string, string | string[] | undefined>;
 
 /** Read one search param, falling back when it is absent or unrecognised. */
-function pick(search: Search, key: string, allowed: string[], fallback: string) {
+function pick(
+  search: Search,
+  key: string,
+  allowed: string[],
+  fallback: string,
+) {
   const raw = search[key];
   const value = Array.isArray(raw) ? raw[0] : raw;
   return value && allowed.includes(value) ? value : fallback;
@@ -23,10 +29,16 @@ export default async function FeedPage({
 }) {
   const { session } = await requireProfile();
   const me = session.user.id;
+  const t = await getTranslator();
 
   const search = await searchParams;
   const sort = pick(search, "sort", ["new", "top", "discussed"], "new");
-  const source = pick(search, "from", ["all", "friends", "matches", "mine"], "all");
+  const source = pick(
+    search,
+    "from",
+    ["all", "friends", "matches", "mine"],
+    "all",
+  );
   const kind = pick(search, "has", ["all", "photos", "video", "song"], "all");
 
   const [friends, hidden, matches] = await Promise.all([
@@ -91,7 +103,11 @@ export default async function FeedPage({
           profile: {
             select: {
               displayName: true,
-              photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
+              photos: {
+                where: PRIMARY_PHOTO_WHERE,
+                select: { url: true },
+                take: 1,
+              },
             },
           },
         },
@@ -114,18 +130,16 @@ export default async function FeedPage({
     <div className="space-y-6">
       <Composer />
 
-      <FeedFilters sort={sort} source={source} kind={kind} total={posts.length} />
+      <FeedFilters
+        sort={sort}
+        source={source}
+        kind={kind}
+        total={posts.length}
+      />
 
       {posts.length === 0 ? (
         <p className="empty-state">
-          {filtered ? (
-            "Nothing matches those filters. Try widening them."
-          ) : (
-            <>
-              Nothing here yet. Write the first post, or head to{" "}
-              <span className="font-medium">Discover</span> to meet people.
-            </>
-          )}
+          {filtered ? t("feed.emptyFiltered") : t("feed.empty")}
         </p>
       ) : (
         <ul className="space-y-4">

@@ -28,7 +28,9 @@ export async function recordSwipe(
   if (direction === "PASS") return { matched: false, matchId: null };
 
   const reciprocal = await prisma.swipe.findUnique({
-    where: { fromUserId_toUserId: { fromUserId: toUserId, toUserId: fromUserId } },
+    where: {
+      fromUserId_toUserId: { fromUserId: toUserId, toUserId: fromUserId },
+    },
     select: { direction: true },
   });
 

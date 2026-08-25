@@ -9,7 +9,7 @@ export default function ProfileLoading() {
           <Skeleton className="h-8 w-24 rounded-full" />
           <Skeleton className="h-8 w-28 rounded-full" />
         </div>
-        <div className="grid grid-cols-4 gap-4 border-t border-[var(--line)] p-4">
+        <div className="grid grid-cols-3 gap-4 border-t border-[var(--line)] p-4 sm:grid-cols-5">
           {Array.from({ length: 4 }, (_, i) => (
             <Skeleton key={i} className="h-10 w-full" />
           ))}

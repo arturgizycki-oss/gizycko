@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { Avatar } from "@/components/avatar";
 import { unbanFromGroup } from "../actions";
+import { useT } from "@/lib/i18n/provider";
 
 export type BannedPerson = {
   userId: string;
@@ -18,25 +19,35 @@ export function BannedList({
   groupId: string;
   people: BannedPerson[];
 }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
 
   if (people.length === 0) {
-    return <p className="muted px-2 py-3 text-sm">Nobody is banned.</p>;
+    return <p className="muted px-2 py-3 text-sm">{t("groups.bannedEmpty")}</p>;
   }
 
   return (
     <ul className="space-y-1">
       {people.map((person) => (
-        <li key={person.userId} className="flex items-center gap-3 rounded-xl px-2 py-2">
+        <li
+          key={person.userId}
+          className="flex items-center gap-3 rounded-xl px-2 py-2"
+        >
           <Avatar name={person.name} src={person.photo} size={32} />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium">{person.name}</span>
-            <span className="hint">{person.reason ?? "No reason given"}</span>
+            <span className="block truncate text-sm font-medium">
+              {person.name}
+            </span>
+            <span className="hint">
+              {person.reason ?? t("groups.noReason")}
+            </span>
           </span>
           <button
             type="button"
             disabled={pending}
-            onClick={() => startTransition(() => unbanFromGroup(groupId, person.userId))}
+            onClick={() =>
+              startTransition(() => unbanFromGroup(groupId, person.userId))
+            }
             className="btn btn-secondary btn-sm shrink-0"
           >
             Unban

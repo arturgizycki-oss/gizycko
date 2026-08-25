@@ -17,17 +17,37 @@ afterAll(async () => {
   await rm(root, { recursive: true, force: true });
 });
 
+/** Drain a web stream into a string, the way a fetch response would. */
+async function read(
+  stream: Promise<ReadableStream<Uint8Array>>,
+): Promise<string> {
+  return new Response(await stream).text();
+}
+
 describe("object storage", () => {
   it("round-trips a file", async () => {
     await storage.putObject("photos/u1/a.png", Buffer.from("hello"));
-    const found = await storage.getObject("photos/u1/a.png");
+    const found = await storage.statObject("photos/u1/a.png");
 
-    expect(found?.data.toString()).toBe("hello");
+    expect(found?.size).toBe(5);
     expect(found?.contentType).toBe("image/png");
+    expect(await read(storage.streamObject("photos/u1/a.png"))).toBe("hello");
+  });
+
+  it("streams a byte range, so players can seek", async () => {
+    await storage.putObject("clips/u1/c.mp3", Buffer.from("0123456789"));
+
+    const middle = storage.streamObject("clips/u1/c.mp3", { start: 3, end: 6 });
+    expect(await read(middle)).toBe("3456");
   });
 
   it("returns null for something that is not there", async () => {
-    expect(await storage.getObject("photos/nope.png")).toBeNull();
+    expect(await storage.statObject("photos/nope.png")).toBeNull();
+  });
+
+  it("returns null for a directory", async () => {
+    await storage.putObject("photos/u2/a.png", Buffer.from("x"));
+    expect(await storage.statObject("photos/u2")).toBeNull();
   });
 
   it("deletes, and deleting twice is not an error", async () => {
@@ -35,7 +55,7 @@ describe("object storage", () => {
     await storage.deleteObject("photos/u1/b.jpg");
     await storage.deleteObject("photos/u1/b.jpg");
 
-    expect(await storage.getObject("photos/u1/b.jpg")).toBeNull();
+    expect(await storage.statObject("photos/u1/b.jpg")).toBeNull();
   });
 
   it("refuses to escape the storage root", async () => {
@@ -44,8 +64,12 @@ describe("object storage", () => {
     ).rejects.toThrow(/outside storage/);
 
     await expect(
-      storage.getObject("photos/../../../etc/passwd"),
+      storage.statObject("photos/../../../etc/passwd"),
     ).resolves.toBeNull();
+
+    await expect(
+      storage.streamObject("photos/../../../etc/passwd"),
+    ).rejects.toThrow(/outside storage/);
   });
 
   it("maps urls to keys and back", () => {

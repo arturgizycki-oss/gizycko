@@ -5,7 +5,7 @@ import Image, { type StaticImageData } from "next/image";
  *
  * The image is a static import rather than a path into public/, so Next puts a
  * content hash in its filename. A replaced photograph then arrives with a new
- * URL and nobody sees a cached copy of the old one — which is exactly what
+ * URL and nobody sees a cached copy of the old one - which is exactly what
  * happens with a fixed name like /login-background.jpg.
  */
 export function PageBackdrop({

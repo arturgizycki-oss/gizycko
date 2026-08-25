@@ -2,26 +2,29 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 
+/** Option values are what the URL carries; the label is a key, not text. */
 export const SORTS = [
-  { value: "new", label: "Newest" },
-  { value: "top", label: "Most liked" },
-  { value: "discussed", label: "Most discussed" },
-] as const;
+  { value: "new", label: "feed.sortNew" },
+  { value: "top", label: "feed.sortTop" },
+  { value: "discussed", label: "feed.sortDiscussed" },
+] as const satisfies readonly { value: string; label: MessageKey }[];
 
 export const SOURCES = [
-  { value: "all", label: "Everyone" },
-  { value: "friends", label: "Friends" },
-  { value: "matches", label: "Matches" },
-  { value: "mine", label: "Just me" },
-] as const;
+  { value: "all", label: "feed.fromAll" },
+  { value: "friends", label: "feed.fromFriends" },
+  { value: "matches", label: "feed.fromMatches" },
+  { value: "mine", label: "feed.fromMine" },
+] as const satisfies readonly { value: string; label: MessageKey }[];
 
 export const KINDS = [
-  { value: "all", label: "Anything" },
-  { value: "photos", label: "Photos" },
-  { value: "video", label: "Video" },
-  { value: "song", label: "Songs" },
-] as const;
+  { value: "all", label: "feed.hasAll" },
+  { value: "photos", label: "feed.hasPhotos" },
+  { value: "video", label: "feed.hasVideo" },
+  { value: "song", label: "feed.hasSong" },
+] as const satisfies readonly { value: string; label: MessageKey }[];
 
 const selectClass =
   "rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium outline-none focus:border-brand-500 dark:border-neutral-700 dark:bg-neutral-900";
@@ -37,6 +40,7 @@ export function FeedFilters({
   kind: string;
   total: number;
 }) {
+  const t = useT();
   const router = useRouter();
   const params = useSearchParams();
   const [pending, startTransition] = useTransition();
@@ -55,7 +59,7 @@ export function FeedFilters({
   return (
     <div className="card-glass flex flex-wrap items-center gap-2 p-3">
       <label className="flex items-center gap-1.5 text-xs text-neutral-500">
-        Sort
+        {t("feed.sortLabel")}
         <select
           value={sort}
           onChange={(event) => set("sort", event.target.value)}
@@ -63,14 +67,14 @@ export function FeedFilters({
         >
           {SORTS.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t(option.label)}
             </option>
           ))}
         </select>
       </label>
 
       <label className="flex items-center gap-1.5 text-xs text-neutral-500">
-        From
+        {t("feed.fromLabel")}
         <select
           value={source}
           onChange={(event) => set("from", event.target.value)}
@@ -78,14 +82,14 @@ export function FeedFilters({
         >
           {SOURCES.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t(option.label)}
             </option>
           ))}
         </select>
       </label>
 
       <label className="flex items-center gap-1.5 text-xs text-neutral-500">
-        With
+        {t("feed.withLabel")}
         <select
           value={kind}
           onChange={(event) => set("has", event.target.value)}
@@ -93,14 +97,16 @@ export function FeedFilters({
         >
           {KINDS.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t(option.label)}
             </option>
           ))}
         </select>
       </label>
 
       <span className="ml-auto text-xs text-neutral-500">
-        {pending ? "Loading…" : `${total} ${total === 1 ? "post" : "posts"}`}
+        {pending
+          ? t("action.loading")
+          : `${total} ${total === 1 ? t("feed.postsOne") : t("feed.postsMany")}`}
       </span>
 
       {filtered && (
@@ -109,7 +115,7 @@ export function FeedFilters({
           onClick={() => startTransition(() => router.push("/feed"))}
           className="text-xs text-neutral-500 underline hover:text-neutral-900 dark:hover:text-neutral-100"
         >
-          Clear
+          {t("action.clear")}
         </button>
       )}
     </div>

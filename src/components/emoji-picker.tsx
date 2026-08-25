@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { EMOJI_GROUPS, searchEmoji } from "@/lib/emoji";
+import { useT } from "@/lib/i18n/provider";
 
 /**
  * Emoji keyboard.
  *
  * Positioned against whichever element wraps it, so it must be rendered inside
- * a `relative` container around the button that opens it — not at the top of a
+ * a `relative` container around the button that opens it - not at the top of a
  * form, or it lands wherever that form happens to start.
  */
 export function EmojiPicker({
@@ -23,6 +24,7 @@ export function EmojiPicker({
   /** Which edge it lines up with, so it does not run off the side. */
   align?: "left" | "right";
 }) {
+  const t = useT();
   const [group, setGroup] = useState(0);
   const [query, setQuery] = useState("");
   const panel = useRef<HTMLDivElement>(null);
@@ -37,7 +39,10 @@ export function EmojiPicker({
 
     document.addEventListener("keydown", onKey);
     // Deferred, or the click that opened the picker closes it again.
-    const id = setTimeout(() => document.addEventListener("mousedown", onClickAway), 0);
+    const id = setTimeout(
+      () => document.addEventListener("mousedown", onClickAway),
+      0,
+    );
 
     return () => {
       clearTimeout(id);
@@ -55,9 +60,13 @@ export function EmojiPicker({
       role="dialog"
       aria-label="Choose an emoji"
       className={[
-        "card absolute z-30 w-[min(22rem,calc(100vw-2rem))] overflow-hidden",
-        placement === "top" ? "bottom-full mb-2" : "top-full mt-2",
-        align === "left" ? "left-0" : "right-0",
+        "card z-30 overflow-hidden",
+        // Phone: a sheet above the bottom bar. Tablet and up: anchored to
+        // the button that opened it.
+        "fixed inset-x-2 bottom-20 sm:absolute sm:inset-x-auto sm:bottom-auto",
+        "sm:w-[min(22rem,calc(100vw-2rem))]",
+        placement === "top" ? "sm:bottom-full sm:mb-2" : "sm:top-full sm:mt-2",
+        align === "left" ? "sm:left-0" : "sm:right-0",
       ].join(" ")}
     >
       <div className="flex gap-1 border-b border-[var(--line)] p-1.5">
@@ -88,7 +97,7 @@ export function EmojiPicker({
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search: face, heart, food…"
+          placeholder={t("composer.searchEmoji")}
           aria-label="Search emoji"
           className="input py-1.5 text-xs"
         />

@@ -7,7 +7,7 @@ export type Mail = {
 /**
  * Outbound email behind one function.
  *
- * With no MAIL_DRIVER set, messages are printed to the server log — that is
+ * With no MAIL_DRIVER set, messages are printed to the server log - that is
  * what dev uses, and it means sign-up works with no third-party account. For
  * production set MAIL_DRIVER=resend and RESEND_API_KEY, or implement your own
  * branch here for SMTP.
@@ -35,7 +35,9 @@ export async function sendMail(mail: Mail): Promise<void> {
     });
 
     if (!response.ok) {
-      throw new Error(`Sending mail failed: ${response.status} ${await response.text()}`);
+      throw new Error(
+        `Sending mail failed: ${response.status} ${await response.text()}`,
+      );
     }
     return;
   }
@@ -43,12 +45,11 @@ export async function sendMail(mail: Mail): Promise<void> {
   console.info(
     [
       "",
-      "──────── email (dev, not actually sent) ────────",
+      "[email] not sent, no mail provider configured",
       `to:      ${mail.to}`,
       `subject: ${mail.subject}`,
       "",
       mail.text,
-      "───────────────────────────────────────────────",
       "",
     ].join("\n"),
   );

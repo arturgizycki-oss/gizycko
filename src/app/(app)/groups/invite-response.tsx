@@ -2,8 +2,10 @@
 
 import { useTransition } from "react";
 import { respondToInvite } from "./actions";
+import { useT } from "@/lib/i18n/provider";
 
 export function InviteResponse({ inviteId }: { inviteId: string }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
 
   return (
@@ -14,7 +16,7 @@ export function InviteResponse({ inviteId }: { inviteId: string }) {
         onClick={() => startTransition(() => respondToInvite(inviteId, true))}
         className="btn btn-primary btn-sm"
       >
-        Join
+        {t("action.join")}
       </button>
       <button
         type="button"
@@ -22,7 +24,7 @@ export function InviteResponse({ inviteId }: { inviteId: string }) {
         onClick={() => startTransition(() => respondToInvite(inviteId, false))}
         className="btn btn-secondary btn-sm"
       >
-        Decline
+        {t("action.decline")}
       </button>
     </span>
   );

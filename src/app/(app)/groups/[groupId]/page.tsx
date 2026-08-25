@@ -17,6 +17,10 @@ import { GroupSettings } from "./group-settings";
 import { BannedList } from "./banned-list";
 import { InvitePeople } from "./invite-people";
 import { deleteGroupPost } from "../actions";
+import { getTranslator } from "@/lib/i18n";
+import { CopyLink } from "@/components/copy-link";
+import { ChevronLeftIcon } from "@/components/icons";
+import { ConfirmButton } from "@/components/confirm-button";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -31,6 +35,7 @@ export default async function GroupPage({
   const { groupId } = await params;
   const { session } = await requireProfile();
   const me = session.user.id;
+  const t = await getTranslator();
 
   const found = await visibleGroup(groupId, me);
   if (!found) notFound();
@@ -46,7 +51,11 @@ export default async function GroupPage({
           take: 30,
           include: {
             author: {
-              select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
+              select: {
+                id: true,
+                name: true,
+                profile: { select: PROFILE_AVATAR },
+              },
             },
           },
         })
@@ -55,18 +64,22 @@ export default async function GroupPage({
       where: { groupId },
       orderBy: { joinedAt: "asc" },
       include: {
-        user: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
+        user: {
+          select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
+        },
       },
     }),
     hiddenUserIds(me),
     can(role, "invite") ? friendIds(me) : Promise.resolve([]),
   ]);
 
+  const hiddenSet = new Set(hidden);
+
   // Friends who are not in the group yet, for the invite list.
   const invitable = can(role, "invite")
     ? await prisma.user.findMany({
         where: {
-          id: { in: friends.filter((id) => !hidden.includes(id)) },
+          id: { in: friends.filter((id) => !hiddenSet.has(id)) },
           groupMembers: { none: { groupId } },
         },
         select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
@@ -83,7 +96,13 @@ export default async function GroupPage({
         where: { groupId },
         orderBy: { createdAt: "desc" },
         include: {
-          user: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              profile: { select: PROFILE_AVATAR },
+            },
+          },
         },
       })
     : [];
@@ -91,16 +110,22 @@ export default async function GroupPage({
   return (
     <div className="space-y-4">
       <Link href="/groups" className="muted text-sm hover:underline">
-        ← Groups
+        <ChevronLeftIcon className="size-4" />
+        {t("groups.title")}
       </Link>
 
       <section className="card p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight">{group.name}</h1>
+            <h1 className="text-xl font-semibold tracking-tight">
+              {group.name}
+            </h1>
             <p className="hint">
-              {group._count.members} members · {group._count.posts} posts ·{" "}
-              {group.visibility === "PRIVATE" ? "private" : "public"}
+              {group._count.members} {t("groups.membersMany")} ·{" "}
+              {group._count.posts} {t("groups.postsCount")} ·{" "}
+              {group.visibility === "PRIVATE"
+                ? t("groups.private")
+                : t("groups.public")}
             </p>
           </div>
           <JoinLeave
@@ -119,7 +144,7 @@ export default async function GroupPage({
 
       {group.rules && (
         <section className="card p-4">
-          <h2 className="text-sm font-medium">Group rules</h2>
+          <h2 className="text-sm font-medium">{t("groups.rules")}</h2>
           <p className="mt-2 text-sm whitespace-pre-wrap text-[var(--ink-muted)]">
             {group.rules}
           </p>
@@ -139,18 +164,20 @@ export default async function GroupPage({
 
       {can(role, "invite") && (
         <CollapsibleSection
-          title="Invite friends"
+          title={t("groups.inviteFriendsTitle")}
           count={invitable.length}
-          hint={pendingInvites > 0 ? `${pendingInvites} pending` : undefined}
+          hint={
+            pendingInvites > 0
+              ? `${pendingInvites} ${t("groups.pending")}`
+              : undefined
+          }
         >
           <InvitePeople groupId={groupId} />
 
-          <p className="label mt-3 px-2">Your friends</p>
+          <p className="label mt-3 px-2">{t("groups.inviteFriends")}</p>
 
           {invitable.length === 0 ? (
-            <p className="muted px-2 py-3 text-sm">
-              All your friends are already here, or invited.
-            </p>
+            <p className="muted px-2 py-3 text-sm">{t("groups.allInvited")}</p>
           ) : (
             <ul className="space-y-2">
               {invitable.map((person) => (
@@ -174,7 +201,7 @@ export default async function GroupPage({
         </CollapsibleSection>
       )}
 
-      <CollapsibleSection title="Members" count={members.length}>
+      <CollapsibleSection title={t("groups.members")} count={members.length}>
         <ul className="space-y-1">
           {members.map((member) => {
             const name = member.user.profile?.displayName ?? member.user.name;
@@ -183,7 +210,11 @@ export default async function GroupPage({
                 key={member.id}
                 className="flex items-center gap-3 rounded-xl px-2 py-2"
               >
-                <Link href={member.user.id === me ? "/profile" : `/u/${member.user.id}`}>
+                <Link
+                  href={
+                    member.user.id === me ? "/profile" : `/u/${member.user.id}`
+                  }
+                >
                   <Avatar
                     name={name}
                     src={photoUrlOf(member.user.profile)}
@@ -192,16 +223,18 @@ export default async function GroupPage({
                 </Link>
 
                 <Link
-                  href={member.user.id === me ? "/profile" : `/u/${member.user.id}`}
+                  href={
+                    member.user.id === me ? "/profile" : `/u/${member.user.id}`
+                  }
                   className="min-w-0 flex-1"
                 >
                   <span className="block truncate text-sm font-medium">
                     {name}
                     {member.user.id === me && (
-                      <span className="hint"> · you</span>
+                      <span className="hint"> · {t("groups.you")}</span>
                     )}
                   </span>
-                  <span className="hint">{ROLE_LABEL[member.role]}</span>
+                  <span className="hint">{t(ROLE_LABEL[member.role])}</span>
                 </Link>
 
                 <MemberControls
@@ -216,15 +249,11 @@ export default async function GroupPage({
           })}
         </ul>
 
-        <p className="hint mt-2 px-2">
-          Owners appoint admins and hand the group over. Admins invite people,
-          remove members, edit the group, and delete any post. Members read and
-          write posts.
-        </p>
+        <p className="hint mt-2 px-2">{t("groups.roleHint")}</p>
       </CollapsibleSection>
 
       {can(role, "banMember") && (
-        <CollapsibleSection title="Banned" count={banned.length}>
+        <CollapsibleSection title={t("groups.banned")} count={banned.length}>
           <BannedList
             groupId={groupId}
             people={banned.map((ban) => ({
@@ -242,15 +271,14 @@ export default async function GroupPage({
           <GroupComposer groupId={groupId} />
 
           {posts.length === 0 ? (
-            <p className="empty-state">
-              Nothing posted here yet. Start the conversation.
-            </p>
+            <p className="empty-state">{t("groups.startConversation")}</p>
           ) : (
             <ul className="space-y-3">
               {posts.map((post) => {
-                const name = post.author.profile?.displayName ?? post.author.name;
+                const name =
+                  post.author.profile?.displayName ?? post.author.name;
                 return (
-                  <li key={post.id} className="card p-4">
+                  <li key={post.id} id={`post-${post.id}`} className="card p-4">
                     <div className="flex items-center gap-2.5">
                       <Avatar
                         name={name}
@@ -262,18 +290,22 @@ export default async function GroupPage({
                         <p className="hint">{shortWhen(post.createdAt)}</p>
                       </div>
 
+                      {/* Group posts live on the group page, so that anchor
+                          is the link worth sharing. */}
+                      <CopyLink path={`/groups/${groupId}#post-${post.id}`} />
+
                       {(post.authorId === me || can(role, "moderatePosts")) && (
-                        <form action={deleteGroupPost.bind(null, post.id)}>
-                          <button
-                            type="submit"
-                            className="muted text-xs hover:text-rose-600"
-                          >
-                            Delete
-                          </button>
-                        </form>
+                        <ConfirmButton
+                          label={t("action.delete")}
+                          question={t("confirm.deletePost")}
+                          destructive
+                          formAction={deleteGroupPost.bind(null, post.id)}
+                        />
                       )}
                     </div>
-                    <p className="mt-3 text-sm whitespace-pre-wrap">{post.body}</p>
+                    <p className="mt-3 text-sm whitespace-pre-wrap">
+                      {post.body}
+                    </p>
                   </li>
                 );
               })}
@@ -281,9 +313,7 @@ export default async function GroupPage({
           )}
         </>
       ) : (
-        <p className="empty-state">
-          Join this group to read and write its posts.
-        </p>
+        <p className="empty-state">{t("groups.joinToRead")}</p>
       )}
     </div>
   );

@@ -1,77 +1,58 @@
-import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
-import path from "node:path";
+import * as local from "./storage-local";
+import * as supabase from "./storage-supabase";
+import { contentTypeFor, type StoredObject } from "./storage-types";
 
 /**
  * Object storage behind a tiny interface.
  *
- * The local driver writes under STORAGE_DIR and is what dev uses. Production on
- * a serverless host needs a real bucket: implement putObject/getObject/
- * deleteObject against S3, R2, or Supabase Storage and switch on STORAGE_DRIVER.
- * Nothing outside this file knows where bytes live.
+ * STORAGE_DRIVER picks where bytes live: the local disk in development, a
+ * Supabase bucket in production. Nothing outside this file knows which.
  */
 
-const STORAGE_ROOT = path.resolve(process.env.STORAGE_DIR ?? ".storage");
+const driver = process.env.STORAGE_DRIVER === "supabase" ? supabase : local;
 
-const CONTENT_TYPES: Record<string, string> = {
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".png": "image/png",
-  ".webp": "image/webp",
-  ".gif": "image/gif",
-  ".mp3": "audio/mpeg",
-  ".m4a": "audio/mp4",
-  ".ogg": "audio/ogg",
-  ".flac": "audio/flac",
-  ".wav": "audio/wav",
-  // Browser recordings: same containers as video, served as audio on purpose.
-  ".weba": "audio/webm",
-  ".oga": "audio/ogg",
-  ".mp4": "video/mp4",
-  ".webm": "video/webm",
-  ".mov": "video/quicktime",
-};
+/** Whether uploads can be signed and sent straight from the browser. */
+export const SUPPORTS_DIRECT_UPLOAD =
+  process.env.STORAGE_DRIVER === "supabase";
 
-/** Reject anything that could climb out of the storage root. */
-function resolveKey(key: string): string {
-  const normalised = path
-    .normalize(key)
-    .replace(/^([/\\])+/, "")
-    .replace(/\\/g, "/");
-
-  const target = path.resolve(STORAGE_ROOT, normalised);
-  if (target !== STORAGE_ROOT && !target.startsWith(STORAGE_ROOT + path.sep)) {
-    throw new Error(`Refusing to touch a path outside storage: ${key}`);
-  }
-  return target;
+export function putObject(key: string, data: Buffer): Promise<void> {
+  return driver.putObject(key, data);
 }
 
-export function contentTypeFor(key: string): string {
-  return CONTENT_TYPES[path.extname(key).toLowerCase()] ?? "application/octet-stream";
+/** Size and type of a stored object, without reading its bytes. */
+export function statObject(key: string): Promise<StoredObject | null> {
+  return driver.statObject(key);
 }
 
-export async function putObject(key: string, data: Buffer): Promise<void> {
-  const target = resolveKey(key);
-  await mkdir(path.dirname(target), { recursive: true });
-  await writeFile(target, data);
-}
-
-export async function getObject(
+/**
+ * A stored object as a stream, optionally a byte range of it.
+ *
+ * Reading the whole file to answer a range request means a 30 MB video costs
+ * 30 MB of memory every time somebody drags the scrub bar. A stream costs a
+ * buffer.
+ */
+export function streamObject(
   key: string,
-): Promise<{ data: Buffer; contentType: string } | null> {
-  try {
-    const data = await readFile(resolveKey(key));
-    return { data, contentType: contentTypeFor(key) };
-  } catch {
-    return null;
-  }
+  range?: { start: number; end: number },
+): Promise<ReadableStream<Uint8Array>> {
+  return driver.streamObject(key, range);
 }
 
-export async function deleteObject(key: string): Promise<void> {
-  try {
-    await unlink(resolveKey(key));
-  } catch {
-    // Already gone; deleting is idempotent on purpose.
+export function deleteObject(key: string): Promise<void> {
+  return driver.deleteObject(key);
+}
+
+/**
+ * Permission for the browser to upload one object itself.
+ *
+ * Only the Supabase driver can do this; on local disk the caller falls back to
+ * sending the bytes through a Server Action.
+ */
+export function signedUploadUrl(key: string) {
+  if (!SUPPORTS_DIRECT_UPLOAD) {
+    throw new Error("The local storage driver cannot sign uploads");
   }
+  return supabase.signedUploadUrl(key);
 }
 
 /** Public URL for a stored object. Photo.url in the database holds this. */
@@ -84,3 +65,6 @@ export function keyFromMediaUrl(url: string): string | null {
   const prefix = "/api/media/";
   return url.startsWith(prefix) ? url.slice(prefix.length) : null;
 }
+
+export { contentTypeFor };
+export type { StoredObject };

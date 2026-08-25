@@ -6,6 +6,7 @@ import {
   respondToFriendRequest,
   sendFriendRequest,
 } from "@/lib/actions/friends";
+import { useT } from "@/lib/i18n/provider";
 
 export type FriendState = "none" | "requested" | "incoming" | "friends";
 
@@ -18,6 +19,7 @@ export function FriendButton({
   state: FriendState;
   friendshipId: string | null;
 }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
 
   const base = "btn btn-sm";
@@ -30,7 +32,7 @@ export function FriendButton({
         onClick={() => startTransition(() => removeFriend(userId))}
         className={`${base} btn-secondary`}
       >
-        Friends · remove
+        {t("friends.friendsRemove")}
       </button>
     );
   }
@@ -43,7 +45,7 @@ export function FriendButton({
         onClick={() => startTransition(() => removeFriend(userId))}
         className={`${base} btn-secondary`}
       >
-        Request sent · cancel
+        {t("friends.requestedCancel")}
       </button>
     );
   }
@@ -59,7 +61,7 @@ export function FriendButton({
           }
           className={`${base} btn-primary`}
         >
-          Accept
+          {t("action.accept")}
         </button>
         <button
           type="button"
@@ -69,7 +71,7 @@ export function FriendButton({
           }
           className={`${base} btn-secondary`}
         >
-          Decline
+          {t("action.decline")}
         </button>
       </span>
     );
@@ -82,7 +84,7 @@ export function FriendButton({
       onClick={() => startTransition(() => sendFriendRequest(userId))}
       className={`${base} btn-primary`}
     >
-      Add friend
+      {t("friends.add")}
     </button>
   );
 }

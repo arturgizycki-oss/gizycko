@@ -7,7 +7,7 @@ const ascii = (bytes: Uint8Array, start: number, length: number) =>
 
 /**
  * Identify a song by its magic bytes. As with images, never trust the filename
- * or the content type the browser reports — both are attacker-controlled.
+ * or the content type the browser reports - both are attacker-controlled.
  */
 export function sniffAudio(bytes: Uint8Array): AudioKind | null {
   if (bytes.length < 12) return null;
@@ -21,7 +21,7 @@ export function sniffAudio(bytes: Uint8Array): AudioKind | null {
   }
 
   /*
-   * MP4 container: "ftyp" at offset 4. Only the audio brands count here —
+   * MP4 container: "ftyp" at offset 4. Only the audio brands count here -
    * isom/mp42/avc1 are video and belong to sniffVideo, or an uploaded film
    * would be stored and played as a song.
    */
@@ -48,8 +48,7 @@ export function sniffAudio(bytes: Uint8Array): AudioKind | null {
 }
 
 export type AudioCheck =
-  | { ok: true; kind: AudioKind; bytes: Buffer }
-  | { ok: false; error: string };
+  { ok: true; kind: AudioKind; bytes: Buffer } | { ok: false; error: string };
 
 export async function checkUploadedAudio(file: File): Promise<AudioCheck> {
   if (file.size === 0) return { ok: false, error: "That audio file is empty." };
@@ -60,7 +59,10 @@ export async function checkUploadedAudio(file: File): Promise<AudioCheck> {
   const bytes = Buffer.from(await file.arrayBuffer());
   const kind = sniffAudio(bytes);
   if (!kind) {
-    return { ok: false, error: "Only MP3, M4A, OGG, FLAC, and WAV files are allowed." };
+    return {
+      ok: false,
+      error: "Only MP3, M4A, OGG, FLAC, and WAV files are allowed.",
+    };
   }
 
   return { ok: true, kind, bytes };
@@ -68,5 +70,9 @@ export async function checkUploadedAudio(file: File): Promise<AudioCheck> {
 
 /** A tidy display title from the uploaded filename. */
 export function titleFromFileName(name: string): string {
-  return name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim().slice(0, 200);
+  return name
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .slice(0, 200);
 }

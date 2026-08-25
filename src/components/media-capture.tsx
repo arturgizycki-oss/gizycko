@@ -9,6 +9,8 @@ import {
   StopIcon,
   TrashIcon,
 } from "./icons";
+import { useT } from "@/lib/i18n/provider";
+import { useToast } from "./toast";
 
 /**
  * Put a File the browser produced into a real <input type="file"> so it submits
@@ -28,6 +30,15 @@ function controlClass(label?: string) {
   return label ? ICON_BUTTON_LABELLED : ICON_BUTTON;
 }
 
+/**
+ * The glyph matches whatever else sits in that row: 16px beside a label in the
+ * post composer, 20px on its own in the chat bar. Hard-coding one size made the
+ * microphone and camera smaller than the paperclip next to them.
+ */
+function iconSize(label?: string) {
+  return label ? "size-4" : "size-5";
+}
+
 /** Record a voice note with the microphone. */
 export function VoiceRecorder({
   name = "voice",
@@ -38,6 +49,8 @@ export function VoiceRecorder({
   label?: string;
   onChange?: (file: File | null) => void;
 }) {
+  const t = useT();
+  const toast = useToast();
   const input = useRef<HTMLInputElement>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
@@ -45,7 +58,6 @@ export function VoiceRecorder({
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [recorded, setRecorded] = useState<{ url: string } | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!recording) return;
@@ -62,10 +74,8 @@ export function VoiceRecorder({
   }, [recorded]);
 
   async function start() {
-    setError(null);
-
     if (!navigator.mediaDevices?.getUserMedia) {
-      setError("No microphone available.");
+      toast(t("media.noMic"));
       return;
     }
 
@@ -93,7 +103,7 @@ export function VoiceRecorder({
       setSeconds(0);
       setRecording(true);
     } catch {
-      setError("Microphone permission refused.");
+      toast(t("media.micRefused"));
     }
   }
 
@@ -116,7 +126,13 @@ export function VoiceRecorder({
 
   return (
     <>
-      <input ref={input} type="file" name={name} accept="audio/*" className="sr-only" />
+      <input
+        ref={input}
+        type="file"
+        name={name}
+        accept="audio/*"
+        className="sr-only"
+      />
 
       {recorded ? (
         <span className="flex min-w-0 items-center gap-1.5">
@@ -124,10 +140,10 @@ export function VoiceRecorder({
           <button
             type="button"
             onClick={discard}
-            aria-label="Discard recording"
+            aria-label={t("media.discardRecording")}
             className={ICON_BUTTON}
           >
-            <TrashIcon className="size-4" />
+            <TrashIcon className={iconSize(label)} />
           </button>
         </span>
       ) : recording ? (
@@ -136,29 +152,23 @@ export function VoiceRecorder({
           <button
             type="button"
             onClick={stop}
-            aria-label="Stop recording"
+            aria-label={t("media.stopRecording")}
             className={`${ICON_BUTTON} text-rose-600`}
           >
-            <StopIcon className="size-4" />
+            <StopIcon className={iconSize(label)} />
           </button>
         </span>
       ) : (
         <button
           type="button"
           onClick={start}
-          aria-label="Record a voice note"
-          title="Record a voice note"
+          aria-label={t("media.recordVoice")}
+          title={t("media.recordVoice")}
           className={controlClass(label)}
         >
-          <MicIcon className="size-4" />
+          <MicIcon className={iconSize(label)} />
           {label}
         </button>
-      )}
-
-      {error && (
-        <span role="alert" className="text-xs text-rose-600">
-          {error}
-        </span>
       )}
     </>
   );
@@ -174,13 +184,14 @@ export function CameraShot({
   label?: string;
   onChange?: (file: File | null) => void;
 }) {
+  const t = useT();
+  const toast = useToast();
   const input = useRef<HTMLInputElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
 
   const [live, setLive] = useState(false);
   const [shot, setShot] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -190,10 +201,8 @@ export function CameraShot({
   }, [shot]);
 
   async function open() {
-    setError(null);
-
     if (!navigator.mediaDevices?.getUserMedia) {
-      setError("No camera available.");
+      toast(t("media.noCamera"));
       return;
     }
 
@@ -212,7 +221,7 @@ export function CameraShot({
         }
       });
     } catch {
-      setError("Camera permission refused.");
+      toast(t("media.cameraRefused"));
     }
   }
 
@@ -235,7 +244,9 @@ export function CameraShot({
       (blob) => {
         if (!blob) return;
 
-        const file = new File([blob], "camera-shot.jpg", { type: "image/jpeg" });
+        const file = new File([blob], "camera-shot.jpg", {
+          type: "image/jpeg",
+        });
         fillInput(input.current, file);
         setShot(URL.createObjectURL(blob));
         onChange?.(file);
@@ -255,31 +266,37 @@ export function CameraShot({
 
   return (
     <>
-      <input ref={input} type="file" name={name} accept="image/*" className="sr-only" />
+      <input
+        ref={input}
+        type="file"
+        name={name}
+        accept="image/*"
+        className="sr-only"
+      />
 
       {shot ? (
         <span className="flex items-center gap-1.5">
-          {/* A blob: URL from the camera — next/image needs a known source. */}
+          {/* A blob: URL from the camera - next/image needs a known source. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={shot} alt="" className="size-8 rounded-lg object-cover" />
           <button
             type="button"
             onClick={discard}
-            aria-label="Discard photo"
+            aria-label={t("media.discardPhoto")}
             className={ICON_BUTTON}
           >
-            <TrashIcon className="size-4" />
+            <TrashIcon className={iconSize(label)} />
           </button>
         </span>
       ) : (
         <button
           type="button"
           onClick={open}
-          aria-label="Take a photo"
-          title="Take a photo"
+          aria-label={t("media.takePhoto")}
+          title={t("media.takePhoto")}
           className={controlClass(label)}
         >
-          <CameraIcon className="size-4" />
+          <CameraIcon className={iconSize(label)} />
           {label}
         </button>
       )}
@@ -287,7 +304,7 @@ export function CameraShot({
       {live && (
         <div
           role="dialog"
-          aria-label="Camera"
+          aria-label={t("media.camera")}
           className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/85 p-4"
         >
           <video
@@ -297,20 +314,22 @@ export function CameraShot({
             className="max-h-[70vh] w-auto max-w-full rounded-2xl"
           />
           <div className="flex gap-3">
-            <button type="button" onClick={capture} className="btn btn-primary btn-lg">
-              Take photo
+            <button
+              type="button"
+              onClick={capture}
+              className="btn btn-primary btn-lg"
+            >
+              {t("media.takePhoto")}
             </button>
-            <button type="button" onClick={close} className="btn btn-secondary btn-lg">
-              Cancel
+            <button
+              type="button"
+              onClick={close}
+              className="btn btn-secondary btn-lg"
+            >
+              {t("action.cancel")}
             </button>
           </div>
         </div>
-      )}
-
-      {error && (
-        <span role="alert" className="text-xs text-rose-600">
-          {error}
-        </span>
       )}
     </>
   );

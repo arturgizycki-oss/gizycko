@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getObject } from "@/lib/storage";
+import { statObject, streamObject } from "@/lib/storage";
 
 /** Parse a single "bytes=start-end" range. Anything odd is ignored. */
 function parseRange(header: string | null, size: number) {
@@ -36,35 +36,54 @@ export async function GET(
   { params }: { params: Promise<{ key: string[] }> },
 ) {
   const { key } = await params;
-  const object = await getObject(key.join("/"));
+  const name = key.join("/");
 
-  if (!object) {
-    return new NextResponse("Not found", { status: 404 });
-  }
-
-  const size = object.data.byteLength;
-  const range = parseRange(request.headers.get("range"), size);
+  // statObject returns null both for a missing file and for a key trying to
+  // climb out of the storage root.
+  const object = await statObject(name);
+  if (!object) return new NextResponse("Not found", { status: 404 });
 
   const headers: Record<string, string> = {
     "Content-Type": object.contentType,
     "Cache-Control": "private, max-age=31536000, immutable",
-    // Audio players need this to seek rather than re-download from the start.
+    // Audio and video players need this to seek rather than re-download.
     "Accept-Ranges": "bytes",
   };
 
+  const range = parseRange(request.headers.get("range"), object.size);
+
   if (range) {
-    const slice = object.data.subarray(range.start, range.end + 1);
-    return new NextResponse(new Uint8Array(slice), {
+    return new NextResponse(await streamObject(name, range), {
       status: 206,
       headers: {
         ...headers,
-        "Content-Range": `bytes ${range.start}-${range.end}/${size}`,
-        "Content-Length": String(slice.byteLength),
+        "Content-Range": `bytes ${range.start}-${range.end}/${object.size}`,
+        "Content-Length": String(range.end - range.start + 1),
       },
     });
   }
 
-  return new NextResponse(new Uint8Array(object.data), {
-    headers: { ...headers, "Content-Length": String(size) },
+  return new NextResponse(await streamObject(name), {
+    headers: { ...headers, "Content-Length": String(object.size) },
+  });
+}
+
+/** Players send HEAD first to learn the size before they start streaming. */
+export async function HEAD(
+  _request: Request,
+  { params }: { params: Promise<{ key: string[] }> },
+) {
+  const { key } = await params;
+
+  const object = await statObject(key.join("/"));
+  if (!object) return new NextResponse(null, { status: 404 });
+
+  return new NextResponse(null, {
+    headers: {
+      "Content-Type": object.contentType,
+      "Content-Length": String(object.size),
+      "Accept-Ranges": "bytes",
+      "Cache-Control": "private, max-age=31536000, immutable",
+    },
   });
 }

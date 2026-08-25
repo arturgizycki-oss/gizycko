@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createPost, type PostState } from "./actions";
 import { MAX_POST_IMAGES } from "@/lib/post-limits";
 import { MAX_IMAGE_BYTES } from "@/lib/image";
@@ -15,6 +15,8 @@ import {
   MusicIcon,
   SmileIcon,
 } from "@/components/icons";
+import { useT } from "@/lib/i18n/provider";
+import { useToast } from "@/components/toast";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -29,10 +31,7 @@ export function Composer() {
   );
 
   return (
-    <form
-      action={formAction}
-      className="card relative p-4"
-    >
+    <form action={formAction} className="card relative p-4">
       {/* Remounting on a new submission id clears the text, the files, and the
           previews without resetting state from inside an effect. */}
       <ComposerFields
@@ -53,6 +52,8 @@ function ComposerFields({
   pending: boolean;
   serverError?: string;
 }) {
+  const t = useT();
+  const toast = useToast();
   const body = useRef<HTMLTextAreaElement>(null);
   const [showEmoji, setShowEmoji] = useState(false);
   const [images, setImages] = useState<Selected[]>([]);
@@ -144,6 +145,10 @@ function ComposerFields({
 
   const error = clientError ?? serverError;
 
+  useEffect(() => {
+    if (error) toast(error);
+  }, [error, toast]);
+
   return (
     <>
       <textarea
@@ -151,7 +156,7 @@ function ComposerFields({
         name="body"
         rows={3}
         maxLength={5000}
-        placeholder="What is going on?"
+        placeholder={t("composer.placeholder")}
         className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-[var(--ink-muted)]"
       />
 
@@ -162,7 +167,7 @@ function ComposerFields({
               key={item.preview}
               className="relative aspect-square overflow-hidden rounded-lg"
             >
-              {/* A blob: URL from the file picker — next/image needs a source
+              {/* A blob: URL from the file picker - next/image needs a source
                   the server knows about, so a plain img is correct here. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -196,9 +201,9 @@ function ComposerFields({
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-1 border-t border-[var(--line)] pt-3">
-        <label className={ICON_BUTTON_LABELLED} title="Photos">
+        <label className={ICON_BUTTON_LABELLED} title={t("composer.photos")}>
           <ImageIcon className="size-4" />
-          Photos
+          {t("composer.photos")}
           <input
             type="file"
             name="images"
@@ -209,9 +214,9 @@ function ComposerFields({
           />
         </label>
 
-        <label className={ICON_BUTTON_LABELLED} title="Song">
+        <label className={ICON_BUTTON_LABELLED} title={t("composer.song")}>
           <MusicIcon className="size-4" />
-          Song
+          {t("composer.song")}
           <input
             type="file"
             name="song"
@@ -221,9 +226,9 @@ function ComposerFields({
           />
         </label>
 
-        <label className={ICON_BUTTON_LABELLED} title="Video">
+        <label className={ICON_BUTTON_LABELLED} title={t("composer.video")}>
           <FilmIcon className="size-4" />
-          Video
+          {t("composer.video")}
           <input
             type="file"
             name="video"
@@ -233,16 +238,16 @@ function ComposerFields({
           />
         </label>
 
-        <VoiceRecorder label="Voice" />
-        <CameraShot label="Camera" />
+        <VoiceRecorder label={t("composer.voice")} />
+        <CameraShot label={t("composer.camera")} />
 
         <span className="relative">
           <button
             type="button"
             onClick={() => setShowEmoji((open) => !open)}
-            aria-label="Emoji"
+            aria-label={t("composer.emoji")}
             aria-expanded={showEmoji}
-            title="Emoji"
+            title={t("composer.emoji")}
             className={ICON_BUTTON_LABELLED}
           >
             <SmileIcon className="size-4" />
@@ -258,33 +263,23 @@ function ComposerFields({
         </span>
 
         <label className="ml-auto flex items-center gap-1.5 text-xs text-[var(--ink-muted)]">
-          Visible to{" "}
+          {t("composer.visibleTo")}{" "}
           <select
             name="visibility"
             defaultValue="FRIENDS"
             className="rounded border border-neutral-300 bg-transparent px-2 py-1 dark:border-neutral-700"
           >
-            <option value="FRIENDS">Friends</option>
-            <option value="MATCHES">Matches</option>
-            <option value="PUBLIC">Everyone</option>
-            <option value="PRIVATE">Only me</option>
+            <option value="FRIENDS">{t("visibility.friends")}</option>
+            <option value="MATCHES">{t("visibility.matches")}</option>
+            <option value="PUBLIC">{t("visibility.public")}</option>
+            <option value="PRIVATE">{t("visibility.private")}</option>
           </select>
         </label>
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="btn btn-primary"
-        >
-          {pending ? "Posting…" : "Post"}
+        <button type="submit" disabled={pending} className="btn btn-primary">
+          {pending ? t("action.posting") : t("action.post")}
         </button>
       </div>
-
-      {error && (
-        <p role="alert" className="mt-2 text-sm text-rose-600">
-          {error}
-        </p>
-      )}
     </>
   );
 }

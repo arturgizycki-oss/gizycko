@@ -35,7 +35,9 @@ export async function createGroup(
     return { error: "Give the group a name of at least 3 characters." };
   }
 
-  const allowed = checkContent(`${parsed.data.name} ${parsed.data.description ?? ""}`);
+  const allowed = checkContent(
+    `${parsed.data.name} ${parsed.data.description ?? ""}`,
+  );
   if (!allowed.ok) return { error: allowed.message };
 
   // The creator is the owner and the first member, in one transaction so a
@@ -123,13 +125,17 @@ export async function respondToInvite(inviteId: string, accept: boolean) {
   });
 
   const banned = await prisma.groupBan.findUnique({
-    where: { groupId_userId: { groupId: invite.groupId, userId: session.user.id } },
+    where: {
+      groupId_userId: { groupId: invite.groupId, userId: session.user.id },
+    },
     select: { id: true },
   });
 
   if (accept && !banned) {
     await prisma.groupMember.upsert({
-      where: { groupId_userId: { groupId: invite.groupId, userId: session.user.id } },
+      where: {
+        groupId_userId: { groupId: invite.groupId, userId: session.user.id },
+      },
       create: { groupId: invite.groupId, userId: session.user.id },
       update: {},
     });
@@ -274,7 +280,9 @@ export async function removeMember(groupId: string, userId: string) {
   await prisma.groupMember.delete({
     where: { groupId_userId: { groupId, userId } },
   });
-  await prisma.groupInvite.deleteMany({ where: { groupId, invitedUserId: userId } });
+  await prisma.groupInvite.deleteMany({
+    where: { groupId, invitedUserId: userId },
+  });
 
   revalidatePath(`/groups/${groupId}`);
 }
@@ -475,10 +483,15 @@ export async function banFromGroup(
         bannedById: session.user.id,
         reason: reason.trim().slice(0, 200) || null,
       },
-      update: { bannedById: session.user.id, reason: reason.trim().slice(0, 200) || null },
+      update: {
+        bannedById: session.user.id,
+        reason: reason.trim().slice(0, 200) || null,
+      },
     }),
     prisma.groupMember.deleteMany({ where: { groupId, userId } }),
-    prisma.groupInvite.deleteMany({ where: { groupId, invitedUserId: userId } }),
+    prisma.groupInvite.deleteMany({
+      where: { groupId, invitedUserId: userId },
+    }),
   ]);
 
   revalidatePath(`/groups/${groupId}`);

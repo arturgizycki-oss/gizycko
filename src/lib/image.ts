@@ -37,8 +37,7 @@ export function sniffImage(bytes: Uint8Array): ImageKind | null {
 }
 
 export type ImageCheck =
-  | { ok: true; kind: ImageKind; bytes: Buffer }
-  | { ok: false; error: string };
+  { ok: true; kind: ImageKind; bytes: Buffer } | { ok: false; error: string };
 
 export async function checkUploadedImage(file: File): Promise<ImageCheck> {
   if (file.size === 0) return { ok: false, error: "That file is empty." };
@@ -49,7 +48,10 @@ export async function checkUploadedImage(file: File): Promise<ImageCheck> {
   const bytes = Buffer.from(await file.arrayBuffer());
   const kind = sniffImage(bytes);
   if (!kind) {
-    return { ok: false, error: "Only JPEG, PNG, WebP, and GIF images are allowed." };
+    return {
+      ok: false,
+      error: "Only JPEG, PNG, WebP, and GIF images are allowed.",
+    };
   }
 
   return { ok: true, kind, bytes };

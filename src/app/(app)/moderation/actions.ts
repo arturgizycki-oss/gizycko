@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireModerator } from "@/lib/session";
 
-export async function resolveReport(reportId: string, action: "DISMISS" | "ACTION") {
+export async function resolveReport(
+  reportId: string,
+  action: "DISMISS" | "ACTION",
+) {
   const moderator = await requireModerator();
 
   await prisma.report.update({

@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { toggleFollow } from "@/lib/actions/follows";
+import { useT } from "@/lib/i18n/provider";
 
 export function FollowButton({
   userId,
@@ -10,6 +11,7 @@ export function FollowButton({
   userId: string;
   following: boolean;
 }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
 
   return (
@@ -18,9 +20,11 @@ export function FollowButton({
       disabled={pending}
       aria-pressed={following}
       onClick={() => startTransition(() => toggleFollow(userId))}
-      className={following ? "btn btn-secondary btn-sm" : "btn btn-primary btn-sm"}
+      className={
+        following ? "btn btn-secondary btn-sm" : "btn btn-primary btn-sm"
+      }
     >
-      {following ? "Following" : "Follow"}
+      {following ? t("action.following") : t("action.follow")}
     </button>
   );
 }

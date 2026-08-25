@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { PhotoPlaceholder } from "./avatar";
+import { useT } from "@/lib/i18n/provider";
+import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 
 /**
  * Full-size viewer. Profile photos are cropped to fit their frames, so this is
- * the only place the whole picture is visible — it scales to fit the window
+ * the only place the whole picture is visible - it scales to fit the window
  * rather than filling it, and never crops.
  */
 export function Lightbox({
@@ -20,6 +22,7 @@ export function Lightbox({
   onClose: () => void;
   onIndex: (next: number) => void;
 }) {
+  const t = useT();
   const step = useCallback(
     (by: number) => onIndex((index + by + photos.length) % photos.length),
     [index, photos.length, onIndex],
@@ -47,42 +50,42 @@ export function Lightbox({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Photo"
+      aria-label={t("photos.viewer")}
       onClick={onClose}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
     >
       <button
         type="button"
         onClick={onClose}
-        aria-label="Close"
+        aria-label={t("action.close")}
         className="absolute top-4 right-4 rounded-full bg-white/15 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/25"
       >
-        Close
+        {t("action.close")}
       </button>
 
       {photos.length > 1 && (
         <>
           <button
             type="button"
-            aria-label="Previous photo"
+            aria-label={t("photos.previous")}
             onClick={(event) => {
               event.stopPropagation();
               step(-1);
             }}
             className="absolute left-3 rounded-full bg-white/15 px-3 py-2 text-white hover:bg-white/25"
           >
-            ‹
+            <ChevronLeftIcon className="size-6" />
           </button>
           <button
             type="button"
-            aria-label="Next photo"
+            aria-label={t("photos.next")}
             onClick={(event) => {
               event.stopPropagation();
               step(1);
             }}
             className="absolute right-3 rounded-full bg-white/15 px-3 py-2 text-white hover:bg-white/25"
           >
-            ›
+            <ChevronRightIcon className="size-6" />
           </button>
           <span className="absolute bottom-5 text-xs text-white/70">
             {index + 1} / {photos.length}

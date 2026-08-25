@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
+import { useT } from "@/lib/i18n/provider";
 
 export default function SignInPage() {
+  const t = useT();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -24,7 +26,7 @@ export default function SignInPage() {
     setPending(false);
     if (error) {
       // Deliberately vague: do not reveal whether the email exists.
-      setError("Wrong email or password.");
+      setError(t("auth.wrongCredentials"));
       return;
     }
     router.push("/feed");
@@ -33,11 +35,13 @@ export default function SignInPage() {
 
   return (
     <>
-      <h1 className="text-xl font-semibold tracking-tight">Welcome back</h1>
+      <h1 className="text-xl font-semibold tracking-tight">
+        {t("auth.welcomeBack")}
+      </h1>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <label className="block">
-          <span className="text-sm font-medium">Email</span>
+          <span className="text-sm font-medium">{t("auth.email")}</span>
           <input
             required
             name="email"
@@ -48,7 +52,7 @@ export default function SignInPage() {
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium">Password</span>
+          <span className="text-sm font-medium">{t("auth.password")}</span>
           <input
             required
             name="password"
@@ -69,20 +73,20 @@ export default function SignInPage() {
           disabled={pending}
           className="btn btn-primary btn-lg w-full"
         >
-          {pending ? "Signing in…" : "Sign in"}
+          {pending ? t("auth.signingIn") : t("auth.signIn")}
         </button>
       </form>
 
       <p className="mt-4 text-center text-sm">
         <Link href="/forgot-password" className="text-neutral-500 underline">
-          Forgot your password?
+          {t("auth.forgot")}
         </Link>
       </p>
 
       <p className="mt-4 text-center text-sm text-neutral-500">
-        No account yet?{" "}
+        {t("auth.noAccount")}{" "}
         <Link href="/sign-up" className="font-medium underline">
-          Create one
+          {t("auth.createOne")}
         </Link>
       </p>
     </>

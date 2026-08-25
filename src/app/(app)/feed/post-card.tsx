@@ -3,7 +3,10 @@ import Link from "next/link";
 import { Avatar } from "@/components/avatar";
 import { ReportDialog } from "@/components/report-dialog";
 import { deletePost, toggleReaction } from "./actions";
-import { MusicIcon } from "@/components/icons";
+import { ChatIcon, HeartIcon, MusicIcon } from "@/components/icons";
+import { getLocale, getTranslator } from "@/lib/i18n";
+import { CopyLink } from "@/components/copy-link";
+import { ConfirmButton } from "@/components/confirm-button";
 
 type PostCardProps = {
   post: {
@@ -24,7 +27,9 @@ type PostCardProps = {
   isMine: boolean;
 };
 
-export function PostCard({ post, isMine }: PostCardProps) {
+export async function PostCard({ post, isMine }: PostCardProps) {
+  const [t, locale] = await Promise.all([getTranslator(), getLocale()]);
+
   return (
     <article className="card p-4">
       <header className="flex items-start justify-between gap-3">
@@ -43,20 +48,18 @@ export function PostCard({ post, isMine }: PostCardProps) {
               dateTime={post.createdAt.toISOString()}
               className="block text-xs text-neutral-500"
             >
-              {post.createdAt.toLocaleString()}
+              {post.createdAt.toLocaleString(locale)}
             </time>
           </div>
         </div>
 
         {isMine ? (
-          <form action={deletePost.bind(null, post.id)}>
-            <button
-              type="submit"
-              className="text-xs text-neutral-500 hover:text-rose-600"
-            >
-              Delete
-            </button>
-          </form>
+          <ConfirmButton
+            label={t("action.delete")}
+            question={t("confirm.deletePost")}
+            destructive
+            formAction={deletePost.bind(null, post.id)}
+          />
         ) : (
           <ReportDialog target={{ postId: post.id }} />
         )}
@@ -98,7 +101,7 @@ export function PostCard({ post, isMine }: PostCardProps) {
           src={post.videoUrl}
           className="mt-3 max-h-[28rem] w-full rounded-xl bg-black"
         >
-          Your browser cannot play this video.
+          {t("chat.noVideo")}
         </video>
       )}
 
@@ -106,10 +109,12 @@ export function PostCard({ post, isMine }: PostCardProps) {
         <figure className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-800/50">
           <figcaption className="mb-2 flex items-center gap-2 text-xs font-medium">
             <MusicIcon className="size-3.5 shrink-0" />
-            <span className="truncate">{post.audioTitle ?? "Attached song"}</span>
+            <span className="truncate">
+              {post.audioTitle ?? t("feed.attachedSong")}
+            </span>
           </figcaption>
           <audio controls preload="none" src={post.audioUrl} className="w-full">
-            Your browser cannot play this audio.
+            {t("chat.noAudio")}
           </audio>
         </figure>
       )}
@@ -120,19 +125,28 @@ export function PostCard({ post, isMine }: PostCardProps) {
             type="submit"
             className={
               post.reactedByMe
-                ? "font-medium text-brand-600"
-                : "text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
+                ? "flex items-center gap-1.5 font-medium text-brand-600"
+                : "flex items-center gap-1.5 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
             }
           >
-            ♥ {post.reactionCount}
+            <HeartIcon
+              className={post.reactedByMe ? "size-4 fill-current" : "size-4"}
+            />
+            {post.reactionCount}
           </button>
         </form>
         <Link
           href={`/feed/${post.id}`}
-          className="text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
+          className="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
         >
-          💬 {post.commentCount}
+          <ChatIcon className="size-4" />
+          {post.commentCount}
         </Link>
+
+        {/* Every post has its own page, so it has its own shareable link. */}
+        <span className="ml-auto">
+          <CopyLink path={`/feed/${post.id}`} label={t("action.share")} />
+        </span>
       </footer>
     </article>
   );

@@ -58,6 +58,29 @@
     letter-spacing: -0.02em;
   }
 
+  /*
+   * Tailwind's preflight sets `cursor: default` on buttons, matching the raw
+   * browser default. People read a pointer as "this does something", so put it
+   * back for everything clickable - including the labels that stand in for a
+   * hidden checkbox, radio, or file input, which look like buttons but are not.
+   */
+  button:not(:disabled),
+  summary,
+  select,
+  [role="button"],
+  [role="menuitem"],
+  [role="tab"],
+  label:has(> input[type="file"]),
+  label:has(> input[type="checkbox"]),
+  label:has(> input[type="radio"]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+
   /* One consistent focus ring, visible only for keyboard users. */
   :focus-visible {
     outline: 2px solid var(--color-brand-500);

@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { joinGroup, leaveGroup } from "../actions";
+import { useT } from "@/lib/i18n/provider";
 
 export function JoinLeave({
   groupId,
@@ -12,11 +13,12 @@ export function JoinLeave({
   role: "OWNER" | "ADMIN" | "MEMBER" | null;
   canJoin: boolean;
 }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
 
   // The owner cannot leave; the group would be left without one.
   if (role === "OWNER") {
-    return <span className="hint shrink-0">You own this group</span>;
+    return <span className="hint shrink-0">{t("groups.youOwn")}</span>;
   }
 
   if (role) {
@@ -27,13 +29,13 @@ export function JoinLeave({
         onClick={() => startTransition(() => leaveGroup(groupId))}
         className="btn btn-secondary btn-sm shrink-0"
       >
-        {pending ? "Leaving…" : "Leave"}
+        {pending ? t("groups.leaving") : t("action.leave")}
       </button>
     );
   }
 
   if (!canJoin) {
-    return <span className="hint shrink-0">Invitation only</span>;
+    return <span className="hint shrink-0">{t("groups.inviteOnly")}</span>;
   }
 
   return (
@@ -43,7 +45,7 @@ export function JoinLeave({
       onClick={() => startTransition(() => joinGroup(groupId))}
       className="btn btn-primary btn-sm shrink-0"
     >
-      {pending ? "Joining…" : "Join"}
+      {pending ? t("groups.joining") : t("action.join")}
     </button>
   );
 }

@@ -2,7 +2,7 @@
  * Birth dates arrive from an <input type="date"> and are stored as a date-only
  * value at UTC midnight. Reading them with local getters shifts the day
  * backwards on any server west of UTC, which would let someone through the 18+
- * gate a day early — so every comparison here is done in UTC.
+ * gate a day early - so every comparison here is done in UTC.
  */
 export function ageFrom(birthDate: Date, now = new Date()): number {
   let age = now.getUTCFullYear() - birthDate.getUTCFullYear();

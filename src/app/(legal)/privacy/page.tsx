@@ -1,4 +1,4 @@
-export const metadata = { title: "Privacy Policy — gizycko" };
+export const metadata = { title: "Privacy Policy - gizycko" };
 
 export default function PrivacyPage() {
   return (
@@ -6,28 +6,34 @@ export default function PrivacyPage() {
       <h1>Privacy Policy</h1>
       <p>
         This explains what gizycko.online collects, why, and what you can do
-        about it. It is written against the GDPR (Regulation (EU) 2016/679).
+        about it. It is written against the GDPR (Regulation (EU) 2016/679)
+        because that is the strictest regime the service is likely to meet. If
+        your country gives you stronger rights - the UK GDPR, California&rsquo;s
+        CCPA/CPRA, Brazil&rsquo;s LGPD and others do in places - those apply to
+        you as well.
       </p>
 
       <h2>Who is responsible</h2>
       <p>
         The data controller is <strong>[company name]</strong>,{" "}
-        <strong>[address, Warsaw, Poland]</strong>, contactable at{" "}
-        <strong>[contact email]</strong>.
+        <strong>[registered address]</strong>, contactable at{" "}
+        <strong>[contact email]</strong>. If we are required to appoint a
+        representative or data protection officer in your region, their details
+        belong here too.
       </p>
 
       <h2>What we collect</h2>
       <ul>
         <li>
-          <strong>Account data</strong> — name, email address, password (stored
+          <strong>Account data</strong> - name, email address, password (stored
           only as a hash), sign-in timestamps, IP address, and user agent.
         </li>
         <li>
-          <strong>Profile data</strong> — display name, date of birth, gender,
+          <strong>Profile data</strong> - display name, date of birth, gender,
           who you want to meet, city, occupation, biography, and photographs.
         </li>
         <li>
-          <strong>Activity data</strong> — likes and passes, matches, messages,
+          <strong>Activity data</strong> - likes and passes, matches, messages,
           posts, comments, reactions, friendships, blocks, and reports.
         </li>
       </ul>
@@ -45,16 +51,16 @@ export default function PrivacyPage() {
       <h2>Why we process it, and on what basis</h2>
       <ul>
         <li>
-          <strong>To run the service</strong> — matching, messaging, the feed.
+          <strong>To run the service</strong> - matching, messaging, the feed.
           Basis: performance of our contract with you (Art. 6(1)(b)).
         </li>
         <li>
-          <strong>To keep people safe</strong> — moderation, blocks, reports,
+          <strong>To keep people safe</strong> - moderation, blocks, reports,
           bans, fraud prevention. Basis: our legitimate interest in a safe
           platform (Art. 6(1)(f)).
         </li>
         <li>
-          <strong>To meet legal duties</strong> — responding to lawful requests,
+          <strong>To meet legal duties</strong> - responding to lawful requests,
           keeping records we are required to keep. Basis: legal obligation (Art.
           6(1)(c)).
         </li>
@@ -64,24 +70,27 @@ export default function PrivacyPage() {
       <p>
         Your display name, age, city, biography, and photographs are visible to
         other signed-in members. Your exact date of birth and email address are
-        never shown — only your age is. Posts respect the visibility you choose
+        never shown - only your age is. Posts respect the visibility you choose
         for each one. Messages are visible only to you and the person you are
         matched with, and to moderators when a report is made.
       </p>
 
       <h2>Who we share it with</h2>
       <p>
-        Processors that host and operate the service on our behalf, under written
-        contracts: <strong>[hosting provider]</strong>,{" "}
+        Processors that host and operate the service on our behalf, under
+        written contracts: <strong>[hosting provider]</strong>,{" "}
         <strong>[database provider]</strong>, <strong>[email provider]</strong>.
         We do not sell personal data. We do not use it to train AI models.
       </p>
 
       <h2>Where it is stored</h2>
       <p>
-        Within the European Economic Area. If a processor operates outside the
-        EEA, transfers rely on the European Commission&rsquo;s Standard
-        Contractual Clauses.
+        In <strong>[region]</strong>. Because the service is open worldwide,
+        your data may be processed in a country other than your own. Transfers
+        out of the European Economic Area or the UK rely on the European
+        Commission&rsquo;s Standard Contractual Clauses or the UK equivalent,
+        and transfers elsewhere on the safeguard that country&rsquo;s law
+        requires.
       </p>
 
       <h2>How long we keep it</h2>
@@ -97,15 +106,16 @@ export default function PrivacyPage() {
 
       <h2>Your rights</h2>
       <p>
-        You may access, correct, erase, restrict, or object to processing of your
-        data, and receive a copy in a portable format. Use{" "}
+        You may access, correct, erase, restrict, or object to processing of
+        your data, and receive a copy in a portable format. Use{" "}
         <strong>Download my data</strong> and <strong>Delete my account</strong>{" "}
         on your profile page, or write to us. You may withdraw consent at any
         time without affecting processing already carried out.
       </p>
       <p>
-        You may complain to the Polish supervisory authority: Prezes Urzędu
-        Ochrony Danych Osobowych, ul. Stawki 2, 00-193 Warszawa.
+        You may also complain to your national data protection authority. In the
+        EU that is the regulator where you live or work; in the UK, the
+        Information Commissioner&rsquo;s Office.
       </p>
 
       <h2>Cookies</h2>

@@ -1,18 +1,23 @@
-export const metadata = { title: "Terms of Service — gizycko" };
+export const metadata = { title: "Terms of Service - gizycko" };
 
 export default function TermsPage() {
   return (
     <>
       <h1>Terms of Service</h1>
       <p>
-        These terms govern your use of gizycko.online (&ldquo;the service&rdquo;),
-        operated from Warsaw, Poland. By creating an account you accept them.
+        These terms govern your use of gizycko.online (&ldquo;the
+        service&rdquo;), operated by <strong>[company name]</strong> from{" "}
+        <strong>[registered address]</strong>. The service is open worldwide. By
+        creating an account you accept these terms.
       </p>
 
       <h2>1. Who may use the service</h2>
       <ul>
         <li>You must be at least 18 years old.</li>
-        <li>You must not be barred from using the service under any applicable law.</li>
+        <li>
+          You must not be barred from using the service under any applicable
+          law.
+        </li>
         <li>
           You may hold one account. Accounts are personal and must not be sold,
           shared, or transferred.
@@ -55,9 +60,9 @@ export default function TermsPage() {
       <h2>5. Payment</h2>
       <p>
         The service is currently free. If paid features are introduced, prices
-        and cancellation terms will be shown before you are charged, and your
-        statutory right of withdrawal under Polish and EU consumer law will
-        apply.
+        and cancellation terms will be shown before you are charged, and any
+        statutory right of withdrawal or cooling-off period your country gives
+        you will apply.
       </p>
 
       <h2>6. Ending your account</h2>
@@ -77,21 +82,28 @@ export default function TermsPage() {
 
       <h2>8. Law and disputes</h2>
       <p>
-        Polish law applies. Consumers may bring claims in the courts of their
-        place of residence, and may use the EU Online Dispute Resolution
-        platform.
+        <strong>[Governing law]</strong> applies. Wherever you live, this does
+        not take away rights your local consumer law gives you: in most
+        countries a consumer may bring a claim in the courts of their own place
+        of residence, and consumers in the EU and UK may use their national
+        online dispute resolution scheme.
       </p>
 
       <h2>9. Changes</h2>
       <p>
-        We will give notice of material changes at least 14 days before they take
-        effect. Continuing to use the service after that means you accept them.
+        We will give notice of material changes at least 14 days before they
+        take effect. Continuing to use the service after that means you accept
+        them.
       </p>
 
       <h2>10. Contact</h2>
       <p>
-        Questions about these terms: <strong>[contact email]</strong>. Registered
-        details: <strong>[company name, address, NIP/KRS]</strong>.
+        Questions about these terms: <strong>[contact email]</strong>.
+        Registered details:{" "}
+        <strong>
+          [company name, address, company and tax registration numbers]
+        </strong>
+        .
       </p>
     </>
   );

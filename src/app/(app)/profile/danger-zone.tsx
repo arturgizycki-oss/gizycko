@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { useT } from "@/lib/i18n/provider";
 
 export function DangerZone() {
+  const t = useT();
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [password, setPassword] = useState("");
@@ -19,7 +21,7 @@ export function DangerZone() {
 
     setPending(false);
     if (error) {
-      setError(error.message ?? "Could not delete the account.");
+      setError(error.message ?? t("danger.failed"));
       return;
     }
     router.push("/");
@@ -28,19 +30,15 @@ export function DangerZone() {
 
   return (
     <section className="rounded-2xl border border-rose-200 bg-rose-50/50 p-4 dark:border-rose-900/50 dark:bg-rose-950/20">
-      <h2 className="text-sm font-medium">Your data</h2>
+      <h2 className="text-sm font-medium">{t("danger.title")}</h2>
 
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        You can download everything we hold about you, or delete your account
-        permanently.
+        {t("danger.body")}
       </p>
 
       <div className="mt-3 flex flex-wrap gap-3">
-        <a
-          href="/api/me/export"
-          className="btn btn-secondary btn-sm"
-        >
-          Download my data
+        <a href="/api/me/export" className="btn btn-secondary btn-sm">
+          {t("danger.download")}
         </a>
 
         {!confirming && (
@@ -49,19 +47,16 @@ export function DangerZone() {
             onClick={() => setConfirming(true)}
             className="btn btn-secondary btn-sm text-rose-700 dark:text-rose-400"
           >
-            Delete my account
+            {t("danger.delete")}
           </button>
         )}
       </div>
 
       {confirming && (
         <div className="mt-4 space-y-3">
-          <p className="text-sm font-medium">
-            This deletes your profile, photos, matches, messages, and posts. It
-            cannot be undone.
-          </p>
+          <p className="text-sm font-medium">{t("danger.confirmBody")}</p>
           <label className="block">
-            <span className="text-sm">Confirm with your password</span>
+            <span className="text-sm">{t("danger.password")}</span>
             <input
               type="password"
               value={password}
@@ -77,21 +72,21 @@ export function DangerZone() {
             </p>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={onDelete}
               disabled={pending || password.length === 0}
               className="btn btn-primary btn-sm"
             >
-              {pending ? "Deleting…" : "Delete permanently"}
+              {pending ? t("danger.deleting") : t("danger.deletePermanently")}
             </button>
             <button
               type="button"
               onClick={() => setConfirming(false)}
               className="btn btn-secondary btn-sm"
             >
-              Cancel
+              {t("action.cancel")}
             </button>
           </div>
         </div>

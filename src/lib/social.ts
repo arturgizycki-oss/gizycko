@@ -11,18 +11,24 @@ export const friendIds = cache(async (userId: string): Promise<string[]> => {
     select: { requesterId: true, addresseeId: true },
   });
 
-  return rows.map((r) => (r.requesterId === userId ? r.addresseeId : r.requesterId));
+  return rows.map((r) =>
+    r.requesterId === userId ? r.addresseeId : r.requesterId,
+  );
 });
 
 /** Ids this user should never see: anyone they blocked, and anyone who blocked them. */
-export const hiddenUserIds = cache(async (userId: string): Promise<string[]> => {
-  const rows = await prisma.block.findMany({
-    where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
-    select: { blockerId: true, blockedId: true },
-  });
+export const hiddenUserIds = cache(
+  async (userId: string): Promise<string[]> => {
+    const rows = await prisma.block.findMany({
+      where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
+      select: { blockerId: true, blockedId: true },
+    });
 
-  return rows.map((r) => (r.blockerId === userId ? r.blockedId : r.blockerId));
-});
+    return rows.map((r) =>
+      r.blockerId === userId ? r.blockedId : r.blockerId,
+    );
+  },
+);
 
 /**
  * Ids of users `userId` has a live dating match with.
@@ -31,18 +37,20 @@ export const hiddenUserIds = cache(async (userId: string): Promise<string[]> => 
  * two friends started, and treating those as matches would hand friends access
  * to posts limited to matches.
  */
-export const matchedUserIds = cache(async (userId: string): Promise<string[]> => {
-  const rows = await prisma.match.findMany({
-    where: {
-      unmatchedAt: null,
-      origin: "SWIPE",
-      OR: [{ userAId: userId }, { userBId: userId }],
-    },
-    select: { userAId: true, userBId: true },
-  });
+export const matchedUserIds = cache(
+  async (userId: string): Promise<string[]> => {
+    const rows = await prisma.match.findMany({
+      where: {
+        unmatchedAt: null,
+        origin: "SWIPE",
+        OR: [{ userAId: userId }, { userBId: userId }],
+      },
+      select: { userAId: true, userBId: true },
+    });
 
-  return rows.map((r) => (r.userAId === userId ? r.userBId : r.userAId));
-});
+    return rows.map((r) => (r.userAId === userId ? r.userBId : r.userAId));
+  },
+);
 
 /**
  * Friends the two people have in common, with the viewer's own blocks removed.
@@ -59,5 +67,6 @@ export async function mutualFriendIds(
   ]);
 
   const theirSet = new Set(theirs);
-  return mine.filter((id) => theirSet.has(id) && !hidden.includes(id));
+  const hiddenSet = new Set(hidden);
+  return mine.filter((id) => theirSet.has(id) && !hiddenSet.has(id));
 }

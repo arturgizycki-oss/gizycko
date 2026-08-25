@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireProfile } from "@/lib/session";
 import { Avatar } from "@/components/avatar";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
+import { getTranslator } from "@/lib/i18n";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -12,6 +13,7 @@ const PROFILE_AVATAR = {
 export default async function MatchesPage() {
   const { session } = await requireProfile();
   const me = session.user.id;
+  const t = await getTranslator();
 
   const matches = await prisma.match.findMany({
     where: {
@@ -22,25 +24,25 @@ export default async function MatchesPage() {
     },
     orderBy: [{ lastMessageAt: "desc" }, { createdAt: "desc" }],
     include: {
-      userA: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
-      userB: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
+      userA: {
+        select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
+      },
+      userB: {
+        select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
+      },
       messages: { orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
 
   return (
     <div>
-      <h1 className="text-xl font-semibold tracking-tight">Matches</h1>
-      <p className="mb-6 text-sm text-neutral-500">
-        Your conversations. Tap a name to open the chat, or the photo to see
-        their profile.
-      </p>
+      <h1 className="text-xl font-semibold tracking-tight">
+        {t("matches.title")}
+      </h1>
+      <p className="mb-6 text-sm text-neutral-500">{t("messages.intro")}</p>
 
       {matches.length === 0 ? (
-        <p className="empty-state">
-          No matches yet, so there is nobody to message. Keep swiping in
-          Discover — a conversation opens as soon as you both like each other.
-        </p>
+        <p className="empty-state">{t("matches.empty")}</p>
       ) : (
         <ul className="card divide-y divide-[var(--line)] overflow-hidden">
           {matches.map((match) => {
@@ -67,14 +69,14 @@ export default async function MatchesPage() {
                     {other.profile?.displayName ?? other.name}
                   </p>
                   <p className="truncate text-sm text-neutral-500">
-                    {preview ? preview.body : "You matched. Say hello."}
+                    {preview ? preview.body : t("matches.sayHello")}
                   </p>
                 </Link>
                 <Link
                   href={`/matches/${match.id}`}
                   className="btn btn-primary btn-sm shrink-0"
                 >
-                  Message
+                  {t("action.message")}
                 </Link>
               </li>
             );

@@ -14,11 +14,11 @@ export default async function AuthLayout({
   if (session) redirect("/feed");
 
   return (
-    <main className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-12">
+    <main className="relative flex min-h-dvh flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-12">
       <PageBackdrop image={loginBackground} scrim="light" />
       <Brand href="/" size={44} className="relative mb-8 text-lg" />
 
-      <div className="card-glass relative w-full max-w-sm p-8">
+      <div className="card-glass relative w-full max-w-sm p-6 sm:p-8">
         {children}
       </div>
 

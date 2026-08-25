@@ -31,6 +31,28 @@ const messageSchema = z.object({
   body: z.string().trim().max(4000),
 });
 
+/**
+ * The message being answered, if it is real and belongs to this conversation.
+ *
+ * Checked rather than trusted: a crafted form could otherwise point a reply at
+ * a message in somebody else's chat, and the quoted text would then be shown
+ * to people who were never meant to see it.
+ */
+async function replyTarget(
+  matchId: string,
+  raw: FormDataEntryValue | null,
+): Promise<string | null> {
+  const id = typeof raw === "string" ? raw.trim() : "";
+  if (!id) return null;
+
+  const found = await prisma.message.findFirst({
+    where: { id, matchId, deletedAt: null },
+    select: { id: true },
+  });
+
+  return found?.id ?? null;
+}
+
 type Attachment = {
   key: string;
   bytes: Buffer;
@@ -46,7 +68,9 @@ type Attachment = {
 async function readAttachment(
   file: File,
   userId: string,
-): Promise<{ ok: true; attachment: Attachment } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; attachment: Attachment } | { ok: false; error: string }
+> {
   const declared = file.type.toLowerCase();
 
   if (declared.startsWith("video/")) {
@@ -111,16 +135,22 @@ export async function sendMessage(
   const file = entry instanceof File && entry.size > 0 ? entry : null;
 
   const voiceEntry = formData.get("voice");
-  const voice = voiceEntry instanceof File && voiceEntry.size > 0 ? voiceEntry : null;
+  const voice =
+    voiceEntry instanceof File && voiceEntry.size > 0 ? voiceEntry : null;
+
+  const replyToId = await replyTarget(matchId, formData.get("replyTo"));
 
   if (parsed.data.body.length === 0 && !file && !voice) {
-    return { error: "Write something, or attach a photo, video, song, or recording." };
+    return {
+      error: "Write something, or attach a photo, video, song, or recording.",
+    };
   }
 
   const allowed = checkContent(parsed.data.body);
   if (!allowed.ok) return { error: allowed.message };
 
-  const otherId = match.userAId === session.user.id ? match.userBId : match.userAId;
+  const otherId =
+    match.userAId === session.user.id ? match.userBId : match.userAId;
 
   // A block in either direction closes the conversation.
   const blocked = await prisma.block.findFirst({
@@ -162,6 +192,7 @@ export async function sendMessage(
         matchId,
         senderId: session.user.id,
         body: parsed.data.body,
+        replyToId,
         mediaUrl: attachment ? mediaUrl(attachment.key) : null,
         mediaType: attachment?.type ?? null,
         mediaKind: attachment?.kind ?? null,
@@ -173,7 +204,12 @@ export async function sendMessage(
       data: { lastMessageAt: new Date() },
     }),
     prisma.notification.create({
-      data: { userId: otherId, type: "MESSAGE", actorId: session.user.id, entityId: matchId },
+      data: {
+        userId: otherId,
+        type: "MESSAGE",
+        actorId: session.user.id,
+        entityId: matchId,
+      },
     }),
   ]);
 
@@ -181,6 +217,67 @@ export async function sendMessage(
   revalidatePath("/messages");
   // A fresh id tells the composer this send landed, so it can clear itself.
   return { submissionId: randomUUID() };
+}
+
+/** How long after sending a message may still be edited. */
+const EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Change the text of your own message.
+ *
+ * Only your own, only within a day, and only messages that have text: editing
+ * an attachment would mean swapping the file under a message somebody has
+ * already read. The edit is stamped, so the other person can see it changed.
+ */
+export async function editMessage(
+  messageId: string,
+  body: string,
+): Promise<{ error?: string }> {
+  const session = await requireSession();
+
+  const message = await prisma.message.findUnique({
+    where: { id: messageId },
+    select: {
+      id: true,
+      matchId: true,
+      senderId: true,
+      body: true,
+      createdAt: true,
+      deletedAt: true,
+    },
+  });
+
+  if (!message || message.senderId !== session.user.id || message.deletedAt) {
+    return { error: "That message cannot be edited." };
+  }
+
+  if (message.body.length === 0) {
+    return { error: "That message cannot be edited." };
+  }
+
+  if (Date.now() - message.createdAt.getTime() > EDIT_WINDOW_MS) {
+    return { error: "That message is too old to edit." };
+  }
+
+  const parsed = messageSchema.safeParse({ body });
+  if (!parsed.success) return { error: "That message is too long." };
+  if (parsed.data.body.length === 0) {
+    return { error: "An edited message cannot be empty." };
+  }
+
+  const allowed = checkContent(parsed.data.body);
+  if (!allowed.ok) return { error: allowed.message };
+
+  if (parsed.data.body === message.body) return {};
+
+  await prisma.message.update({
+    where: { id: messageId },
+    data: { body: parsed.data.body, editedAt: new Date() },
+  });
+
+  revalidatePath(`/matches/${message.matchId}`);
+  revalidatePath("/messages");
+  return {};
 }
 
 export async function markRead(matchId: string) {

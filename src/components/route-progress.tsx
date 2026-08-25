@@ -36,10 +36,12 @@ function Bar() {
 
     function onClick(event: MouseEvent) {
       if (event.defaultPrevented || event.button !== 0) return;
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+        return;
 
       const link = (event.target as HTMLElement | null)?.closest?.("a");
-      if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+      if (!link || link.target === "_blank" || link.hasAttribute("download"))
+        return;
 
       const href = link.getAttribute("href");
       if (!href || href.startsWith("#")) return;
@@ -47,7 +49,10 @@ function Bar() {
       const url = new URL(link.href, window.location.href);
       if (url.origin !== window.location.origin) return;
       // Same page: nothing will load, so nothing to report.
-      if (url.pathname === window.location.pathname && url.search === window.location.search) {
+      if (
+        url.pathname === window.location.pathname &&
+        url.search === window.location.search
+      ) {
         return;
       }
 

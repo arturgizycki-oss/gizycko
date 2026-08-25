@@ -20,7 +20,9 @@ import { FriendButton } from "@/components/friend-button";
 import { FollowButton } from "@/components/follow-button";
 import { followCounts, isFollowing } from "@/lib/follows";
 import { CollapsibleSection } from "@/components/collapsible-section";
+import { ChatIcon, FilmIcon, HeartIcon, MusicIcon } from "@/components/icons";
 import { openConversation } from "@/lib/actions/conversations";
+import { getLocale, getTranslator } from "@/lib/i18n";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -35,6 +37,7 @@ export default async function PublicProfilePage({
   const { userId } = await params;
   const { session } = await requireProfile();
   const me = session.user.id;
+  const [t, locale] = await Promise.all([getTranslator(), getLocale()]);
 
   if (userId === me) redirect("/profile");
 
@@ -54,31 +57,32 @@ export default async function PublicProfilePage({
 
   if (!user?.profile || user.bannedAt) notFound();
 
-  const [friends, matches, mutuals, counts, following, friendship, match] = await Promise.all([
-    friendIds(me),
-    matchedUserIds(me),
-    mutualFriendIds(me, userId),
-    followCounts(userId),
-    isFollowing(me, userId),
-    prisma.friendship.findFirst({
-      where: {
-        OR: [
-          { requesterId: me, addresseeId: userId },
-          { requesterId: userId, addresseeId: me },
-        ],
-      },
-    }),
-    prisma.match.findFirst({
-      where: {
-        unmatchedAt: null,
-        OR: [
-          { userAId: me, userBId: userId },
-          { userAId: userId, userBId: me },
-        ],
-      },
-      select: { id: true },
-    }),
-  ]);
+  const [friends, matches, mutuals, counts, following, friendship, match] =
+    await Promise.all([
+      friendIds(me),
+      matchedUserIds(me),
+      mutualFriendIds(me, userId),
+      followCounts(userId),
+      isFollowing(me, userId),
+      prisma.friendship.findFirst({
+        where: {
+          OR: [
+            { requesterId: me, addresseeId: userId },
+            { requesterId: userId, addresseeId: me },
+          ],
+        },
+      }),
+      prisma.match.findFirst({
+        where: {
+          unmatchedAt: null,
+          OR: [
+            { userAId: me, userBId: userId },
+            { userAId: userId, userBId: me },
+          ],
+        },
+        select: { id: true },
+      }),
+    ]);
 
   const isFriend = friends.includes(userId);
   const isMatched = matches.includes(userId);
@@ -93,7 +97,12 @@ export default async function PublicProfilePage({
 
   const [posts, postCount, theirFriendships] = await Promise.all([
     prisma.post.findMany({
-      where: { authorId: userId, deletedAt: null, groupId: null, OR: postVisibility },
+      where: {
+        authorId: userId,
+        deletedAt: null,
+        groupId: null,
+        OR: postVisibility,
+      },
       orderBy: { createdAt: "desc" },
       take: 10,
       select: {
@@ -102,7 +111,11 @@ export default async function PublicProfilePage({
         createdAt: true,
         videoUrl: true,
         audioUrl: true,
-        images: { select: { url: true }, orderBy: { position: "asc" }, take: 1 },
+        images: {
+          select: { url: true },
+          orderBy: { position: "asc" },
+          take: 1,
+        },
         _count: {
           select: {
             reactions: true,
@@ -112,7 +125,12 @@ export default async function PublicProfilePage({
       },
     }),
     prisma.post.count({
-      where: { authorId: userId, deletedAt: null, groupId: null, OR: postVisibility },
+      where: {
+        authorId: userId,
+        deletedAt: null,
+        groupId: null,
+        OR: postVisibility,
+      },
     }),
     prisma.friendship.findMany({
       where: {
@@ -120,8 +138,12 @@ export default async function PublicProfilePage({
         OR: [{ requesterId: userId }, { addresseeId: userId }],
       },
       include: {
-        requester: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
-        addressee: { select: { id: true, name: true, profile: { select: PROFILE_AVATAR } } },
+        requester: {
+          select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
+        },
+        addressee: {
+          select: { id: true, name: true, profile: { select: PROFILE_AVATAR } },
+        },
       },
     }),
   ]);
@@ -141,7 +163,7 @@ export default async function PublicProfilePage({
 
   return (
     <div className="space-y-4">
-      {/* ---------- header ---------- */}
+      {/* header */}
       <section className="card overflow-hidden">
         <CoverPhoto
           photos={photoUrls}
@@ -153,14 +175,17 @@ export default async function PublicProfilePage({
 
         <div className="flex flex-wrap items-center gap-2 p-4">
           {match ? (
-            <Link href={`/matches/${match.id}`} className="btn btn-primary btn-sm">
-              Message
+            <Link
+              href={`/matches/${match.id}`}
+              className="btn btn-primary btn-sm"
+            >
+              {t("action.message")}
             </Link>
           ) : (
             isFriend && (
               <form action={openConversation.bind(null, userId)}>
                 <button type="submit" className="btn btn-primary btn-sm">
-                  Message
+                  {t("action.message")}
                 </button>
               </form>
             )
@@ -188,14 +213,14 @@ export default async function PublicProfilePage({
           </span>
         </div>
 
-        {/* ---------- stats ---------- */}
-        <dl className="grid grid-cols-5 divide-x divide-[var(--line)] border-t border-[var(--line)] text-center">
+        {/* stats */}
+        <dl className="grid grid-cols-3 divide-[var(--line)] border-t border-[var(--line)] text-center sm:grid-cols-5 sm:divide-x">
           {[
-            { label: "Followers", value: counts.followers },
-            { label: "Following", value: counts.following },
-            { label: "Posts", value: postCount },
-            { label: "Friends", value: theirFriends.length },
-            { label: "Mutual", value: mutuals.length },
+            { label: t("profile.followers"), value: counts.followers },
+            { label: t("profile.followingCount"), value: counts.following },
+            { label: t("profile.posts"), value: postCount },
+            { label: t("profile.friends"), value: theirFriends.length },
+            { label: t("profile.mutual"), value: mutuals.length },
           ].map((stat) => (
             <div key={stat.label} className="py-3">
               <dd className="text-lg font-semibold">{stat.value}</dd>
@@ -205,49 +230,50 @@ export default async function PublicProfilePage({
         </dl>
       </section>
 
-      {mutuals.length > 0 && (
-        <p className="hint px-1">
-          You have {mutuals.length} friend{mutuals.length === 1 ? "" : "s"} in
-          common.
-        </p>
-      )}
-
-      {/* ---------- about ---------- */}
+      {/* about */}
       {user.profile.bio && (
         <section className="card p-4">
-          <h2 className="text-sm font-medium">About</h2>
+          <h2 className="text-sm font-medium">{t("profile.about")}</h2>
           <p className="mt-2 text-sm whitespace-pre-wrap text-[var(--ink-muted)]">
             {user.profile.bio}
           </p>
           <p className="hint mt-3">
-            On Gizycko since{" "}
-            {user.createdAt.toLocaleDateString(undefined, {
+            {t("profile.memberSince")}{" "}
+            {user.createdAt.toLocaleDateString(locale, {
               month: "long",
               year: "numeric",
             })}
-            {" · active "}
+            {` · ${t("profile.active")} `}
             {timeAgo(user.profile.lastActiveAt)}
           </p>
         </section>
       )}
 
-      {/* ---------- photos ---------- */}
+      {/* photos */}
       {photoUrls.length > 0 && (
-        <CollapsibleSection title="Photos" count={photoUrls.length} defaultOpen>
+        <CollapsibleSection
+          title={t("profile.photos")}
+          count={photoUrls.length}
+          defaultOpen
+        >
           <PhotoGrid photos={photoUrls} />
-          <p className="hint mt-2">Tap a photo to see it full size.</p>
+          <p className="hint mt-2">{t("profile.tapPhoto")}</p>
         </CollapsibleSection>
       )}
 
-      {/* ---------- their friends ---------- */}
+      {/* their friends */}
       <CollapsibleSection
-        title="Friends"
+        title={t("profile.friends")}
         count={theirFriends.length}
-        hint={mutuals.length > 0 ? `${mutuals.length} you know too` : undefined}
+        hint={
+          mutuals.length > 0
+            ? `${mutuals.length} ${t("profile.youKnowToo")}`
+            : undefined
+        }
         defaultOpen={theirFriends.length > 0}
       >
         {theirFriends.length === 0 ? (
-          <p className="muted px-2 py-3 text-sm">No friends yet.</p>
+          <p className="muted px-2 py-3 text-sm">{t("profile.noFriends")}</p>
         ) : (
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {orderedFriends.map((person) => {
@@ -268,7 +294,9 @@ export default async function PublicProfilePage({
                         {name}
                       </span>
                       {mutualSet.has(person.id) && (
-                        <span className="hint">Mutual friend</span>
+                        <span className="hint">
+                          {t("profile.mutualFriend")}
+                        </span>
                       )}
                     </span>
                   </Link>
@@ -279,13 +307,15 @@ export default async function PublicProfilePage({
         )}
       </CollapsibleSection>
 
-      {/* ---------- posts ---------- */}
-      <CollapsibleSection title="Posts" count={postCount} defaultOpen>
+      {/* posts */}
+      <CollapsibleSection
+        title={t("profile.posts")}
+        count={postCount}
+        defaultOpen
+      >
         {posts.length === 0 ? (
           <p className="muted px-2 py-3 text-sm">
-            {isFriend
-              ? "Nothing posted yet."
-              : "Nothing public to show. Add them as a friend to see more."}
+            {isFriend ? t("profile.nothingPosted") : t("profile.nothingPublic")}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -312,10 +342,26 @@ export default async function PublicProfilePage({
                     )}
                     <span className="hint mt-1 flex flex-wrap items-center gap-2">
                       <span>{shortWhen(post.createdAt)}</span>
-                      <span>♥ {post._count.reactions}</span>
-                      <span>💬 {post._count.comments}</span>
-                      {post.videoUrl && <span>🎬 video</span>}
-                      {post.audioUrl && <span>🎵 song</span>}
+                      <span className="flex items-center gap-1">
+                        <HeartIcon className="size-3.5" />
+                        {post._count.reactions}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <ChatIcon className="size-3.5" />
+                        {post._count.comments}
+                      </span>
+                      {post.videoUrl && (
+                        <span className="flex items-center gap-1">
+                          <FilmIcon className="size-3.5" />
+                          {t("composer.video")}
+                        </span>
+                      )}
+                      {post.audioUrl && (
+                        <span className="flex items-center gap-1">
+                          <MusicIcon className="size-3.5" />
+                          {t("composer.song")}
+                        </span>
+                      )}
                     </span>
                   </span>
                 </Link>

@@ -2,16 +2,18 @@
 
 import { useActionState } from "react";
 import { updateProfile, type ActionState } from "./actions";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 
-const GENDER_LABELS: Record<string, string> = {
-  MAN: "Man",
-  WOMAN: "Woman",
-  NONBINARY: "Non-binary",
-  OTHER: "Other",
+/** Gender values as stored, paired with the key that names each one. */
+const GENDER_LABELS: Record<string, MessageKey> = {
+  MAN: "gender.man",
+  WOMAN: "gender.woman",
+  NONBINARY: "gender.nonbinary",
+  OTHER: "gender.other",
 };
 
-const inputClass =
-  "input mt-1";
+const inputClass = "input mt-1";
 
 export type ProfileFormValues = {
   displayName: string;
@@ -26,6 +28,7 @@ export type ProfileFormValues = {
 };
 
 export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     updateProfile,
     {},
@@ -36,10 +39,10 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
       action={formAction}
       className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
-      <h2 className="text-sm font-medium">Edit profile</h2>
+      <h2 className="text-sm font-medium">{t("profile.edit")}</h2>
 
       <label className="block">
-        <span className="text-sm font-medium">Display name</span>
+        <span className="text-sm font-medium">{t("profile.displayName")}</span>
         <input
           required
           name="displayName"
@@ -50,7 +53,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium">About you</span>
+        <span className="text-sm font-medium">{t("profile.bio")}</span>
         <textarea
           name="bio"
           rows={4}
@@ -62,7 +65,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
 
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
-          <span className="text-sm font-medium">Work</span>
+          <span className="text-sm font-medium">{t("profile.work")}</span>
           <input
             name="occupation"
             maxLength={80}
@@ -71,7 +74,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium">City</span>
+          <span className="text-sm font-medium">{t("profile.city")}</span>
           <input
             name="city"
             maxLength={80}
@@ -82,13 +85,12 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
       </div>
 
       <fieldset>
-        <legend className="text-sm font-medium">I want to meet</legend>
+        <legend className="text-sm font-medium">
+          {t("profile.wantToMeet")}
+        </legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {Object.entries(GENDER_LABELS).map(([value, label]) => (
-            <label
-              key={value}
-              className="chip"
-            >
+            <label key={value} className="chip">
               <input
                 type="checkbox"
                 name="interestedIn"
@@ -96,15 +98,15 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
                 defaultChecked={profile.interestedIn.includes(value)}
                 className="sr-only"
               />
-              {label}
+              {t(label)}
             </label>
           ))}
         </div>
       </fieldset>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <label className="block">
-          <span className="text-sm font-medium">Min age</span>
+          <span className="text-sm font-medium">{t("profile.minAge")}</span>
           <input
             type="number"
             name="minAgePref"
@@ -115,7 +117,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium">Max age</span>
+          <span className="text-sm font-medium">{t("profile.maxAge")}</span>
           <input
             type="number"
             name="maxAgePref"
@@ -126,7 +128,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium">Distance (km)</span>
+          <span className="text-sm font-medium">{t("profile.distance")}</span>
           <input
             type="number"
             name="maxDistanceKm"
@@ -144,7 +146,7 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
           name="isVisible"
           defaultChecked={profile.isVisible}
         />
-        Show my profile in Discover
+        {t("profile.showInDiscover")}
       </label>
 
       {state.error && (
@@ -152,14 +154,12 @@ export function ProfileForm({ profile }: { profile: ProfileFormValues }) {
           {state.error}
         </p>
       )}
-      {state.ok && <p className="text-sm text-emerald-600">Saved.</p>}
+      {state.ok && (
+        <p className="text-sm text-emerald-600">{t("profile.saved")}</p>
+      )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="btn btn-primary"
-      >
-        {pending ? "Saving…" : "Save changes"}
+      <button type="submit" disabled={pending} className="btn btn-primary">
+        {pending ? t("action.saving") : t("action.save")}
       </button>
     </form>
   );

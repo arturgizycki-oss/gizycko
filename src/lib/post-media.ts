@@ -47,13 +47,16 @@ export async function readPostMedia(
     .slice(0, MAX_POST_IMAGES);
 
   const songEntry = formData.get("song");
-  const song = songEntry instanceof File && songEntry.size > 0 ? songEntry : null;
+  const song =
+    songEntry instanceof File && songEntry.size > 0 ? songEntry : null;
 
   const videoEntry = formData.get("video");
-  const video = videoEntry instanceof File && videoEntry.size > 0 ? videoEntry : null;
+  const video =
+    videoEntry instanceof File && videoEntry.size > 0 ? videoEntry : null;
 
   const voiceEntry = formData.get("voice");
-  const voice = voiceEntry instanceof File && voiceEntry.size > 0 ? voiceEntry : null;
+  const voice =
+    voiceEntry instanceof File && voiceEntry.size > 0 ? voiceEntry : null;
 
   if (images.length === 0 && !song && !video && !voice) {
     return { ok: true, media: EMPTY, hasAny: false };
@@ -104,7 +107,9 @@ export async function readPostMedia(
     media.videoType = checked.kind.contentType;
   }
 
-  await Promise.all(uploads.map((upload) => putObject(upload.key, upload.bytes)));
+  await Promise.all(
+    uploads.map((upload) => putObject(upload.key, upload.bytes)),
+  );
 
   return { ok: true, media, hasAny: true };
 }

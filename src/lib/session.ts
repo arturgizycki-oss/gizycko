@@ -24,15 +24,40 @@ export async function requireSession() {
 }
 
 /**
+ * The profile columns every page can rely on. Photos are deliberately absent:
+ * one page in fifteen reads them, and including them meant every request
+ * dragged the whole photo table for that member along with it.
+ */
+const PROFILE_FIELDS = {
+  id: true,
+  userId: true,
+  displayName: true,
+  birthDate: true,
+  gender: true,
+  interestedIn: true,
+  bio: true,
+  occupation: true,
+  city: true,
+  minAgePref: true,
+  maxAgePref: true,
+  maxDistanceKm: true,
+  isVisible: true,
+  completedAt: true,
+  lastActiveAt: true,
+} as const;
+
+/**
  * Session plus the dating profile. Sends users without a finished profile to
  * onboarding, so every page behind this can assume a complete profile exists.
+ *
+ * Cached per request: a page and any component under it share one lookup.
  */
-export async function requireProfile() {
+export const requireProfile = cache(async () => {
   const session = await requireSession();
 
   const profile = await prisma.profile.findUnique({
     where: { userId: session.user.id },
-    include: { photos: { orderBy: { position: "asc" } } },
+    select: PROFILE_FIELDS,
   });
 
   if (!profile?.completedAt) redirect("/onboarding");
@@ -40,7 +65,20 @@ export async function requireProfile() {
   await touchLastActive(profile.id, profile.lastActiveAt);
 
   return { session, profile };
-}
+});
+
+/** The same, plus the member's photos. Only the profile page needs those. */
+export const requireProfileWithPhotos = cache(async () => {
+  const { session, profile } = await requireProfile();
+
+  const photos = await prisma.photo.findMany({
+    where: { profileId: profile.id },
+    orderBy: { position: "asc" },
+    select: { id: true, url: true, isPrimary: true, moderation: true },
+  });
+
+  return { session, profile, photos };
+});
 
 /** How stale "last active" may get before it is worth another write. */
 const ACTIVITY_WINDOW_MS = 10 * 60 * 1000;

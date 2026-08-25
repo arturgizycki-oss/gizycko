@@ -3,7 +3,14 @@
 import { usePathname } from "next/navigation";
 import { PageBackdrop } from "./page-backdrop";
 import dashboardBackground from "@/assets/dashboard.jpg";
+import friendBackground from "@/assets/friend.jpg";
 import groupBackground from "@/assets/group.jpg";
+
+/** Sections with a photograph of their own; everything else uses the default. */
+const BY_SECTION = [
+  { path: "/groups", image: groupBackground },
+  { path: "/friends", image: friendBackground },
+];
 
 /**
  * The photograph behind the signed-in app, chosen by where you are.
@@ -14,12 +21,13 @@ import groupBackground from "@/assets/group.jpg";
  */
 export function AppBackdrop() {
   const pathname = usePathname();
-  const inGroups = pathname === "/groups" || pathname.startsWith("/groups/");
+
+  // A section owns its nested pages too, so /friends and /groups/<id> match.
+  const section = BY_SECTION.find(
+    (entry) => pathname === entry.path || pathname.startsWith(`${entry.path}/`),
+  );
 
   return (
-    <PageBackdrop
-      image={inGroups ? groupBackground : dashboardBackground}
-      scrim="heavy"
-    />
+    <PageBackdrop image={section?.image ?? dashboardBackground} scrim="heavy" />
   );
 }

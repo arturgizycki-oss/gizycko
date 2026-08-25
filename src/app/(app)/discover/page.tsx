@@ -3,6 +3,7 @@ import { requireProfile } from "@/lib/session";
 import { hiddenUserIds } from "@/lib/social";
 import { ageFrom } from "@/lib/age";
 import { SwipeDeck } from "./swipe-deck";
+import { getTranslator } from "@/lib/i18n";
 
 /** Birth-date bounds for an age range, oldest first. */
 function birthDateRange(minAge: number, maxAge: number, now = new Date()) {
@@ -16,6 +17,7 @@ function birthDateRange(minAge: number, maxAge: number, now = new Date()) {
 export default async function DiscoverPage() {
   const { session, profile } = await requireProfile();
   const me = session.user.id;
+  const t = await getTranslator();
 
   const [hidden, swiped] = await Promise.all([
     hiddenUserIds(me),
@@ -57,11 +59,10 @@ export default async function DiscoverPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold tracking-tight">Discover</h1>
-      <p className="mb-6 text-sm text-neutral-500">
-        New people who match your preferences. Like someone to see if they like
-        you back — if you both do, it becomes a match and you can message.
-      </p>
+      <h1 className="text-xl font-semibold tracking-tight">
+        {t("discover.title")}
+      </h1>
+      <p className="mb-6 text-sm text-neutral-500">{t("discover.intro")}</p>
       <SwipeDeck initialDeck={deck} />
     </div>
   );

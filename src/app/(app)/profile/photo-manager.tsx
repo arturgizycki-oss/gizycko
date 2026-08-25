@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   deletePhoto,
@@ -10,6 +10,10 @@ import {
 } from "./actions";
 import { MAX_IMAGE_BYTES, MAX_PROFILE_PHOTOS } from "@/lib/image";
 import { Lightbox } from "@/components/photo-lightbox";
+import { ConfirmButton } from "@/components/confirm-button";
+import { useToast } from "@/components/toast";
+import { useT } from "@/lib/i18n/provider";
+import type { MessageKey } from "@/lib/i18n";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -20,13 +24,15 @@ export type PhotoItem = {
   moderation: "PENDING" | "APPROVED" | "REJECTED";
 };
 
-const MODERATION_LABEL: Record<PhotoItem["moderation"], string> = {
-  PENDING: "Visible · awaiting review",
-  APPROVED: "Reviewed",
-  REJECTED: "Rejected · hidden from others",
+/** Moderation state to the key that explains it. */
+const MODERATION_LABEL: Record<PhotoItem["moderation"], MessageKey> = {
+  PENDING: "photos.pending",
+  APPROVED: "photos.approved",
+  REJECTED: "photos.rejected",
 };
 
 export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
+  const t = useT();
   const [viewing, setViewing] = useState<number | null>(null);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     uploadPhoto,
@@ -38,7 +44,7 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
   return (
     <section className="card p-4">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-sm font-medium">Photos</h2>
+        <h2 className="text-sm font-medium">{t("photos.title")}</h2>
         <span className="hint">
           {photos.length} / {MAX_PROFILE_PHOTOS}
         </span>
@@ -52,7 +58,7 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
                 <button
                   type="button"
                   onClick={() => setViewing(index)}
-                  aria-label="See this photo full size"
+                  aria-label={t("photos.full")}
                   className="absolute inset-0 cursor-zoom-in"
                 >
                   <Image
@@ -69,28 +75,30 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
                 </button>
                 {photo.isPrimary && (
                   <span className="absolute top-1.5 left-1.5 rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-semibold text-white">
-                    Main
+                    {t("photos.main")}
                   </span>
                 )}
               </div>
 
               <p className="text-[10px] text-[var(--ink-muted)]">
-                {MODERATION_LABEL[photo.moderation]}
+                {t(MODERATION_LABEL[photo.moderation])}
               </p>
 
               <div className="flex gap-2 text-xs">
                 {!photo.isPrimary && (
                   <form action={setPrimaryPhoto.bind(null, photo.id)}>
                     <button type="submit" className="muted hover:underline">
-                      Make main
+                      {t("photos.makeMain")}
                     </button>
                   </form>
                 )}
-                <form action={deletePhoto.bind(null, photo.id)}>
-                  <button type="submit" className="text-rose-600 hover:underline">
-                    Delete
-                  </button>
-                </form>
+                <ConfirmButton
+                  label={t("action.delete")}
+                  question={t("confirm.deletePhoto")}
+                  destructive
+                  className="text-rose-600 hover:underline"
+                  formAction={deletePhoto.bind(null, photo.id)}
+                />
               </div>
             </li>
           ))}
@@ -121,6 +129,9 @@ export function PhotoManager({ photos }: { photos: PhotoItem[] }) {
   );
 }
 
+/** What the picker has selected, with a blob: URL to show it. */
+type Chosen = { name: string; size: number; preview: string };
+
 function UploadFields({
   pending,
   serverError,
@@ -128,8 +139,17 @@ function UploadFields({
   pending: boolean;
   serverError?: string;
 }) {
-  const [chosen, setChosen] = useState<string | null>(null);
+  const t = useT();
+  const toast = useToast();
+  const [chosen, setChosen] = useState<Chosen | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const [clientError, setClientError] = useState<string | null>(null);
+
+  // Each preview holds a blob in memory until it is revoked.
+  useEffect(() => {
+    if (!chosen) return;
+    return () => URL.revokeObjectURL(chosen.preview);
+  }, [chosen]);
 
   /**
    * Check size and type before the file leaves the browser. Without this an
@@ -139,38 +159,57 @@ function UploadFields({
   function onFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     setClientError(null);
     setChosen(null);
+    setConfirming(false);
 
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (!ACCEPTED.includes(file.type)) {
-      setClientError("Only JPEG, PNG, WebP, and GIF images are allowed.");
+      setClientError(t("photos.badType"));
       event.target.value = "";
       return;
     }
 
     if (file.size > MAX_IMAGE_BYTES) {
-      const mb = (file.size / 1024 / 1024).toFixed(1);
-      setClientError(`That image is ${mb} MB. The limit is 5 MB.`);
+      setClientError(t("photos.tooBig"));
       event.target.value = "";
       return;
     }
 
-    setChosen(file.name);
+    setChosen({
+      name: file.name,
+      size: file.size,
+      preview: URL.createObjectURL(file),
+    });
   }
 
   const error = clientError ?? serverError;
 
+  useEffect(() => {
+    if (error) toast(error);
+  }, [error, toast]);
+
   return (
     <>
       <div className="flex items-center gap-3">
+        {chosen && (
+          /* A blob: URL from the picker - next/image needs a source the server
+             knows about, so a plain img is correct here. */
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={chosen.preview}
+            alt=""
+            className="size-14 shrink-0 rounded-xl border border-[var(--line)] object-cover"
+          />
+        )}
+
         {/*
           The native file input renders its own button plus "No file chosen".
           Hiding it inside a label gives one control we style ourselves, with
-          the chosen filename shown beside it.
+          the chosen file shown beside it.
         */}
-        <label className="btn btn-secondary btn-sm cursor-pointer">
-          {chosen ? "Change photo" : "Choose a photo"}
+        <label className="btn btn-secondary btn-sm shrink-0">
+          {chosen ? t("photos.change") : t("photos.choose")}
           <input
             type="file"
             name="photo"
@@ -181,24 +220,48 @@ function UploadFields({
           />
         </label>
 
-        <span className="muted min-w-0 flex-1 truncate text-xs">
-          {chosen ?? "JPEG, PNG, WebP or GIF, up to 5 MB"}
+        <span className="min-w-0 flex-1 text-xs">
+          {chosen ? (
+            <>
+              <span className="block truncate font-medium">{chosen.name}</span>
+              <span className="hint">
+                {(chosen.size / 1024 / 1024).toFixed(1)} MB
+              </span>
+            </>
+          ) : (
+            <span className="muted">JPEG, PNG, WebP, GIF · 5 MB</span>
+          )}
         </span>
 
-        <button
-          type="submit"
-          disabled={pending || !chosen}
-          className="btn btn-primary btn-sm shrink-0"
-        >
-          {pending ? "Uploading…" : "Upload"}
-        </button>
+        {confirming ? (
+          <span className="flex shrink-0 items-center gap-2 text-xs">
+            <span className="muted">{t("confirm.upload")}</span>
+            <button
+              type="submit"
+              disabled={pending}
+              className="font-semibold hover:underline"
+            >
+              {pending ? t("photos.uploading") : t("confirm.yes")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              className="muted hover:underline"
+            >
+              {t("confirm.no")}
+            </button>
+          </span>
+        ) : (
+          <button
+            type="button"
+            disabled={pending || !chosen}
+            onClick={() => setConfirming(true)}
+            className="btn btn-primary btn-sm shrink-0"
+          >
+            {t("photos.upload")}
+          </button>
+        )}
       </div>
-
-      {error && (
-        <p role="alert" className="mt-2 text-sm text-rose-600">
-          {error}
-        </p>
-      )}
     </>
   );
 }

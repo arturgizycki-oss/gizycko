@@ -8,6 +8,7 @@ import {
   markConversationRead,
   markConversationUnread,
 } from "./actions";
+import { useT } from "@/lib/i18n/provider";
 
 export type InboxItem = {
   matchId: string;
@@ -23,6 +24,7 @@ export type InboxItem = {
 type Filter = "all" | "unread";
 
 export function Inbox({ items }: { items: InboxItem[] }) {
+  const t = useT();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const [pending, startTransition] = useTransition();
@@ -56,7 +58,9 @@ export function Inbox({ items }: { items: InboxItem[] }) {
                   : "rounded-full px-3 py-1 text-xs font-medium text-neutral-500"
               }
             >
-              {value === "all" ? "All" : `Unread${totalUnread ? ` (${totalUnread})` : ""}`}
+              {value === "all"
+                ? t("messages.all")
+                : `${t("messages.unread")}${totalUnread ? ` (${totalUnread})` : ""}`}
             </button>
           ))}
         </div>
@@ -65,7 +69,7 @@ export function Inbox({ items }: { items: InboxItem[] }) {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search names and messages"
+          placeholder={t("messages.search")}
           className="min-w-0 flex-1 rounded-full border border-neutral-300 bg-white px-4 py-1.5 text-sm outline-none focus:border-brand-500 dark:border-neutral-700 dark:bg-neutral-900"
         />
 
@@ -76,16 +80,14 @@ export function Inbox({ items }: { items: InboxItem[] }) {
             onClick={() => startTransition(() => markAllConversationsRead())}
             className="btn btn-secondary btn-sm"
           >
-            Mark all read
+            {t("messages.markAllRead")}
           </button>
         )}
       </div>
 
       {visible.length === 0 ? (
         <p className="empty-state">
-          {items.length === 0
-            ? "No conversations yet. Match with someone in Discover and you can message them here."
-            : "Nothing matches that."}
+          {items.length === 0 ? t("messages.empty") : t("messages.noResults")}
         </p>
       ) : (
         <ul className="card divide-y divide-[var(--line)] overflow-hidden">
@@ -98,16 +100,24 @@ export function Inbox({ items }: { items: InboxItem[] }) {
                   : "flex items-center gap-3 px-4 py-3"
               }
             >
-              <Link href={`/u/${item.otherUserId}`} aria-label={`${item.name}'s profile`}>
+              <Link
+                href={`/u/${item.otherUserId}`}
+                aria-label={`${item.name}'s profile`}
+              >
                 <Avatar name={item.name} src={item.photo} size={44} />
               </Link>
 
-              <Link href={`/matches/${item.matchId}`} className="min-w-0 flex-1">
+              <Link
+                href={`/matches/${item.matchId}`}
+                className="min-w-0 flex-1"
+              >
                 <div className="flex items-baseline gap-2">
-                  <span className="truncate text-sm font-medium">{item.name}</span>
+                  <span className="truncate text-sm font-medium">
+                    {item.name}
+                  </span>
                   {item.closed && (
                     <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-500 dark:bg-neutral-800">
-                      ended
+                      {t("messages.ended")}
                     </span>
                   )}
                   <span className="ml-auto shrink-0 text-xs text-neutral-500">
@@ -135,11 +145,13 @@ export function Inbox({ items }: { items: InboxItem[] }) {
                       type="button"
                       disabled={pending}
                       onClick={() =>
-                        startTransition(() => markConversationRead(item.matchId))
+                        startTransition(() =>
+                          markConversationRead(item.matchId),
+                        )
                       }
                       className="text-[11px] text-neutral-500 hover:underline disabled:opacity-60"
                     >
-                      Mark read
+                      {t("messages.markRead")}
                     </button>
                   </>
                 ) : (
@@ -147,11 +159,13 @@ export function Inbox({ items }: { items: InboxItem[] }) {
                     type="button"
                     disabled={pending}
                     onClick={() =>
-                      startTransition(() => markConversationUnread(item.matchId))
+                      startTransition(() =>
+                        markConversationUnread(item.matchId),
+                      )
                     }
                     className="text-[11px] text-neutral-500 hover:underline disabled:opacity-60"
                   >
-                    Mark unread
+                    {t("messages.markUnread")}
                   </button>
                 )}
               </div>

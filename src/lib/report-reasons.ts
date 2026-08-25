@@ -1,6 +1,6 @@
 /**
  * Report reasons live here rather than beside the server action, because a
- * "use server" module may only export async functions — exporting this array
+ * "use server" module may only export async functions - exporting this array
  * from there is a runtime error in Next.js.
  */
 export const REPORT_REASONS = [
@@ -14,9 +14,8 @@ export const REPORT_REASONS = [
   { value: "OTHER", label: "Something else" },
 ] as const;
 
-export const REPORT_REASON_VALUES = REPORT_REASONS.map((r) => r.value) as unknown as [
-  ReportReasonValue,
-  ...ReportReasonValue[],
-];
+export const REPORT_REASON_VALUES = REPORT_REASONS.map(
+  (r) => r.value,
+) as unknown as [ReportReasonValue, ...ReportReasonValue[]];
 
 export type ReportReasonValue = (typeof REPORT_REASONS)[number]["value"];

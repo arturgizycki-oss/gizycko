@@ -2,7 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { Avatar } from "@/components/avatar";
-import { inviteToGroup, searchPeopleToInvite, type Invitable } from "../actions";
+import {
+  inviteToGroup,
+  searchPeopleToInvite,
+  type Invitable,
+} from "../actions";
+import { useT } from "@/lib/i18n/provider";
 
 /**
  * Search anyone by name and invite them.
@@ -11,6 +16,7 @@ import { inviteToGroup, searchPeopleToInvite, type Invitable } from "../actions"
  * out of people you have not befriended, which an owner usually needs.
  */
 export function InvitePeople({ groupId }: { groupId: string }) {
+  const t = useT();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Invitable[]>([]);
   const [invited, setInvited] = useState<string[]>([]);
@@ -35,34 +41,37 @@ export function InvitePeople({ groupId }: { groupId: string }) {
   return (
     <div className="px-2 py-2">
       <label className="label" htmlFor="invite-search">
-        Invite anyone by name
+        {t("groups.inviteAnyone")}
       </label>
       <input
         id="invite-search"
         type="search"
         value={query}
         onChange={(event) => search(event.target.value)}
-        placeholder="Start typing a name…"
+        placeholder={t("groups.searchPeople")}
         className="input mt-1"
       />
 
-      {pending && <p className="hint mt-2">Searching…</p>}
+      {pending && <p className="hint mt-2">{t("groups.searching")}</p>}
 
       {!pending && searched && results.length === 0 && (
-        <p className="hint mt-2">Nobody matching, or they are already here.</p>
+        <p className="hint mt-2">{t("groups.noMatches")}</p>
       )}
 
       {results.length > 0 && (
         <ul className="mt-2 space-y-1">
           {results.map((person) => (
-            <li key={person.id} className="flex items-center gap-3 rounded-xl px-1 py-1.5">
+            <li
+              key={person.id}
+              className="flex items-center gap-3 rounded-xl px-1 py-1.5"
+            >
               <Avatar name={person.name} src={person.photo} size={32} />
               <span className="min-w-0 flex-1 truncate text-sm font-medium">
                 {person.name}
               </span>
 
               {invited.includes(person.id) ? (
-                <span className="hint shrink-0">Invited</span>
+                <span className="hint shrink-0">{t("action.invited")}</span>
               ) : (
                 <button
                   type="button"

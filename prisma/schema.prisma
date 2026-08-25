@@ -145,12 +145,12 @@ model User {
   friendRequestsSent     Friendship[] @relation("FriendRequester")
   friendRequestsReceived Friendship[] @relation("FriendAddressee")
 
-  groupsOwned  Group[]       @relation("GroupOwner")
-  groupMembers GroupMember[]
-  groupInvites GroupInvite[] @relation("GroupInvitee")
+  groupsOwned      Group[]       @relation("GroupOwner")
+  groupMembers     GroupMember[]
+  groupInvites     GroupInvite[] @relation("GroupInvitee")
   groupInvitesSent GroupInvite[] @relation("GroupInviter")
-  groupBans        GroupBan[]   @relation("GroupBanned")
-  groupBansIssued  GroupBan[]   @relation("GroupBanner")
+  groupBans        GroupBan[]    @relation("GroupBanned")
+  groupBansIssued  GroupBan[]    @relation("GroupBanner")
 
   following Follow[] @relation("Follower")
   followers Follow[] @relation("Following")
@@ -337,17 +337,27 @@ model Message {
   createdAt DateTime  @default(now())
   readAt    DateTime?
   deletedAt DateTime?
+  /// Set when the sender changes the text. Shown next to the timestamp, so
+  /// nobody can quietly rewrite what they said.
+  editedAt  DateTime?
+
+  /// The message this one answers, if any. SetNull rather than Cascade: a
+  /// deleted message should not take the replies to it with it.
+  replyToId String?
+  replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   Message[] @relation("MessageReplies")
 
   // One optional attachment: a photo, a video, or a song.
   mediaUrl  String?
-  mediaType String? @db.VarChar(60)
+  mediaType String?    @db.VarChar(60)
   mediaKind MediaKind?
-  mediaName String? @db.VarChar(200)
+  mediaName String?    @db.VarChar(200)
 
   reports   Report[]
   reactions MessageReaction[]
 
   @@index([matchId, createdAt])
+  @@index([replyToId])
   @@map("message")
 }
 

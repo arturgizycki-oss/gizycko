@@ -3,6 +3,7 @@
 import { useActionState, useTransition } from "react";
 import { deleteGroup, updateGroup, type GroupState } from "../actions";
 import { CollapsibleSection } from "@/components/collapsible-section";
+import { useT } from "@/lib/i18n/provider";
 
 const RULES_PLACEHOLDER = `One rule per line, for example:
 Keep it about sailing.
@@ -24,6 +25,7 @@ export function GroupSettings({
   visibility: "PUBLIC" | "PRIVATE";
   canDelete: boolean;
 }) {
+  const t = useT();
   const action = updateGroup.bind(null, groupId);
   const [state, formAction, pending] = useActionState<GroupState, FormData>(
     action,
@@ -32,10 +34,13 @@ export function GroupSettings({
   const [deleting, startDelete] = useTransition();
 
   return (
-    <CollapsibleSection title="Group settings" hint="owners and admins">
+    <CollapsibleSection
+      title={t("groups.settingsTitle")}
+      hint={t("groups.settingsHint")}
+    >
       <form action={formAction} className="space-y-4 px-2 py-2">
         <label className="block">
-          <span className="label">Name</span>
+          <span className="label">{t("groups.name")}</span>
           <input
             required
             name="name"
@@ -47,7 +52,7 @@ export function GroupSettings({
         </label>
 
         <label className="block">
-          <span className="label">Description</span>
+          <span className="label">{t("groups.description")}</span>
           <textarea
             name="description"
             rows={3}
@@ -58,7 +63,7 @@ export function GroupSettings({
         </label>
 
         <label className="block">
-          <span className="label">Group rules</span>
+          <span className="label">{t("groups.rules")}</span>
           <textarea
             name="rules"
             rows={4}
@@ -67,13 +72,11 @@ export function GroupSettings({
             placeholder={RULES_PLACEHOLDER}
             className="input mt-1 resize-none"
           />
-          <span className="hint">
-            Shown to everyone who opens the group. Leave empty for none.
-          </span>
+          <span className="hint">{t("groups.rulesHint")}</span>
         </label>
 
         <fieldset>
-          <legend className="label">Who can join</legend>
+          <legend className="label">{t("groups.whoCanJoin")}</legend>
           <div className="mt-2 flex flex-wrap gap-2">
             <label className="chip">
               <input
@@ -83,7 +86,7 @@ export function GroupSettings({
                 defaultChecked={visibility === "PUBLIC"}
                 className="sr-only"
               />
-              Public
+              {t("groups.visPublic")}
             </label>
             <label className="chip">
               <input
@@ -93,7 +96,7 @@ export function GroupSettings({
                 defaultChecked={visibility === "PRIVATE"}
                 className="sr-only"
               />
-              Private
+              {t("groups.visPrivate")}
             </label>
           </div>
         </fieldset>
@@ -104,8 +107,12 @@ export function GroupSettings({
           </p>
         )}
 
-        <button type="submit" disabled={pending} className="btn btn-primary btn-sm">
-          {pending ? "Saving…" : "Save changes"}
+        <button
+          type="submit"
+          disabled={pending}
+          className="btn btn-primary btn-sm"
+        >
+          {pending ? t("action.saving") : t("action.save")}
         </button>
       </form>
 
@@ -115,12 +122,12 @@ export function GroupSettings({
             type="button"
             disabled={deleting}
             onClick={() => {
-              if (!confirm("Delete this group and every post in it? This cannot be undone.")) return;
+              if (!confirm(t("groups.deleteConfirm"))) return;
               startDelete(() => deleteGroup(groupId));
             }}
             className="text-xs text-rose-600 hover:underline disabled:opacity-60"
           >
-            {deleting ? "Deleting…" : "Delete this group"}
+            {deleting ? t("groups.deleting") : t("groups.deleteGroup")}
           </button>
         </div>
       )}

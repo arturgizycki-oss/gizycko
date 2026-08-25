@@ -5,11 +5,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "./avatar";
 import { signOut } from "@/lib/auth-client";
+import { HelpIcon, LogoutIcon, SettingsIcon, UserIcon } from "./icons";
 
+/** Same line-art family as the composer icons, so the chrome reads as one set. */
 const ITEMS = [
-  { href: "/profile", key: "profile", icon: "👤" },
-  { href: "/settings", key: "settings", icon: "⚙️" },
-  { href: "/help", key: "help", icon: "❓" },
+  { href: "/profile", key: "profile", Icon: UserIcon },
+  { href: "/settings", key: "settings", Icon: SettingsIcon },
+  { href: "/help", key: "help", Icon: HelpIcon },
 ] as const;
 
 export type UserMenuLabels = {
@@ -106,7 +108,7 @@ export function UserMenu({
                     : "hover:bg-[var(--surface-muted)]"
                 }`}
               >
-                <span aria-hidden>{item.icon}</span>
+                <item.Icon className="size-4 shrink-0" />
                 {labels[item.key]}
               </Link>
             );
@@ -121,8 +123,8 @@ export function UserMenu({
             onClick={onSignOut}
             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 disabled:opacity-60 dark:hover:bg-rose-950/30"
           >
-            <span aria-hidden>↩</span>
-            {signingOut ? "…" : labels.logout}
+            <LogoutIcon className="size-4 shrink-0" />
+            {signingOut ? "..." : labels.logout}
           </button>
         </div>
       )}

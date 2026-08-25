@@ -34,7 +34,8 @@ export async function submitReport(
 
   if (!parsed.success) return { error: "Pick a reason." };
 
-  const { reason, details, reportedUserId, postId, commentId, messageId } = parsed.data;
+  const { reason, details, reportedUserId, postId, commentId, messageId } =
+    parsed.data;
   if (!reportedUserId && !postId && !commentId && !messageId) {
     return { error: "Nothing to report." };
   }

@@ -56,7 +56,7 @@ export function can(role: GroupRole | null, action: GroupAction): boolean {
 }
 
 /**
- * Whether `actor` may act on `target` — removing them, say.
+ * Whether `actor` may act on `target` - removing them, say.
  *
  * Rank matters as much as permission: an admin may remove ordinary members but
  * not another admin, and nobody may act on the owner. Without this an admin
@@ -80,10 +80,14 @@ export function canLeave(role: GroupRole | null): boolean {
   return role === "ADMIN" || role === "MEMBER";
 }
 
-export const ROLE_LABEL: Record<GroupRole, string> = {
-  OWNER: "Owner",
-  ADMIN: "Admin",
-  MEMBER: "Member",
+/** Role to the message key that names it, so it can be shown translated. */
+export const ROLE_LABEL: Record<
+  GroupRole,
+  "groups.owner" | "groups.admin" | "groups.member"
+> = {
+  OWNER: "groups.owner",
+  ADMIN: "groups.admin",
+  MEMBER: "groups.member",
 };
 
 /** What each role can do, for showing people the rules. */

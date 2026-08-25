@@ -40,7 +40,9 @@ export async function completeOnboarding(
     return { error: "Please fill in every required field." };
   }
 
-  const allowed = checkContent(`${parsed.data.displayName} ${parsed.data.bio ?? ""}`);
+  const allowed = checkContent(
+    `${parsed.data.displayName} ${parsed.data.bio ?? ""}`,
+  );
   if (!allowed.ok) return { error: allowed.message };
 
   const { birthDate } = parsed.data;

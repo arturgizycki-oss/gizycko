@@ -7,9 +7,18 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { checkContent } from "@/lib/content-policy";
 import { checkUploadedImage, MAX_PROFILE_PHOTOS } from "@/lib/image";
-import { deleteObject, keyFromMediaUrl, mediaUrl, putObject } from "@/lib/storage";
+import {
+  deleteObject,
+  keyFromMediaUrl,
+  mediaUrl,
+  putObject,
+} from "@/lib/storage";
 
-export type ActionState = { error?: string; ok?: boolean; submissionId?: string };
+export type ActionState = {
+  error?: string;
+  ok?: boolean;
+  submissionId?: string;
+};
 
 async function myProfile(userId: string) {
   return prisma.profile.findUniqueOrThrow({

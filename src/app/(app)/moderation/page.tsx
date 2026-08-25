@@ -42,7 +42,13 @@ export default async function ModerationPage() {
     }),
     prisma.user.findMany({
       where: { bannedAt: { not: null } },
-      select: { id: true, name: true, email: true, banReason: true, bannedAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        banReason: true,
+        bannedAt: true,
+      },
       orderBy: { bannedAt: "desc" },
       take: 20,
     }),
@@ -53,7 +59,8 @@ export default async function ModerationPage() {
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Moderation</h1>
         <p className="text-sm text-neutral-500">
-          {reports.length} open reports · {pendingPhotos.length} photos to review
+          {reports.length} open reports · {pendingPhotos.length} photos to
+          review
         </p>
       </header>
 
@@ -65,13 +72,12 @@ export default async function ModerationPage() {
           <ul className="space-y-3">
             {reports.map((report) => {
               const content =
-                report.post?.body ?? report.comment?.body ?? report.message?.body;
+                report.post?.body ??
+                report.comment?.body ??
+                report.message?.body;
 
               return (
-                <li
-                  key={report.id}
-                  className="card p-4"
-                >
+                <li key={report.id} className="card p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-medium">
@@ -83,7 +89,9 @@ export default async function ModerationPage() {
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <form action={resolveReport.bind(null, report.id, "DISMISS")}>
+                      <form
+                        action={resolveReport.bind(null, report.id, "DISMISS")}
+                      >
                         <button
                           type="submit"
                           className="btn btn-secondary btn-sm"
@@ -91,7 +99,9 @@ export default async function ModerationPage() {
                           Dismiss
                         </button>
                       </form>
-                      <form action={resolveReport.bind(null, report.id, "ACTION")}>
+                      <form
+                        action={resolveReport.bind(null, report.id, "ACTION")}
+                      >
                         <button
                           type="submit"
                           className="rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900"
@@ -131,7 +141,10 @@ export default async function ModerationPage() {
                     )}
                     {report.post && (
                       <form action={removePost.bind(null, report.post.id)}>
-                        <button type="submit" className="text-rose-600 hover:underline">
+                        <button
+                          type="submit"
+                          className="text-rose-600 hover:underline"
+                        >
                           Remove post
                         </button>
                       </form>
@@ -149,11 +162,17 @@ export default async function ModerationPage() {
         {pendingPhotos.length === 0 ? (
           <p className="text-sm text-neutral-500">Nothing to review.</p>
         ) : (
-          <ul className="grid grid-cols-3 gap-3">
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {pendingPhotos.map((photo) => (
               <li key={photo.id} className="space-y-1">
                 <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                  <Image src={photo.url} alt="" fill sizes="200px" className="object-cover" />
+                  <Image
+                    src={photo.url}
+                    alt=""
+                    fill
+                    sizes="200px"
+                    className="object-cover"
+                  />
                 </div>
                 <Link
                   href={`/u/${photo.profile.userId}`}
@@ -163,12 +182,18 @@ export default async function ModerationPage() {
                 </Link>
                 <div className="flex gap-2 text-xs">
                   <form action={reviewPhoto.bind(null, photo.id, true)}>
-                    <button type="submit" className="text-emerald-600 hover:underline">
+                    <button
+                      type="submit"
+                      className="text-emerald-600 hover:underline"
+                    >
                       Approve
                     </button>
                   </form>
                   <form action={reviewPhoto.bind(null, photo.id, false)}>
-                    <button type="submit" className="text-rose-600 hover:underline">
+                    <button
+                      type="submit"
+                      className="text-rose-600 hover:underline"
+                    >
                       Reject
                     </button>
                   </form>

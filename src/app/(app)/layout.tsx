@@ -6,7 +6,8 @@ import { unreadMessageCount } from "@/lib/messages";
 import { AppBackdrop } from "@/components/app-backdrop";
 import { RouteProgress } from "@/components/route-progress";
 import { Brand } from "@/components/brand";
-import { NavIconLink, NavLinks } from "@/components/nav-links";
+import { BottomNav, NavIconLink, NavLinks } from "@/components/nav-links";
+import { BellIcon } from "@/components/icons";
 import { UserMenu } from "@/components/user-menu";
 import { getTranslator } from "@/lib/i18n";
 
@@ -32,6 +33,15 @@ export default async function AppLayout({
     }),
   ]);
 
+  const navLabels = {
+    feed: t("nav.feed"),
+    discover: t("nav.discover"),
+    matches: t("nav.matches"),
+    messages: t("nav.messages"),
+    friends: t("nav.friends"),
+    groups: t("nav.groups"),
+  };
+
   return (
     <div className="relative min-h-dvh">
       <AppBackdrop />
@@ -42,23 +52,17 @@ export default async function AppLayout({
       </Suspense>
 
       <header className="sticky top-0 z-20 border-b border-[var(--line)] bg-[color-mix(in_oklab,var(--surface)_85%,transparent)] backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2.5">
+        <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4">
           <Brand href="/feed" size={26} />
 
-          <NavLinks
-            unreadMessages={unreadMessages}
-            labels={{
-              feed: t("nav.feed"),
-              discover: t("nav.discover"),
-              matches: t("nav.matches"),
-              messages: t("nav.messages"),
-              friends: t("nav.friends"),
-              groups: t("nav.groups"),
-            }}
-          />
+          <NavLinks unreadMessages={unreadMessages} labels={navLabels} />
+
+          {/* Holds the bell and avatar against the right edge on a phone,
+                where the labelled nav above renders nothing. */}
+          <span className="flex-1 sm:hidden" />
 
           <NavIconLink href="/notifications" label={t("nav.notifications")}>
-            <span className="text-lg leading-none">🔔</span>
+            <BellIcon className="size-5 text-[var(--ink-muted)]" />
             {unread > 0 && (
               <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
                 {unread > 9 ? "9+" : unread}
@@ -80,7 +84,16 @@ export default async function AppLayout({
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-3xl px-4 py-8">{children}</main>
+      {/* pb-24 clears the bottom bar, which only exists below `sm`. */}
+      <main className="relative mx-auto max-w-3xl px-3 pt-6 pb-24 sm:px-4 sm:py-8">
+        {children}
+      </main>
+
+      {/*
+          Outside the header on purpose: the header's backdrop-blur would become
+          the containing block for anything fixed inside it.
+        */}
+      <BottomNav unreadMessages={unreadMessages} labels={navLabels} />
     </div>
   );
 }

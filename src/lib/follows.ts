@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 import { hiddenUserIds } from "./social";
 
@@ -23,7 +24,9 @@ export const isFollowing = cache(async (viewerId: string, userId: string) => {
   if (viewerId === userId) return false;
 
   const row = await prisma.follow.findUnique({
-    where: { followerId_followingId: { followerId: viewerId, followingId: userId } },
+    where: {
+      followerId_followingId: { followerId: viewerId, followingId: userId },
+    },
     select: { id: true },
   });
 
@@ -111,10 +114,10 @@ export type RankedMember = {
  * The most-followed members, for the public landing page.
  *
  * Only profiles their owner has set visible in Discover, and only accounts in
- * good standing. That setting is the closest thing to consent we have — see the
+ * good standing. That setting is the closest thing to consent we have - see the
  * note in the README about asking for it explicitly before real members arrive.
  */
-export async function topFollowed(limit = 10): Promise<RankedMember[]> {
+async function queryTopFollowed(limit: number): Promise<RankedMember[]> {
   const users = await prisma.user.findMany({
     where: {
       bannedAt: null,
@@ -154,3 +157,14 @@ export async function topFollowed(limit = 10): Promise<RankedMember[]> {
     followers: user._count.followers,
   }));
 }
+
+/**
+ * Counting followers for every visible member and sorting by the result cannot
+ * use an index, and this runs for every signed-out visitor who lands on the
+ * home page. The ranking barely moves minute to minute, so it is computed at
+ * most once every ten minutes and shared by everyone.
+ */
+export const topFollowed = unstable_cache(queryTopFollowed, ["top-followed"], {
+  revalidate: 600,
+  tags: ["top-followed"],
+});

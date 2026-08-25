@@ -26,7 +26,9 @@ export async function sendFriendRequest(addresseeId: string) {
 
   // If they already asked us, accept instead of creating a mirrored request.
   const incoming = await prisma.friendship.findUnique({
-    where: { requesterId_addresseeId: { requesterId: addresseeId, addresseeId: me } },
+    where: {
+      requesterId_addresseeId: { requesterId: addresseeId, addresseeId: me },
+    },
   });
 
   if (incoming) {

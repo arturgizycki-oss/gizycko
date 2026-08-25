@@ -3,7 +3,7 @@ import { cookies, headers } from "next/headers";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_LOCALE, directionOf, findLocale } from "./locales";
-import { translate, type MessageKey } from "./dictionaries";
+import { messagesFor, translate, type MessageKey } from "./dictionaries";
 
 export const LOCALE_COOKIE = "gizycko_locale";
 
@@ -50,7 +50,9 @@ export const getLocale = cache(async (): Promise<string> => {
   const saved = store.get(LOCALE_COOKIE)?.value;
   if (findLocale(saved)) return saved!;
 
-  const requested = fromAcceptLanguage((await headers()).get("accept-language"));
+  const requested = fromAcceptLanguage(
+    (await headers()).get("accept-language"),
+  );
   return requested ?? DEFAULT_LOCALE;
 });
 
@@ -62,6 +64,16 @@ export const getLocale = cache(async (): Promise<string> => {
 export async function getTranslator() {
   const locale = await getLocale();
   return (key: MessageKey) => translate(locale, key);
+}
+
+/**
+ * Every string resolved for this request, for the client.
+ *
+ * Client components cannot read cookies or the database, so the app layout
+ * hands them the whole dictionary through `LocaleProvider`.
+ */
+export async function getMessages() {
+  return messagesFor(await getLocale());
 }
 
 /** Language and writing direction, for the <html> element. */

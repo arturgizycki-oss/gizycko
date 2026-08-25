@@ -66,7 +66,7 @@ export function Avatar({
 }
 
 /**
- * Large stand-in for a profile that has no photos yet — same colour logic as
+ * Large stand-in for a profile that has no photos yet - same colour logic as
  * Avatar so a person looks consistent across the app.
  */
 export function PhotoPlaceholder({

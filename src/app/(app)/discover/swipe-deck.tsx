@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { PhotoPlaceholder } from "@/components/avatar";
 import { swipe } from "./actions";
+import { useT } from "@/lib/i18n/provider";
 
 export type Candidate = {
   userId: string;
@@ -15,6 +16,7 @@ export type Candidate = {
 };
 
 export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
+  const t = useT();
   const [deck, setDeck] = useState(initialDeck);
   const [matchedWith, setMatchedWith] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -33,12 +35,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
   }
 
   if (!current) {
-    return (
-      <p className="empty-state">
-        No one new right now. Check back later, or widen your age and distance
-        preferences in your profile.
-      </p>
-    );
+    return <p className="empty-state">{t("discover.empty")}</p>;
   }
 
   return (
@@ -48,7 +45,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
           role="status"
           className="card px-4 py-3 text-sm font-medium text-white"
         >
-          It is a match with {matchedWith}! Say hello from Matches.
+          {t("matches.sayHello")} · {matchedWith}
         </div>
       )}
 
@@ -64,7 +61,10 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
               priority
             />
           ) : (
-            <PhotoPlaceholder name={current.displayName} className="h-full w-full" />
+            <PhotoPlaceholder
+              name={current.displayName}
+              className="h-full w-full"
+            />
           )}
         </div>
 
@@ -93,7 +93,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
           disabled={pending}
           className="btn btn-secondary flex-1"
         >
-          Pass
+          {t("discover.pass")}
         </button>
         <button
           type="button"
@@ -101,7 +101,7 @@ export function SwipeDeck({ initialDeck }: { initialDeck: Candidate[] }) {
           disabled={pending}
           className="btn btn-primary flex-1"
         >
-          Like
+          {t("discover.like")}
         </button>
       </div>
     </div>

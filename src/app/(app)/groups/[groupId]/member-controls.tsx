@@ -9,6 +9,8 @@ import {
   transferOwnership,
 } from "../actions";
 import { can, canActOn, type GroupRole } from "@/lib/group-roles";
+import { ConfirmButton } from "@/components/confirm-button";
+import { useT } from "@/lib/i18n/provider";
 
 /**
  * Role controls beside a member. Everything here is also enforced on the
@@ -27,6 +29,7 @@ export function MemberControls({
   targetRole: GroupRole;
   isSelf: boolean;
 }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
   const [banning, setBanning] = useState(false);
   const [reason, setReason] = useState("");
@@ -45,7 +48,7 @@ export function MemberControls({
         <input
           value={reason}
           onChange={(event) => setReason(event.target.value)}
-          placeholder="Reason (optional)"
+          placeholder={t("groups.banReason")}
           maxLength={200}
           className="input max-w-40 py-1 text-xs"
         />
@@ -60,29 +63,31 @@ export function MemberControls({
           }
           className="font-semibold text-rose-600 hover:underline"
         >
-          Ban
+          {t("groups.ban")}
         </button>
         <button
           type="button"
           onClick={() => setBanning(false)}
           className="muted hover:underline"
         >
-          Cancel
+          {t("action.cancel")}
         </button>
       </span>
     );
   }
 
   return (
-    <span className="flex shrink-0 flex-wrap items-center gap-2 text-xs">
+    <span className="flex flex-wrap items-center justify-end gap-2 text-xs">
       {canPromote && targetRole === "MEMBER" && (
         <button
           type="button"
           disabled={pending}
-          onClick={() => startTransition(() => setMemberRole(groupId, userId, "ADMIN"))}
+          onClick={() =>
+            startTransition(() => setMemberRole(groupId, userId, "ADMIN"))
+          }
           className="muted hover:underline"
         >
-          Make admin
+          {t("groups.makeAdmin")}
         </button>
       )}
 
@@ -90,10 +95,12 @@ export function MemberControls({
         <button
           type="button"
           disabled={pending}
-          onClick={() => startTransition(() => setMemberRole(groupId, userId, "MEMBER"))}
+          onClick={() =>
+            startTransition(() => setMemberRole(groupId, userId, "MEMBER"))
+          }
           className="muted hover:underline"
         >
-          Remove admin
+          {t("groups.removeAdmin")}
         </button>
       )}
 
@@ -102,24 +109,24 @@ export function MemberControls({
           type="button"
           disabled={pending}
           onClick={() => {
-            if (!confirm("Hand the group over? You become an admin.")) return;
+            if (!confirm(t("confirm.handOver"))) return;
             startTransition(() => transferOwnership(groupId, userId));
           }}
           className="muted hover:underline"
         >
-          Make owner
+          {t("groups.makeOwner")}
         </button>
       )}
 
       {canRemove && (
-        <button
-          type="button"
+        <ConfirmButton
+          label={t("action.remove")}
+          question={t("confirm.removeMember")}
+          destructive
           disabled={pending}
-          onClick={() => startTransition(() => removeMember(groupId, userId))}
           className="muted hover:text-rose-600 hover:underline"
-        >
-          Remove
-        </button>
+          onConfirm={() => startTransition(() => removeMember(groupId, userId))}
+        />
       )}
 
       {canBan && (
@@ -128,7 +135,7 @@ export function MemberControls({
           onClick={() => setBanning(true)}
           className="text-rose-600 hover:underline"
         >
-          Ban
+          {t("groups.ban")}
         </button>
       )}
     </span>

@@ -1,9 +1,21 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { useRouter } from "next/navigation";
-import { sendMessage, type MessageState } from "./actions";
+import { editMessage, sendMessage, type MessageState } from "./actions";
 import { deleteMessage, toggleMessageReaction } from "../../messages/actions";
+import {
+  MENU_BOUNDS_ATTR,
+  MessageMenu,
+  type MessageAction,
+} from "@/components/message-menu";
+import { ReportDialog } from "@/components/report-dialog";
 import Image from "next/image";
 import { EmojiPicker } from "@/components/emoji-picker";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
@@ -11,11 +23,14 @@ import {
   ICON_BUTTON,
   MusicIcon,
   PaperclipIcon,
+  ReplyIcon,
   SendIcon,
   SmileIcon,
-  TrashIcon,
+  PencilIcon,
 } from "@/components/icons";
 import { isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
+import { useT } from "@/lib/i18n/provider";
+import { useToast } from "@/components/toast";
 
 export type ChatReaction = { emoji: string; count: number; mine: boolean };
 
@@ -25,35 +40,93 @@ export type ChatMedia = {
   name: string | null;
 };
 
+/** The message this one answers, flattened to what the quote needs. */
+export type ChatQuote = {
+  id: string;
+  author: string;
+  body: string;
+  hasMedia: boolean;
+};
+
 export type ChatMessage = {
   id: string;
   body: string;
   createdAt: string;
+  editedAt: string | null;
   mine: boolean;
   deleted: boolean;
   reactions: ChatReaction[];
   media: ChatMedia | null;
+  replyTo: ChatQuote | null;
 };
 
-const POLL_MS = 5000;
+/** What the composer is doing with a message the reader picked from the menu. */
+type Draft =
+  | { mode: "reply"; id: string; author: string; body: string }
+  | { mode: "edit"; id: string; body: string };
+
+const POLL_MS = 8000;
 
 export function Chat({
   matchId,
   messages,
   closed,
+  otherName,
 }: {
   matchId: string;
   messages: ChatMessage[];
   closed: boolean;
+  /** Who you are talking to, for the quote above a reply. */
+  otherName: string;
 }) {
+  const t = useT();
   const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [draft, setDraft] = useState<Draft | null>(null);
 
-  // Poor-man's realtime. Swap for a websocket or SSE when traffic justifies it.
+  /*
+   * Poor-man's realtime: refresh the route on a timer. Swap for a websocket or
+   * SSE when traffic justifies it.
+   *
+   * Each tick re-runs the page query on the server, so it only runs while the
+   * tab is actually in front of someone. A backgrounded tab used to keep
+   * polling all day, and a member with four chats open in four tabs was paying
+   * for all four.
+   */
   useEffect(() => {
     if (closed) return;
-    const id = setInterval(() => router.refresh(), POLL_MS);
-    return () => clearInterval(id);
+
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    function stop() {
+      if (timer !== undefined) {
+        clearInterval(timer);
+        timer = undefined;
+      }
+    }
+
+    function start() {
+      if (timer === undefined)
+        timer = setInterval(() => router.refresh(), POLL_MS);
+    }
+
+    function onVisibility() {
+      if (document.visibilityState === "visible") {
+        // Catch up on whatever arrived while the tab was away.
+        router.refresh();
+        start();
+      } else {
+        stop();
+      }
+    }
+
+    if (document.visibilityState === "visible") start();
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [router, closed]);
 
   useEffect(() => {
@@ -61,16 +134,26 @@ export function Chat({
   }, [messages.length]);
 
   return (
-    <div className="card flex h-[70vh] flex-col overflow-hidden">
-      <ol className="flex-1 space-y-3 overflow-y-auto p-4">
+    <div
+      {...{ [MENU_BOUNDS_ATTR]: true }}
+      className="card flex h-[65dvh] flex-col overflow-hidden sm:h-[70dvh]"
+    >
+      <ol className="flex-1 space-y-3 overflow-x-hidden overflow-y-auto p-4">
         {messages.length === 0 && (
           <li className="py-8 text-center text-sm text-[var(--ink-muted)]">
-            No messages yet. Say hello.
+            {t("chat.empty")}
           </li>
         )}
 
         {messages.map((message) => (
-          <Bubble key={message.id} message={message} />
+          <Bubble
+            key={message.id}
+            message={message}
+            matchId={matchId}
+            closed={closed}
+            otherName={otherName}
+            onDraft={setDraft}
+          />
         ))}
 
         <div ref={bottomRef} />
@@ -78,30 +161,144 @@ export function Chat({
 
       {closed ? (
         <p className="border-t border-[var(--line)] p-4 text-center text-sm text-[var(--ink-muted)]">
-          This conversation is closed.
+          {t("chat.closed")}
         </p>
       ) : (
-        <Composer matchId={matchId} />
+        <Composer
+          matchId={matchId}
+          draft={draft}
+          onClearDraft={() => setDraft(null)}
+        />
       )}
     </div>
   );
 }
 
-function Bubble({ message }: { message: ChatMessage }) {
-  const [showPicker, setShowPicker] = useState(false);
+function Bubble({
+  message,
+  matchId,
+  closed,
+  otherName,
+  onDraft,
+}: {
+  message: ChatMessage;
+  matchId: string;
+  closed: boolean;
+  otherName: string;
+  onDraft: (draft: Draft) => void;
+}) {
+  const t = useT();
+  const [reporting, setReporting] = useState(false);
   const [pending, startTransition] = useTransition();
 
   // A short emoji-only message shows large and bare, as chat apps do.
   const big = !message.deleted && !message.media && isEmojiOnly(message.body);
 
   function react(emoji: string) {
-    setShowPicker(false);
     startTransition(() => toggleMessageReaction(message.id, emoji));
   }
 
+  async function copy(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Clipboard access can be refused; a prompt still lets people copy.
+      window.prompt(t("chat.copyText"), text);
+    }
+  }
+
+  /*
+   * Reply, copy and report are offered on anybody's message. Edit and delete
+   * are offered only on your own -- you may take back what you said, never
+   * what somebody else said.
+   */
+  const actions: MessageAction[] = [];
+
+  if (!closed) {
+    actions.push({
+      key: "reply",
+      label: t("chat.reply"),
+      icon: "reply",
+      onSelect: () =>
+        onDraft({
+          mode: "reply",
+          id: message.id,
+          author: message.mine ? t("chat.you") : otherName,
+          body: message.body,
+        }),
+    });
+  }
+
+  if (message.mine && message.body && !closed) {
+    actions.push({
+      key: "edit",
+      label: t("chat.edit"),
+      icon: "edit",
+      onSelect: () =>
+        onDraft({ mode: "edit", id: message.id, body: message.body }),
+    });
+  }
+
+  if (message.body) {
+    actions.push({
+      key: "copy",
+      label: t("chat.copyText"),
+      icon: "copy",
+      onSelect: () => void copy(message.body),
+    });
+  }
+
+  actions.push({
+    key: "link",
+    label: t("chat.copyLink"),
+    icon: "link",
+    onSelect: () =>
+      void copy(
+        new URL(
+          `/matches/${matchId}#m-${message.id}`,
+          window.location.origin,
+        ).toString(),
+      ),
+  });
+
+  if (message.mine) {
+    actions.push({
+      key: "delete",
+      label: t("action.delete"),
+      icon: "delete",
+      destructive: true,
+      confirm: t("confirm.deleteMessage"),
+      onSelect: () => startTransition(() => deleteMessage(message.id)),
+    });
+  } else {
+    actions.push({
+      key: "report",
+      label: t("action.report"),
+      icon: "report",
+      onSelect: () => setReporting(true),
+    });
+  }
+
   return (
-    <li className={message.mine ? "flex justify-end" : "flex justify-start"}>
-      <div className="group relative max-w-[75%]">
+    <li
+      id={`m-${message.id}`}
+      className={message.mine ? "flex justify-end" : "flex justify-start"}
+    >
+      <div className="group relative max-w-[85%] sm:max-w-[75%]">
+        {message.replyTo && !message.deleted && (
+          <a
+            href={`#m-${message.replyTo.id}`}
+            className="mb-1 block rounded-xl border-l-2 border-brand-500 bg-[var(--surface-muted)] px-2 py-1"
+          >
+            <span className="block text-[11px] font-semibold text-brand-600">
+              {message.replyTo.author}
+            </span>
+            <span className="line-clamp-2 block text-xs text-[var(--ink-muted)]">
+              {message.replyTo.body || (message.replyTo.hasMedia ? "" : "")}
+            </span>
+          </a>
+        )}
+
         {message.media && !message.deleted && (
           <Attachment media={message.media} mine={message.mine} />
         )}
@@ -119,7 +316,7 @@ function Bubble({ message }: { message: ChatMessage }) {
             }
           >
             <p className="whitespace-pre-wrap">
-              {message.deleted ? "This message was deleted." : message.body}
+              {message.deleted ? t("chat.messageDeleted") : message.body}
             </p>
             <time
               dateTime={message.createdAt}
@@ -133,6 +330,7 @@ function Bubble({ message }: { message: ChatMessage }) {
                 hour: "2-digit",
                 minute: "2-digit",
               })}
+              {message.editedAt && ` (${t("chat.edited")})`}
             </time>
           </div>
         ) : null}
@@ -159,7 +357,9 @@ function Bubble({ message }: { message: ChatMessage }) {
                   }
                 >
                   <span>{reaction.emoji}</span>
-                  <span className="text-[var(--ink-muted)]">{reaction.count}</span>
+                  <span className="text-[var(--ink-muted)]">
+                    {reaction.count}
+                  </span>
                 </button>
               </li>
             ))}
@@ -174,48 +374,19 @@ function Bubble({ message }: { message: ChatMessage }) {
                 : "absolute top-0 left-full ml-1 flex items-center gap-1 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100"
             }
           >
-            <button
-              type="button"
-              onClick={() => setShowPicker((open) => !open)}
-              aria-label="React to this message"
-              className="rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 text-[var(--ink-muted)] hover:text-[var(--ink)]"
-            >
-              <SmileIcon className="size-3.5" />
-            </button>
-
-            {message.mine && (
-              <form action={deleteMessage.bind(null, message.id)}>
-                <button
-                  type="submit"
-                  aria-label="Delete this message"
-                  className="rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 text-[var(--ink-muted)] hover:text-rose-600"
-                >
-                  <TrashIcon className="size-3.5" />
-                </button>
-              </form>
-            )}
+            <span className="rounded-full border border-[var(--line)] bg-[var(--surface)]">
+              <MessageMenu
+                actions={actions}
+                quickReactions={QUICK_REACTIONS}
+                onReact={react}
+              />
+            </span>
           </div>
         )}
 
-        {showPicker && (
-          <div
-            className={
-              message.mine
-                ? "card absolute top-7 right-0 z-20 flex gap-1 p-1"
-                : "card absolute top-7 left-0 z-20 flex gap-1 p-1"
-            }
-          >
-            {QUICK_REACTIONS.map((emoji) => (
-              <button
-                key={emoji}
-                type="button"
-                onClick={() => react(emoji)}
-                aria-label={`React with ${emoji}`}
-                className="rounded-lg px-1 text-lg transition-transform hover:scale-125"
-              >
-                {emoji}
-              </button>
-            ))}
+        {reporting && (
+          <div className="mt-1">
+            <ReportDialog target={{ messageId: message.id }} />
           </div>
         )}
       </div>
@@ -224,6 +395,13 @@ function Bubble({ message }: { message: ChatMessage }) {
 }
 
 function Attachment({ media, mine }: { media: ChatMedia; mine: boolean }) {
+  const t = useT();
+  const label = {
+    noVideo: t("chat.noVideo"),
+    noAudio: t("chat.noAudio"),
+    audio: t("chat.audio"),
+  };
+
   if (media.kind === "IMAGE") {
     return (
       <Image
@@ -245,7 +423,7 @@ function Attachment({ media, mine }: { media: ChatMedia; mine: boolean }) {
         src={media.url}
         className="mb-1 max-h-72 w-full rounded-2xl bg-black"
       >
-        Your browser cannot play this video.
+        {label.noVideo}
       </video>
     );
   }
@@ -260,27 +438,87 @@ function Attachment({ media, mine }: { media: ChatMedia; mine: boolean }) {
     >
       <figcaption className="mb-1 flex items-center gap-1.5 px-1 text-xs">
         <MusicIcon className="size-3.5 shrink-0" />
-        <span className="truncate">{media.name ?? "Audio"}</span>
+        <span className="truncate">{media.name ?? label.audio}</span>
       </figcaption>
       <audio controls preload="none" src={media.url} className="w-full">
-        Your browser cannot play this audio.
+        {label.noAudio}
       </audio>
     </figure>
   );
 }
 
-function Composer({ matchId }: { matchId: string }) {
+function Composer({
+  matchId,
+  draft,
+  onClearDraft,
+}: {
+  matchId: string;
+  draft: Draft | null;
+  onClearDraft: () => void;
+}) {
+  const t = useT();
+  const toast = useToast();
+  const form = useRef<HTMLFormElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [attached, setAttached] = useState<string | null>(null);
   const [hasVoice, setHasVoice] = useState(false);
   const [hasText, setHasText] = useState(false);
+  const [saving, startSaving] = useTransition();
 
   const action = sendMessage.bind(null, matchId);
   const [state, formAction, pending] = useActionState<MessageState, FormData>(
     action,
     {},
   );
+
+  const editing = draft?.mode === "edit" ? draft : null;
+
+  // A rejected send arrives as new action state; surface it over the page
+  // rather than wedging it into the composer row.
+  useEffect(() => {
+    if (state.error) toast(state.error);
+  }, [state.error, state.submissionId, toast]);
+
+  /**
+   * Editing borrows the same box rather than opening a second one, which is
+   * what every chat app does and what the reply banner already prepares people
+   * for. The field is keyed on the draft, so picking Edit fills it in.
+   */
+  function saveEdit() {
+    const field = textarea.current;
+    if (!editing || !field) return;
+
+    const body = field.value;
+
+    startSaving(async () => {
+      const result = await editMessage(editing.id, body);
+      if (result.error) {
+        toast(result.error);
+        return;
+      }
+      onClearDraft();
+    });
+  }
+
+  /**
+   * Enter sends, Shift+Enter starts a new line.
+   *
+   * IME composition is excluded: while somebody is picking kanji or hanzi from
+   * the candidate list, Enter chooses a candidate and must not send.
+   */
+  function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== "Enter" || event.shiftKey) return;
+    if (event.nativeEvent.isComposing) return;
+
+    event.preventDefault();
+
+    if (editing) {
+      saveEdit();
+      return;
+    }
+    if (canSend) form.current?.requestSubmit();
+  }
 
   /** Insert at the caret rather than appending, so mid-sentence emoji work. */
   function insert(emoji: string) {
@@ -296,12 +534,50 @@ function Composer({ matchId }: { matchId: string }) {
     setHasText(field.value.trim().length > 0);
   }
 
-  // The microphone gives way to Send as soon as there is something to send —
+  // The microphone gives way to Send as soon as there is something to send -
   // the same swap every chat app makes.
   const canSend = hasText || attached !== null || hasVoice;
 
   return (
-    <form action={formAction} className="relative border-t border-[var(--line)] p-2">
+    <form
+      ref={form}
+      action={formAction}
+      className="relative border-t border-[var(--line)] p-2"
+    >
+      {draft && (
+        <div className="mb-2 flex items-center gap-2 rounded-xl border-l-2 border-brand-500 bg-[var(--surface-muted)] px-2 py-1.5">
+          {draft.mode === "reply" ? (
+            <ReplyIcon className="size-3.5 shrink-0 text-brand-600" />
+          ) : (
+            <PencilIcon className="size-3.5 shrink-0 text-brand-600" />
+          )}
+
+          <span className="min-w-0 flex-1">
+            <span className="block text-[11px] font-semibold text-brand-600">
+              {draft.mode === "reply"
+                ? t("chat.replyingTo")
+                : t("chat.editing")}
+            </span>
+            <span className="block truncate text-xs text-[var(--ink-muted)]">
+              {draft.body}
+            </span>
+          </span>
+
+          <button
+            type="button"
+            onClick={onClearDraft}
+            aria-label={t("action.cancel")}
+            className="muted shrink-0 text-xs hover:text-rose-600"
+          >
+            {t("action.cancel")}
+          </button>
+        </div>
+      )}
+
+      {draft?.mode === "reply" && (
+        <input type="hidden" name="replyTo" value={draft.id} />
+      )}
+
       {attached && (
         <p className="mb-2 flex items-center gap-2 px-2 text-xs">
           <PaperclipIcon className="size-3.5" />
@@ -311,14 +587,14 @@ function Composer({ matchId }: { matchId: string }) {
             onClick={() => setAttached(null)}
             className="muted ml-auto hover:text-rose-600"
           >
-            remove
+            {t("action.remove")}
           </button>
         </p>
       )}
 
       <div className="flex items-end gap-1">
         <label
-          title="Attach a photo, video, or song"
+          title={t("composer.attach")}
           className={`${ICON_BUTTON} cursor-pointer`}
         >
           <PaperclipIcon />
@@ -326,17 +602,26 @@ function Composer({ matchId }: { matchId: string }) {
             type="file"
             name="attachment"
             accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,audio/mpeg,audio/mp4,audio/ogg,audio/flac,audio/wav"
-            onChange={(event) => setAttached(event.target.files?.[0]?.name ?? null)}
+            onChange={(event) =>
+              setAttached(event.target.files?.[0]?.name ?? null)
+            }
             className="sr-only"
           />
         </label>
 
         <CameraShot name="attachment" />
 
-        {/* Remounting on a new submission id clears the box after sending. */}
+        {/*
+          Remounting clears the box after a send, and fills it in when Edit
+          picks a message -- both without resetting state from an effect.
+        */}
         <MessageField
-          key={state.submissionId ?? "new"}
+          key={editing ? `edit-${editing.id}` : (state.submissionId ?? "new")}
           fieldRef={textarea}
+          placeholder={t("composer.messagePlaceholder")}
+          defaultValue={editing?.body ?? ""}
+          autoFocus={editing !== null || state.submissionId !== undefined}
+          onKeyDown={onKeyDown}
           onInput={(value) => setHasText(value.trim().length > 0)}
         />
 
@@ -344,7 +629,7 @@ function Composer({ matchId }: { matchId: string }) {
           <button
             type="button"
             onClick={() => setShowPicker((open) => !open)}
-            aria-label="Emoji"
+            aria-label={t("composer.emoji")}
             aria-expanded={showPicker}
             className={ICON_BUTTON}
           >
@@ -363,11 +648,20 @@ function Composer({ matchId }: { matchId: string }) {
           )}
         </span>
 
-        {canSend ? (
+        {editing ? (
+          <button
+            type="button"
+            onClick={saveEdit}
+            disabled={saving}
+            className="btn btn-primary btn-sm shrink-0"
+          >
+            {saving ? t("action.saving") : t("action.save")}
+          </button>
+        ) : canSend ? (
           <button
             type="submit"
             disabled={pending}
-            aria-label="Send"
+            aria-label={t("action.send")}
             className="rounded-full bg-brand-600 p-2 text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
           >
             <SendIcon />
@@ -377,11 +671,7 @@ function Composer({ matchId }: { matchId: string }) {
         )}
       </div>
 
-      {state.error && (
-        <p role="alert" className="mt-2 px-2 text-sm text-rose-600">
-          {state.error}
-        </p>
-      )}
+      <p className="hint mt-1 hidden px-2 sm:block">{t("chat.sendHint")}</p>
     </form>
   );
 }
@@ -389,9 +679,18 @@ function Composer({ matchId }: { matchId: string }) {
 function MessageField({
   fieldRef,
   onInput,
+  onKeyDown,
+  placeholder,
+  defaultValue = "",
+  autoFocus = false,
 }: {
   fieldRef: React.RefObject<HTMLTextAreaElement | null>;
   onInput: (value: string) => void;
+  onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  placeholder: string;
+  defaultValue?: string;
+  /** Set after a send or when an edit starts, never on the first render. */
+  autoFocus?: boolean;
 }) {
   return (
     <textarea
@@ -399,9 +698,12 @@ function MessageField({
       name="body"
       rows={1}
       maxLength={4000}
-      placeholder="Write a message…"
+      autoFocus={autoFocus}
+      defaultValue={defaultValue}
+      placeholder={placeholder}
+      onKeyDown={onKeyDown}
       onInput={(event) => onInput(event.currentTarget.value)}
-      className="flex-1 resize-none bg-transparent px-2 py-2.5 text-sm outline-none placeholder:text-[var(--ink-muted)]"
+      className="min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-sm outline-none placeholder:text-[var(--ink-muted)]"
     />
   );
 }
