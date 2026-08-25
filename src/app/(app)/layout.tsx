@@ -3,9 +3,8 @@ import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { unreadMessageCount } from "@/lib/messages";
-import { RotatingBackdrop } from "@/components/rotating-backdrop";
+import { AppBackdrop } from "@/components/app-backdrop";
 import { RouteProgress } from "@/components/route-progress";
-import { DASHBOARD_PHOTOS } from "@/lib/photo-credits";
 import { Brand } from "@/components/brand";
 import { NavIconLink, NavLinks } from "@/components/nav-links";
 import { UserMenu } from "@/components/user-menu";
@@ -33,7 +32,7 @@ export default async function AppLayout({
 
   return (
     <div className="relative min-h-dvh">
-      <RotatingBackdrop photos={DASHBOARD_PHOTOS} overlay="heavy" />
+      <AppBackdrop />
 
       {/* useSearchParams needs a boundary; the bar renders nothing until a click. */}
       <Suspense fallback={null}>

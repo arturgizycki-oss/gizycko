@@ -68,12 +68,3 @@ export const GIZYCKO_PHOTOS = {
       "https://commons.wikimedia.org/wiki/File:Gi%C5%BCycko_Most_Obrotowy_006.jpg",
   },
 } satisfies Record<string, PhotoCredit>;
-
-/** What the dashboard cycles through. */
-export const DASHBOARD_PHOTOS = [
-  GIZYCKO_PHOTOS.port,
-  GIZYCKO_PHOTOS.marina,
-  GIZYCKO_PHOTOS.boyen,
-  GIZYCKO_PHOTOS.bridge,
-  GIZYCKO_PHOTOS.sunset,
-];
