@@ -153,10 +153,17 @@ export default async function PublicProfilePage({
     }),
   ]);
 
-  // Their friends, minus anyone this viewer has blocked or been blocked by.
+  /*
+   * Their friends, minus anyone this viewer has blocked or been blocked by.
+   *
+   * The reader is not left out. They were, which made a profile whose only
+   * friend is the person looking at it report none - and the count comes from
+   * this same list, so it said "0 Friends" on a page reached from that very
+   * friendship. Being someone's friend does not stop them having one.
+   */
   const theirFriends = theirFriendships
     .map((row) => (row.requesterId === userId ? row.addressee : row.requester))
-    .filter((person) => person.id !== me && !hidden.includes(person.id));
+    .filter((person) => !hidden.includes(person.id));
 
   const mutualSet = new Set(mutuals);
   const orderedFriends = [

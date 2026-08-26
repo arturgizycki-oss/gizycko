@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "./avatar";
 import { signOut } from "@/lib/auth-client";
+import { useUnread } from "./unread";
 import {
   HelpIcon,
   LogoutIcon,
@@ -66,6 +67,7 @@ export function UserMenu({
   const wrapper = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const { review } = useUnread();
 
   useEffect(() => {
     if (!open) return;
@@ -138,6 +140,18 @@ export function UserMenu({
               >
                 <item.Icon className="size-4 shrink-0" />
                 {labels[item.key]}
+
+                {/*
+                    How much is waiting for a moderator, so it is visible
+                    without opening the admin area to look. Only staff reach
+                    this line at all, so the number never leaves the people who
+                    can act on it.
+                */}
+                {item.key === "admin" && review > 0 && (
+                  <span className="ml-auto flex min-w-5 items-center justify-center rounded-full bg-brand-600 px-1.5 text-[10px] font-bold text-white">
+                    {review > 99 ? "99+" : review}
+                  </span>
+                )}
               </Link>
             );
           })}

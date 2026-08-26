@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { reviewCounts } from "@/lib/review";
 import { requireModerator } from "@/lib/session";
 import { AdminNav } from "./nav";
 
@@ -24,10 +24,7 @@ export default async function AdminLayout({
 
   // Counts sit beside the section names, so nothing needing attention is a
   // click away from being noticed.
-  const [reports, photos] = await Promise.all([
-    prisma.report.count({ where: { status: { in: ["OPEN", "REVIEWING"] } } }),
-    prisma.photo.count({ where: { moderation: "PENDING" } }),
-  ]);
+  const { reports, photos } = await reviewCounts();
 
   return (
     <div className="gh -mx-3 -mt-6 min-h-dvh px-4 pt-6 pb-24 sm:-mx-4 sm:-mt-8 sm:px-6 sm:pb-8">

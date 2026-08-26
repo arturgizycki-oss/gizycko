@@ -11,6 +11,7 @@ import { BellIcon } from "@/components/icons";
 import { UnreadProvider } from "@/components/unread";
 import { LiveProvider } from "@/components/live";
 import { FEED_TOPIC, topicFor } from "@/lib/realtime";
+import { isStaff, pendingReviewCount } from "@/lib/review";
 import { NotificationBell } from "@/components/notification-bell";
 import { UserMenu } from "@/components/user-menu";
 import { getTranslator } from "@/lib/i18n";
@@ -23,7 +24,9 @@ export default async function AppLayout({
   const session = await requireSession();
   const t = await getTranslator();
 
-  const [unread, unreadMessages, profile] = await Promise.all([
+  const staff = isStaff(session.user.role);
+
+  const [unread, unreadMessages, profile, review] = await Promise.all([
     prisma.notification.count({
       where: { userId: session.user.id, readAt: null },
     }),
@@ -35,6 +38,7 @@ export default async function AppLayout({
         photos: { where: PRIMARY_PHOTO_WHERE, select: { url: true }, take: 1 },
       },
     }),
+    staff ? pendingReviewCount() : 0,
   ]);
 
   const navLabels = {
@@ -49,7 +53,11 @@ export default async function AppLayout({
   return (
     <LiveProvider topic={topicFor(session.user.id)} feedTopic={FEED_TOPIC}>
       <UnreadProvider
-        initial={{ notifications: unread, messages: unreadMessages }}
+        initial={{
+          notifications: unread,
+          messages: unreadMessages,
+          review,
+        }}
       >
         <div className="relative min-h-dvh">
           <AppBackdrop />
@@ -75,7 +83,7 @@ export default async function AppLayout({
               </NavIconLink>
 
               <UserMenu
-                isStaff={session.user.role !== "USER"}
+                isStaff={staff}
                 name={profile?.displayName ?? session.user.name}
                 photo={photoUrlOf(profile) ?? session.user.image ?? null}
                 labels={{

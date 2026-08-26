@@ -10,7 +10,12 @@ import {
 } from "react";
 import { useLive } from "./live";
 
-export type Unread = { notifications: number; messages: number };
+export type Unread = {
+  notifications: number;
+  messages: number;
+  /** Waiting for a moderator. Always zero for everybody else. */
+  review: number;
+};
 
 type Store = { counts: Unread; refresh: () => void };
 
@@ -59,6 +64,7 @@ export function UnreadProvider({
         setCounts({
           notifications: next.notifications,
           messages: next.messages,
+          review: typeof next.review === "number" ? next.review : 0,
         });
       }
     } catch {
@@ -115,7 +121,13 @@ export function UnreadProvider({
  * be rendered in a test without one.
  */
 export function useUnread(): Unread {
-  return useContext(UnreadContext)?.counts ?? { notifications: 0, messages: 0 };
+  return (
+    useContext(UnreadContext)?.counts ?? {
+      notifications: 0,
+      messages: 0,
+      review: 0,
+    }
+  );
 }
 
 /**
