@@ -133,17 +133,30 @@ async function readAttachment(
 
 export async function sendMessage(
   matchId: string,
-  _prev: MessageState,
+  prev: MessageState,
   formData: FormData,
 ): Promise<MessageState> {
   const session = await requireSession();
   const match = await memberMatch(matchId, session.user.id);
 
-  if (!match) return { error: "This conversation is not available." };
-  if (match.unmatchedAt) return { error: "You are no longer matched." };
+  /*
+   * A failure keeps the previous submission id.
+   *
+   * The composer treats a new one as "that went", and clears the box and the
+   * flags behind it. Handing back nothing after an earlier success reads as a
+   * change too, and would throw away the message somebody was refused - the
+   * one case where they most want it kept.
+   */
+  const failed = (error: string): MessageState => ({
+    error,
+    submissionId: prev.submissionId,
+  });
+
+  if (!match) return failed("This conversation is not available.");
+  if (match.unmatchedAt) return failed("You are no longer matched.");
 
   const parsed = messageSchema.safeParse({ body: formData.get("body") });
-  if (!parsed.success) return { error: "That message is too long." };
+  if (!parsed.success) return failed("That message is too long.");
 
   const entry = formData.get("attachment");
   const file = entry instanceof File && entry.size > 0 ? entry : null;
@@ -161,7 +174,7 @@ export async function sendMessage(
   }
 
   const allowed = checkContent(parsed.data.body);
-  if (!allowed.ok) return { error: allowed.message };
+  if (!allowed.ok) return failed(allowed.message);
 
   const otherId = otherSide(match, session.user.id);
 
@@ -175,7 +188,7 @@ export async function sendMessage(
     },
     select: { id: true },
   });
-  if (blocked) return { error: "You cannot message this person." };
+  if (blocked) return failed("You cannot message this person.");
 
   let attachment: Attachment | null = null;
 
@@ -189,7 +202,7 @@ export async function sendMessage(
     // cannot carry a video. Verified before it is attached to anything.
     const kind = isMediaKind(uploadedKind) ? uploadedKind : "image";
     const verified = await verifyUploaded(uploadedKey, kind, session.user.id);
-    if (!verified.ok) return { error: verified.error };
+    if (!verified.ok) return failed(verified.error);
 
     attachment = {
       key: uploadedKey,
@@ -203,7 +216,7 @@ export async function sendMessage(
     };
   } else if (voice) {
     const checked = await checkUploadedVoice(voice);
-    if (!checked.ok) return { error: checked.error };
+    if (!checked.ok) return failed(checked.error);
     attachment = {
       key: `chat-voice/${session.user.id}/${randomUUID()}${checked.kind.extension}`,
       bytes: checked.bytes,
@@ -214,7 +227,7 @@ export async function sendMessage(
     await putObject(attachment.key, attachment.bytes);
   } else if (file) {
     const result = await readAttachment(file, session.user.id);
-    if (!result.ok) return { error: result.error };
+    if (!result.ok) return failed(result.error);
     attachment = result.attachment;
     await putObject(attachment.key, attachment.bytes);
   }

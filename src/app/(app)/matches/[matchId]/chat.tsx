@@ -20,6 +20,7 @@ import Image from "next/image";
 import { EmojiPicker } from "@/components/emoji-picker";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 import { useLive } from "@/components/live";
+import { useUnreadRefresh } from "@/components/unread";
 import {
   CheckIcon,
   DoubleCheckIcon,
@@ -99,6 +100,16 @@ export function Chat({
   useLive("message", () => {
     if (!closed) router.refresh();
   });
+
+  /*
+   * Rendering this page marked its messages read, but the header counted them
+   * in the same breath and does not know. Ask again once, and again whenever
+   * another message lands here while the conversation is open.
+   */
+  const refreshUnread = useUnreadRefresh();
+  useEffect(() => {
+    refreshUnread();
+  }, [refreshUnread, messages.length]);
 
   /*
    * Each tick re-runs the page query on the server, so it only runs while the
@@ -505,6 +516,27 @@ function Composer({
   );
 
   const editing = draft?.mode === "edit" ? draft : null;
+
+  /*
+   * Forget what the box held, once a send has landed.
+   *
+   * The field itself is keyed on the submission id and clears by remounting,
+   * but these flags live out here and did not, so hasText stayed true forever
+   * after the first message. That decides whether the row ends in Send or in
+   * the microphone - which is why the record button disappeared for good the
+   * moment somebody sent anything.
+   *
+   * Adjusted during render rather than in an effect: React re-renders straight
+   * away without showing the stale row first, and there is no second pass for
+   * the eye to catch.
+   */
+  const [lastSent, setLastSent] = useState(state.submissionId);
+  if (state.submissionId !== lastSent) {
+    setLastSent(state.submissionId);
+    setHasText(false);
+    setHasVoice(false);
+    setAttached(null);
+  }
 
   // A rejected send arrives as new action state; surface it over the page
   // rather than wedging it into the composer row.

@@ -9,6 +9,7 @@ import {
   markConversationUnread,
 } from "./actions";
 import { useT } from "@/lib/i18n/provider";
+import { useUnreadRefresh } from "@/components/unread";
 
 export type InboxItem = {
   matchId: string;
@@ -28,6 +29,7 @@ export function Inbox({ items }: { items: InboxItem[] }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const [pending, startTransition] = useTransition();
+  const refreshUnread = useUnreadRefresh();
 
   const totalUnread = items.reduce((sum, item) => sum + item.unread, 0);
 
@@ -77,7 +79,12 @@ export function Inbox({ items }: { items: InboxItem[] }) {
           <button
             type="button"
             disabled={pending}
-            onClick={() => startTransition(() => markAllConversationsRead())}
+            onClick={() =>
+              startTransition(async () => {
+                await markAllConversationsRead();
+                refreshUnread();
+              })
+            }
             className="btn btn-secondary btn-sm"
           >
             {t("messages.markAllRead")}
@@ -145,9 +152,10 @@ export function Inbox({ items }: { items: InboxItem[] }) {
                       type="button"
                       disabled={pending}
                       onClick={() =>
-                        startTransition(() =>
-                          markConversationRead(item.matchId),
-                        )
+                        startTransition(async () => {
+                          await markConversationRead(item.matchId);
+                          refreshUnread();
+                        })
                       }
                       className="text-[11px] text-neutral-500 hover:underline disabled:opacity-60"
                     >
@@ -159,9 +167,10 @@ export function Inbox({ items }: { items: InboxItem[] }) {
                     type="button"
                     disabled={pending}
                     onClick={() =>
-                      startTransition(() =>
-                        markConversationUnread(item.matchId),
-                      )
+                      startTransition(async () => {
+                        await markConversationUnread(item.matchId);
+                        refreshUnread();
+                      })
                     }
                     className="text-[11px] text-neutral-500 hover:underline disabled:opacity-60"
                   >

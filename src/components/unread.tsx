@@ -5,13 +5,16 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useLive } from "./live";
 
 export type Unread = { notifications: number; messages: number };
 
-const UnreadContext = createContext<Unread | null>(null);
+type Store = { counts: Unread; refresh: () => void };
+
+const UnreadContext = createContext<Store | null>(null);
 
 /** How often to ask, while the tab is being looked at. */
 const POLL_MS = 30_000;
@@ -27,6 +30,12 @@ const POLL_MS = 30_000;
  * Polling stops while the tab is hidden - a background tab asking every thirty
  * seconds for hours is a waste of the member's battery and our database - and
  * asks once immediately on return, which is exactly when the answer is stale.
+ *
+ * A page that clears something calls refresh() itself. A layout and the page
+ * inside it render at the same moment, so opening a conversation counts its
+ * unread messages in the header while the page is busy marking them read, and
+ * the badge is born stale. Nothing on the server can fix that from inside the
+ * same render; the page has to say when it is done.
  */
 export function UnreadProvider({
   initial,
@@ -94,8 +103,10 @@ export function UnreadProvider({
     };
   }, [refresh]);
 
+  const value = useMemo(() => ({ counts, refresh }), [counts, refresh]);
+
   return (
-    <UnreadContext.Provider value={counts}>{children}</UnreadContext.Provider>
+    <UnreadContext.Provider value={value}>{children}</UnreadContext.Provider>
   );
 }
 
@@ -104,5 +115,15 @@ export function UnreadProvider({
  * be rendered in a test without one.
  */
 export function useUnread(): Unread {
-  return useContext(UnreadContext) ?? { notifications: 0, messages: 0 };
+  return useContext(UnreadContext)?.counts ?? { notifications: 0, messages: 0 };
+}
+
+/**
+ * Ask for the counts again, for a page that has just cleared something.
+ *
+ * Stable, so it can sit in an effect's dependencies without re-running it.
+ */
+export function useUnreadRefresh(): () => void {
+  const context = useContext(UnreadContext);
+  return useCallback(() => context?.refresh(), [context]);
 }
