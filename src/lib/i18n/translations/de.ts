@@ -505,4 +505,11 @@ export const de: Dictionary = {
   "settings.notifications": "Benachrichtigungen",
   "chat.sent": "Gesendet",
   "chat.read": "Gelesen",
+  "verified.email": "E-Mail",
+  "verified.phone": "Telefon",
+  "verified.payment": "Zahlung",
+  "verified.yes": "bestätigt",
+  "verified.no": "nicht bestätigt",
+  "verified.title": "Verifizierung",
+  "verified.hint": "Bestätigungen, die andere in deinem Profil sehen.",
 };

@@ -9,18 +9,28 @@ import { PhotoManager } from "./photo-manager";
 import { ProfileForm } from "./profile-form";
 import { getTranslator } from "@/lib/i18n";
 import { ArrowRightIcon } from "@/components/icons";
+import { VerifiedMarks } from "@/components/verified-marks";
+import { verifiedLabels, verifiedOf } from "@/lib/verified";
 
 export default async function ProfilePage() {
   const { session, profile, photos } = await requireProfileWithPhotos();
   const me = session.user.id;
   const t = await getTranslator();
 
-  const [counts, followers, following, postCount] = await Promise.all([
+  const [counts, followers, following, postCount, account] = await Promise.all([
     followCounts(me),
     followersOf(me, me),
     followingOf(me, me),
     prisma.post.count({
       where: { authorId: me, deletedAt: null, groupId: null },
+    }),
+    prisma.user.findUnique({
+      where: { id: me },
+      select: {
+        emailVerified: true,
+        phoneVerifiedAt: true,
+        paymentVerifiedAt: true,
+      },
     }),
   ]);
 
@@ -33,6 +43,18 @@ export default async function ProfilePage() {
         <p className="muted text-sm">
           {profile.city ?? t("profile.noCity")} · {session.user.email}
         </p>
+
+        {/* Your own copy of what a stranger sees, so the unlit ones read as
+            something still to do rather than something broken. */}
+        {account && (
+          <div className="mt-2 flex items-center gap-2">
+            <VerifiedMarks
+              verified={verifiedOf(account)}
+              labels={verifiedLabels(t)}
+            />
+            <span className="hint">{t("verified.hint")}</span>
+          </div>
+        )}
         {session.user.role !== "USER" && (
           <Link
             href="/admin"

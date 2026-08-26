@@ -500,4 +500,11 @@ export const ja: Dictionary = {
   "settings.notifications": "通知",
   "chat.sent": "送信済み",
   "chat.read": "既読",
+  "verified.email": "メール",
+  "verified.phone": "電話",
+  "verified.payment": "支払い",
+  "verified.yes": "確認済み",
+  "verified.no": "未確認",
+  "verified.title": "本人確認",
+  "verified.hint": "プロフィールで他の人に見える確認項目です。",
 };

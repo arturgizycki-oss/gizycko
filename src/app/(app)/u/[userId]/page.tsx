@@ -22,6 +22,8 @@ import { followCounts, isFollowing } from "@/lib/follows";
 import { CollapsibleSection } from "@/components/collapsible-section";
 import { ChatIcon, FilmIcon, HeartIcon, MusicIcon } from "@/components/icons";
 import { openConversation } from "@/lib/actions/conversations";
+import { VerifiedMarks } from "@/components/verified-marks";
+import { verifiedLabels, verifiedOf } from "@/lib/verified";
 import { getLocale, getTranslator } from "@/lib/i18n";
 
 const PROFILE_AVATAR = {
@@ -51,6 +53,9 @@ export default async function PublicProfilePage({
       name: true,
       createdAt: true,
       bannedAt: true,
+      emailVerified: true,
+      phoneVerifiedAt: true,
+      paymentVerifiedAt: true,
       profile: { include: { photos: { orderBy: { position: "asc" } } } },
     },
   });
@@ -174,6 +179,14 @@ export default async function PublicProfilePage({
         />
 
         <div className="flex flex-wrap items-center gap-2 p-4">
+          {/* What a stranger has had confirmed about them, before the buttons
+              that start a conversation with one. */}
+          <VerifiedMarks
+            verified={verifiedOf(user)}
+            labels={verifiedLabels(t)}
+            className="mr-1"
+          />
+
           {match ? (
             <Link
               href={`/matches/${match.id}`}

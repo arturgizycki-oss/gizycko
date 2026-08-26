@@ -124,6 +124,23 @@ model User {
   /// BCP 47 tag for the language the interface is shown in.
   locale String @default("en") @db.VarChar(12)
 
+  /*
+   * What this member has proved about themselves.
+   *
+   * Shown on their profile as three marks, lit or unlit. On a dating site these
+   * are the difference between a stranger and a stranger somebody has checked,
+   * and each one costs a fake account something real to obtain - which is the
+   * whole point of them.
+   *
+   * emailVerified above is the third: it is Better Auth's own column and cannot
+   * be renamed to sit with these.
+   */
+  phone           String?
+  phoneVerifiedAt DateTime?
+
+  /// Set when a card has been confirmed as belonging to them. Never card data.
+  paymentVerifiedAt DateTime?
+
   /// Whether to email this member when a message lands while they are away.
   emailOnMessage Boolean @default(true)
 

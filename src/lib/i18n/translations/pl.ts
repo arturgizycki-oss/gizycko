@@ -497,4 +497,11 @@ export const pl: Dictionary = {
   "settings.notifications": "Powiadomienia",
   "chat.sent": "Wysłane",
   "chat.read": "Przeczytane",
+  "verified.email": "E-mail",
+  "verified.phone": "Telefon",
+  "verified.payment": "Płatność",
+  "verified.yes": "zweryfikowane",
+  "verified.no": "niezweryfikowane",
+  "verified.title": "Weryfikacja",
+  "verified.hint": "Potwierdzenia, które inni widzą na Twoim profilu.",
 };
