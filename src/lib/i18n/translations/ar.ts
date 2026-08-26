@@ -488,11 +488,4 @@ export const ar: Dictionary = {
   "settings.notifications": "الإشعارات",
   "chat.sent": "أُرسلت",
   "chat.read": "تمت القراءة",
-  "verified.email": "البريد",
-  "verified.phone": "الهاتف",
-  "verified.payment": "الدفع",
-  "verified.yes": "مُوثَّق",
-  "verified.no": "غير مُوثَّق",
-  "verified.title": "التوثيق",
-  "verified.hint": "ما يراه الآخرون موثَّقًا في ملفك.",
 };
