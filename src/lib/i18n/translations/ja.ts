@@ -3,7 +3,7 @@ import type { Dictionary } from "../dictionaries";
 export const ja: Dictionary = {
   "nav.feed": "フィード",
   "nav.discover": "さがす",
-  "nav.matches": "マッチ",
+  "nav.matches": "つながり",
   "nav.messages": "メッセージ",
   "nav.friends": "友だち",
   "nav.groups": "グループ",
@@ -27,7 +27,7 @@ export const ja: Dictionary = {
   "confirm.deleteComment": "このコメントを削除しますか？",
   "confirm.deletePhoto": "この写真を削除しますか？",
   "confirm.upload": "この写真をアップロードしますか？",
-  "confirm.unmatch": "このマッチを解除しますか？",
+  "confirm.unmatch": "このつながりを終わりにしますか？",
   "confirm.removeMember": "このメンバーを削除しますか？",
   "confirm.yes": "はい",
   "confirm.no": "いいえ",
@@ -87,7 +87,7 @@ export const ja: Dictionary = {
   "danger.body":
     "保存されているデータをすべてダウンロードするか、アカウントを完全に削除できます。",
   "danger.confirmBody":
-    "プロフィール、写真、マッチ、メッセージ、投稿がすべて削除され、元には戻せません。",
+    "プロフィール、写真、つながり、メッセージ、投稿をすべて削除します。元に戻せません。",
   "danger.password": "パスワードで確認",
   "danger.deleting": "削除中…",
   "danger.deletePermanently": "完全に削除",
@@ -151,7 +151,7 @@ export const ja: Dictionary = {
   "feed.emptyFiltered":
     "この条件に合う投稿はありません。条件を広げてみてください。",
   "feed.empty":
-    "まだ何もありません。最初の投稿を書くか、「さがす」で人と出会いましょう。",
+    "まだ何もありません。最初の投稿を書くか、見つけるで人を探しましょう。",
   "feed.attachedSong": "添付された曲",
   "feed.comments": "コメント",
   "feed.commentPlaceholder": "コメントを書く…",
@@ -163,7 +163,7 @@ export const ja: Dictionary = {
   "feed.sortDiscussed": "コメントが多い順",
   "feed.fromAll": "全員",
   "feed.fromFriends": "友だち",
-  "feed.fromMatches": "マッチ",
+  "feed.fromMatches": "つながり",
   "feed.fromMine": "自分だけ",
   "feed.hasAll": "すべて",
   "feed.hasPhotos": "写真",
@@ -190,22 +190,22 @@ export const ja: Dictionary = {
 
   "visibility.public": "全員",
   "visibility.friends": "友だち",
-  "visibility.matches": "マッチ",
+  "visibility.matches": "つながり",
   "visibility.private": "自分だけ",
 
   "discover.title": "さがす",
   "discover.intro":
-    "希望に合う新しい人たち。いいねを送って相手も返してくれたらマッチ成立、メッセージを送れます。",
+    "世界中からの新しい人たち。誰かとつながると相手に伝わり、相手もつながれば、メッセージを送れます。",
   "discover.empty":
-    "いまは新しい人がいません。あとで見に来るか、プロフィールで年齢や距離の条件を広げてください。",
+    "今は新しい人がいません。あとでまた見るか、プロフィールで条件を広げてください。",
   "discover.pass": "スキップ",
-  "discover.like": "いいね",
+  "discover.like": "つながる",
 
-  "matches.title": "マッチ",
+  "matches.title": "つながり",
   "matches.empty":
-    "まだマッチがありません。「さがす」で何人かにいいねを送りましょう。",
-  "matches.sayHello": "マッチしました。あいさつしましょう。",
-  "matches.unmatch": "マッチを解除",
+    "まだつながりがありません。見つけるで何人かとつながってみましょう。",
+  "matches.sayHello": "つながりました。あいさつしましょう。",
+  "matches.unmatch": "つながりを解除",
 
   "messages.title": "メッセージ",
   "messages.intro":
@@ -217,7 +217,7 @@ export const ja: Dictionary = {
   "messages.markRead": "既読にする",
   "messages.markUnread": "未読にする",
   "messages.empty":
-    "まだ会話がありません。「さがす」でマッチすると、ここでメッセージを送れます。",
+    "まだ会話がありません。見つけるで誰かとつながるか、友だちを追加すると、ここで話せます。",
   "messages.noResults": "該当するものがありません。",
   "messages.ended": "終了",
   "messages.you": "自分：",
@@ -341,7 +341,7 @@ export const ja: Dictionary = {
   "notifications.title": "お知らせ",
   "notifications.empty": "まだ何もありません。",
   "notifications.someone": "誰か",
-  "notifications.match": "とマッチしました",
+  "notifications.match": "さんとつながりました",
   "notifications.message": "がメッセージを送りました",
   "notifications.profileLike": "があなたのプロフィールにいいねしました",
   "notifications.friendRequest": "が友だちリクエストを送りました",
@@ -352,24 +352,24 @@ export const ja: Dictionary = {
 
   "help.title": "ヘルプ",
   "help.intro": "よくある質問です。載っていなければご連絡ください。",
-  "help.q1": "マッチはどう成立しますか？",
+  "help.q1": "見つけるはどう動きますか？",
   "help.a1":
-    "「さがす」には希望に合う人が表示されます。会いたい性別、年齢の範囲、ブロックしていない相手が対象です。いいねを送っても相手には伝わらず、相手も返してくれた時点でマッチが成立し、会話が開きます。",
-  "help.q2": "マッチと友だちの違いは？",
+    "見つけるは、あなたの条件に合う世界中の人を表示します——会いたい性別、年齢の範囲、ブロックしていない相手です。誰かとつながると相手に通知が届きます。相手もつながれば、メッセージを送り合えます。",
+  "help.q2": "つながりと友だちの違いは？",
   "help.a2":
-    "マッチは「さがす」から生まれる、出会いのつながりです。友だちは社交的なつながりで、友だち限定の投稿を見られ、スワイプなしでメッセージを送れます。マッチは「マッチ」に、会話はすべて「メッセージ」に入ります。",
+    "つながりは見つけるから生まれます。互いを選んだ二人が話せるようになった状態です。友だちはすでに知っている相手で、友だち限定の投稿を見られます。つながりは「つながり」に、友だちは「友だち」に、どちらの会話も「メッセージ」に並びます。",
   "help.q3": "投稿は誰が見られますか？",
   "help.a3":
-    "投稿ごとに選べます。全員、友だち、マッチ、自分だけのいずれかです。公開する前に「投稿」ボタン横の選択欄で変更してください。",
+    "投稿ごとに選べます。全員、友だち、つながり、または自分だけ。投稿する前に、投稿ボタンの横のリストで変更してください。",
   "help.q4": "プロフィールが誰にも見られないのはなぜ？",
   "help.a4":
     "プロフィールが公開設定になっているか、年齢と距離の条件が狭すぎないかを確認してください。写真のないプロフィールは注目されにくくなります。",
   "help.q5": "迷惑な相手がいます。どうすれば？",
   "help.a5":
-    "ブロックして報告してください。ブロックすると互いに見えなくなり、マッチは解除され、メッセージも届かなくなります。相手には通知されません。報告はモデレーターに届きます。両方のボタンは、すべてのプロフィール・投稿・コメント・会話にあります。",
+    "ブロックして報告してください。ブロックすると互いに見えなくなり、つながりは終わり、メッセージも止まります。相手に知らされることはありません。報告はモデレーターに届きます。",
   "help.q6": "アカウントを削除するには？",
   "help.a6":
-    "「設定」から「アカウントを削除」を選びます。プロフィール、写真、マッチ、メッセージ、投稿が削除されます。先に「データをダウンロード」で保存できます。",
+    "設定から「アカウントを削除」。プロフィール、写真、つながり、メッセージ、投稿が消えます。先にすべてダウンロードできます。",
   "help.stuck": "まだ解決しませんか？",
   "help.contact":
     "何があったかを書いてご連絡ください。ほかの利用者に関することなら、モデレーターが探せるよう相手の名前も添えてください。",
@@ -406,10 +406,10 @@ export const ja: Dictionary = {
   "search.clear": "検索をクリア",
   "groups.inviteAnyone": "名前で誰でも招待",
   "landing.badge": "世界中で利用できます",
-  "landing.headline": "近くの人と出会う。",
-  "landing.headline2": "つながりのために、ここに残る。",
+  "landing.headline": "世界と話そう。",
+  "landing.headline2": "暮らしを分かち合おう。",
   "landing.intro":
-    "社交的な面もしっかりあるデートアプリです。マッチして、話して、いま何をしているかを本当に知っている人たちと共有しましょう。どこにいても、あなたの言語で。",
+    "日々のことを投稿し、誰とでも話し、合うグループに参加する——世界に広がり、あなたの言葉を話すコミュニティです。",
   "landing.create": "アカウントを作る",
   "landing.have": "すでに持っています",
   "landing.note": "18歳以上限定。やさしく — どのプロフィールも実在の人です。",
@@ -417,10 +417,11 @@ export const ja: Dictionary = {
   "landing.onGizycko": "Gizycko にて",
   "landing.follower": "フォロワー",
   "landing.followers": "フォロワー",
-  "landing.f1": "正直なマッチング",
-  "landing.f1b": "希望、年齢の範囲、距離を自分で決められます。",
+  "landing.f1": "人を見つける",
+  "landing.f1b": "見つけるは、近所だけでなく世界中の人を連れてきます。",
   "landing.f2": "ちゃんと話せる",
-  "landing.f2b": "マッチごとに専用の会話ができます。返信は無料です。",
+  "landing.f2b":
+    "つながりごとに非公開の会話があります。返信に課金はありません。",
   "landing.f3": "安全に",
   "landing.f3b":
     "どのプロフィール・投稿・メッセージからもブロックと報告ができます。",

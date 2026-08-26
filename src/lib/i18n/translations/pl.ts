@@ -3,7 +3,7 @@ import type { Dictionary } from "../dictionaries";
 export const pl: Dictionary = {
   "nav.feed": "Aktualności",
   "nav.discover": "Odkrywaj",
-  "nav.matches": "Pary",
+  "nav.matches": "Kontakty",
   "nav.messages": "Wiadomości",
   "nav.friends": "Znajomi",
   "nav.groups": "Grupy",
@@ -27,7 +27,7 @@ export const pl: Dictionary = {
   "confirm.deleteComment": "Usunąć ten komentarz?",
   "confirm.deletePhoto": "Usunąć to zdjęcie?",
   "confirm.upload": "Przesłać to zdjęcie?",
-  "confirm.unmatch": "Zakończyć tę parę?",
+  "confirm.unmatch": "Zakończyć ten kontakt?",
   "confirm.removeMember": "Usunąć tego członka?",
   "confirm.yes": "Tak, zrób to",
   "confirm.no": "Nie, zostaw",
@@ -87,7 +87,7 @@ export const pl: Dictionary = {
   "danger.body":
     "Możesz pobrać wszystko, co o Tobie przechowujemy, albo trwale usunąć konto.",
   "danger.confirmBody":
-    "To usuwa Twój profil, zdjęcia, pary, wiadomości i posty. Nie da się tego cofnąć.",
+    "To usuwa Twój profil, zdjęcia, kontakty, wiadomości i posty. Tego nie można cofnąć.",
   "danger.password": "Potwierdź hasłem",
   "danger.deleting": "Usuwanie…",
   "danger.deletePermanently": "Usuń na zawsze",
@@ -150,7 +150,7 @@ export const pl: Dictionary = {
 
   "feed.emptyFiltered": "Nic nie pasuje do tych filtrów. Spróbuj je poszerzyć.",
   "feed.empty":
-    "Jeszcze pusto. Napisz pierwszy post albo zajrzyj do Odkrywaj, żeby poznać ludzi.",
+    "Jeszcze pusto. Napisz pierwszy post albo zajrzyj do Odkrywaj, żeby znaleźć ludzi.",
   "feed.attachedSong": "Załączony utwór",
   "feed.comments": "Komentarze",
   "feed.commentPlaceholder": "Napisz komentarz…",
@@ -162,7 +162,7 @@ export const pl: Dictionary = {
   "feed.sortDiscussed": "Najczęściej komentowane",
   "feed.fromAll": "Wszyscy",
   "feed.fromFriends": "Znajomi",
-  "feed.fromMatches": "Pary",
+  "feed.fromMatches": "Kontakty",
   "feed.fromMine": "Tylko ja",
   "feed.hasAll": "Wszystko",
   "feed.hasPhotos": "Zdjęcia",
@@ -189,21 +189,21 @@ export const pl: Dictionary = {
 
   "visibility.public": "Wszyscy",
   "visibility.friends": "Znajomi",
-  "visibility.matches": "Pary",
+  "visibility.matches": "Kontakty",
   "visibility.private": "Tylko ja",
 
   "discover.title": "Odkrywaj",
   "discover.intro":
-    "Nowe osoby pasujące do Twoich preferencji. Polub kogoś, żeby sprawdzić, czy odwzajemni — jeśli tak, powstaje para i możecie pisać.",
+    "Nowi ludzie z całego świata. Połącz się z kimś, aby sprawdzić, czy odpowie tym samym — jeśli oboje to zrobicie, możecie pisać.",
   "discover.empty":
-    "Na razie nikogo nowego. Zajrzyj później albo poszerz preferencje wieku i odległości w profilu.",
+    "Na razie nikogo nowego. Zajrzyj później albo poszerz swoje preferencje w profilu.",
   "discover.pass": "Pomiń",
-  "discover.like": "Lubię",
+  "discover.like": "Połącz",
 
-  "matches.title": "Pary",
-  "matches.empty": "Brak par. Polub kilka osób w Odkrywaj.",
-  "matches.sayHello": "Macie parę. Przywitaj się.",
-  "matches.unmatch": "Usuń parę",
+  "matches.title": "Kontakty",
+  "matches.empty": "Brak kontaktów. Połącz się z kilkoma osobami w Odkrywaj.",
+  "matches.sayHello": "Macie kontakt. Przywitaj się.",
+  "matches.unmatch": "Usuń kontakt",
 
   "messages.title": "Wiadomości",
   "messages.intro":
@@ -215,7 +215,7 @@ export const pl: Dictionary = {
   "messages.markRead": "Oznacz jako przeczytane",
   "messages.markUnread": "Oznacz jako nieprzeczytane",
   "messages.empty":
-    "Brak rozmów. Dobierz się z kimś w Odkrywaj, a będziecie mogli tu pisać.",
+    "Brak rozmów. Połącz się z kimś w Odkrywaj albo dodaj znajomego, a napiszesz do niego tutaj.",
   "messages.noResults": "Nic nie pasuje.",
   "messages.ended": "zakończona",
   "messages.you": "Ty:",
@@ -338,7 +338,7 @@ export const pl: Dictionary = {
   "notifications.title": "Powiadomienia",
   "notifications.empty": "Jeszcze nic.",
   "notifications.someone": "Ktoś",
-  "notifications.match": "dobrał się z Tobą w parę",
+  "notifications.match": "nawiązał(a) z Tobą kontakt",
   "notifications.message": "wysłał(a) Ci wiadomość",
   "notifications.profileLike": "polubił(a) Twój profil",
   "notifications.friendRequest": "wysłał(a) Ci zaproszenie do znajomych",
@@ -349,24 +349,24 @@ export const pl: Dictionary = {
 
   "help.title": "Pomoc",
   "help.intro": "Najczęstsze pytania. Jeśli Twojego tu nie ma, napisz do nas.",
-  "help.q1": "Jak działa dobieranie w pary?",
+  "help.q1": "Jak działa Odkrywaj?",
   "help.a1":
-    "Odkrywaj pokazuje osoby pasujące do Twoich preferencji — płci, które chcesz poznać, przedziału wieku i osób, których nie zablokowano. Gdy kogoś polubisz, druga strona niczego nie widzi, dopóki nie odwzajemni. Gdy oboje to zrobicie, powstaje para i otwiera się rozmowa.",
-  "help.q2": "Czym różni się para od znajomego?",
+    "Odkrywaj pokazuje ludzi z całego świata pasujących do Twoich preferencji — płci, które chcesz poznać, przedziału wieku i wszystkich, których nie zablokowałeś. Gdy się z kimś połączysz, ta osoba dostanie powiadomienie. Jeśli odpowie tym samym, możecie pisać.",
+  "help.q2": "Czym różni się kontakt od znajomego?",
   "help.a2":
-    "Para pochodzi z Odkrywaj i dotyczy randkowania. Znajomy to relacja społeczna: znajomi widzą swoje posty dla znajomych i mogą pisać bez przesuwania kart. Pary są w zakładce Pary, a wszystkie rozmowy — w Wiadomościach.",
+    "Kontakt pochodzi z Odkrywaj: dwie osoby, które wybrały siebie nawzajem i mogą teraz rozmawiać. Znajomy to ktoś, kogo już znasz — znajomi widzą swoje posty tylko dla znajomych. Kontakty są w zakładce Kontakty, znajomi w Znajomi, a każda rozmowa w Wiadomościach.",
   "help.q3": "Kto widzi moje posty?",
   "help.a3":
-    "Wybierasz przy każdym poście: wszyscy, znajomi, pary albo tylko Ty. Zmień to na liście obok przycisku Opublikuj, zanim opublikujesz.",
+    "Wybierasz przy każdym poście: wszyscy, znajomi, kontakty albo tylko Ty. Zmienisz to w liście obok przycisku Opublikuj, zanim opublikujesz.",
   "help.q4": "Dlaczego nikt nie widzi mojego profilu?",
   "help.a4":
     "Sprawdź, czy profil jest ustawiony jako widoczny, i czy preferencje wieku oraz odległości nie są zbyt wąskie. Profile bez zdjęcia zwracają znacznie mniej uwagi.",
   "help.q5": "Ktoś mnie nęka. Co robić?",
   "help.a5":
-    "Zablokuj i zgłoś tę osobę. Blokada ukrywa Was przed sobą, kończy parę i zatrzymuje wiadomości — druga strona nie jest o tym informowana. Zgłoszenie trafia do moderatorów. Oba przyciski są przy każdym profilu, poście, komentarzu i rozmowie.",
+    "Zablokuj i zgłoś. Blokada ukrywa Was przed sobą, kończy kontakt i zatrzymuje wszystkie wiadomości — druga osoba nigdy się o tym nie dowie. Zgłoszenie trafia do moderatora.",
   "help.q6": "Jak usunąć konto?",
   "help.a6":
-    "Ustawienia, potem Usuń moje konto. Usuwa to profil, zdjęcia, pary, wiadomości i posty. Najpierw możesz pobrać wszystko przez Pobierz moje dane.",
+    "Ustawienia, potem Usuń konto. Usuwa profil, zdjęcia, kontakty, wiadomości i posty. Najpierw możesz wszystko pobrać.",
   "help.stuck": "Nadal nie wiesz?",
   "help.contact":
     "Napisz do nas i opisz, co się stało. Jeśli chodzi o innego użytkownika, podaj jego nazwę, żeby moderatorzy mogli go znaleźć.",
@@ -404,10 +404,10 @@ export const pl: Dictionary = {
   "search.clear": "Wyczyść wyszukiwanie",
   "groups.inviteAnyone": "Zaproś kogokolwiek po imieniu",
   "landing.badge": "Otwarte na cały świat",
-  "landing.headline": "Poznaj ludzi w pobliżu.",
-  "landing.headline2": "Zostań dla społeczności.",
+  "landing.headline": "Rozmawiaj ze światem.",
+  "landing.headline2": "Dziel się z nim życiem.",
   "landing.intro":
-    "Aplikacja randkowa z prawdziwą stroną społecznościową — dobieraj się w pary, rozmawiaj i dziel się tym, co u Ciebie, z ludźmi, których naprawdę znasz. W Twoim języku, gdziekolwiek jesteś.",
+    "Opowiadaj, co u Ciebie, rozmawiaj z każdym i dołączaj do grup, które pasują — społeczność obejmująca cały świat i mówiąca Twoim językiem.",
   "landing.create": "Załóż konto",
   "landing.have": "Mam już konto",
   "landing.note":
@@ -416,11 +416,11 @@ export const pl: Dictionary = {
   "landing.onGizycko": "Na Gizycko",
   "landing.follower": "obserwujący",
   "landing.followers": "obserwujących",
-  "landing.f1": "Uczciwe dopasowanie",
+  "landing.f1": "Znajdź ludzi",
   "landing.f1b":
-    "Preferencje, przedział wieku i odległość, które naprawdę kontrolujesz.",
+    "Odkrywaj pokazuje ludzi z całego świata, nie tylko z Twojej ulicy.",
   "landing.f2": "Rozmawiaj swobodnie",
-  "landing.f2b": "Każda para dostaje prywatną rozmowę. Bez opłat za odpowiedź.",
+  "landing.f2b": "Każdy kontakt to prywatna rozmowa. Bez opłat za odpowiedź.",
   "landing.f3": "Bądź bezpieczny",
   "landing.f3b": "Blokuj i zgłaszaj z każdego profilu, posta i wiadomości.",
   "auth.linkNotValid": "Link nieprawidłowy",

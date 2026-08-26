@@ -3,7 +3,7 @@ import type { Dictionary } from "../dictionaries";
 export const de: Dictionary = {
   "nav.feed": "Neuigkeiten",
   "nav.discover": "Entdecken",
-  "nav.matches": "Matches",
+  "nav.matches": "Kontakte",
   "nav.messages": "Nachrichten",
   "nav.friends": "Freunde",
   "nav.groups": "Gruppen",
@@ -27,7 +27,7 @@ export const de: Dictionary = {
   "confirm.deleteComment": "Diesen Kommentar löschen?",
   "confirm.deletePhoto": "Dieses Foto löschen?",
   "confirm.upload": "Dieses Foto hochladen?",
-  "confirm.unmatch": "Dieses Match beenden?",
+  "confirm.unmatch": "Diesen Kontakt beenden?",
   "confirm.removeMember": "Dieses Mitglied entfernen?",
   "confirm.yes": "Ja, machen",
   "confirm.no": "Nein, behalten",
@@ -87,7 +87,7 @@ export const de: Dictionary = {
   "danger.body":
     "Du kannst alles herunterladen, was wir über dich gespeichert haben, oder dein Konto dauerhaft löschen.",
   "danger.confirmBody":
-    "Das löscht dein Profil, deine Fotos, Matches, Nachrichten und Beiträge. Es lässt sich nicht rückgängig machen.",
+    "Das löscht dein Profil, deine Fotos, Kontakte, Nachrichten und Beiträge. Es kann nicht rückgängig gemacht werden.",
   "danger.password": "Mit deinem Passwort bestätigen",
   "danger.deleting": "Wird gelöscht…",
   "danger.deletePermanently": "Endgültig löschen",
@@ -151,7 +151,7 @@ export const de: Dictionary = {
   "feed.emptyFiltered":
     "Nichts passt zu diesen Filtern. Mach sie etwas weiter.",
   "feed.empty":
-    "Hier ist noch nichts. Schreib den ersten Beitrag oder geh zu Entdecken, um Leute kennenzulernen.",
+    "Noch nichts hier. Schreib den ersten Beitrag oder geh zu Entdecken, um Leute zu finden.",
   "feed.attachedSong": "Angehängter Song",
   "feed.comments": "Kommentare",
   "feed.commentPlaceholder": "Kommentar schreiben…",
@@ -163,7 +163,7 @@ export const de: Dictionary = {
   "feed.sortDiscussed": "Meistdiskutiert",
   "feed.fromAll": "Alle",
   "feed.fromFriends": "Freunde",
-  "feed.fromMatches": "Matches",
+  "feed.fromMatches": "Kontakte",
   "feed.fromMine": "Nur ich",
   "feed.hasAll": "Alles",
   "feed.hasPhotos": "Fotos",
@@ -190,21 +190,22 @@ export const de: Dictionary = {
 
   "visibility.public": "Alle",
   "visibility.friends": "Freunde",
-  "visibility.matches": "Matches",
+  "visibility.matches": "Kontakte",
   "visibility.private": "Nur ich",
 
   "discover.title": "Entdecken",
   "discover.intro":
-    "Neue Leute, die zu deinen Vorlieben passen. Like jemanden, um zu sehen, ob es auf Gegenseitigkeit beruht — wenn ja, wird daraus ein Match und ihr könnt schreiben.",
+    "Neue Leute aus aller Welt. Verbinde dich mit jemandem, um zu sehen, ob er sich auch verbindet — wenn ihr beide wollt, könnt ihr schreiben.",
   "discover.empty":
-    "Gerade niemand Neues. Schau später wieder vorbei oder erweitere Alter und Entfernung in deinem Profil.",
-  "discover.pass": "Weiter",
-  "discover.like": "Like",
+    "Gerade niemand Neues. Schau später wieder vorbei oder erweitere deine Einstellungen im Profil.",
+  "discover.pass": "Überspringen",
+  "discover.like": "Verbinden",
 
-  "matches.title": "Matches",
-  "matches.empty": "Noch keine Matches. Like ein paar Leute in Entdecken.",
-  "matches.sayHello": "Ihr habt ein Match. Sag Hallo.",
-  "matches.unmatch": "Match auflösen",
+  "matches.title": "Kontakte",
+  "matches.empty":
+    "Noch keine Kontakte. Verbinde dich mit ein paar Leuten in Entdecken.",
+  "matches.sayHello": "Ihr seid verbunden. Sag Hallo.",
+  "matches.unmatch": "Kontakt entfernen",
 
   "messages.title": "Nachrichten",
   "messages.intro":
@@ -216,7 +217,7 @@ export const de: Dictionary = {
   "messages.markRead": "Als gelesen markieren",
   "messages.markUnread": "Als ungelesen markieren",
   "messages.empty":
-    "Noch keine Unterhaltungen. Match in Entdecken mit jemandem, dann könnt ihr hier schreiben.",
+    "Noch keine Gespräche. Verbinde dich in Entdecken mit jemandem oder füge einen Freund hinzu, dann kannst du hier schreiben.",
   "messages.noResults": "Dazu passt nichts.",
   "messages.ended": "beendet",
   "messages.you": "Du:",
@@ -341,7 +342,7 @@ export const de: Dictionary = {
   "notifications.title": "Benachrichtigungen",
   "notifications.empty": "Noch nichts.",
   "notifications.someone": "Jemand",
-  "notifications.match": "hat mit dir gematcht",
+  "notifications.match": "hat sich mit dir verbunden",
   "notifications.message": "hat dir geschrieben",
   "notifications.profileLike": "gefällt dein Profil",
   "notifications.friendRequest": "hat dir eine Freundschaftsanfrage geschickt",
@@ -353,24 +354,24 @@ export const de: Dictionary = {
   "help.title": "Hilfe",
   "help.intro":
     "Die häufigsten Fragen. Wenn deine nicht dabei ist, schreib uns.",
-  "help.q1": "Wie funktioniert das Matching?",
+  "help.q1": "Wie funktioniert Entdecken?",
   "help.a1":
-    "Entdecken zeigt Leute, die zu deinen Vorlieben passen — die Geschlechter, die du treffen möchtest, deine Altersspanne, und wer nicht blockiert ist. Likest du jemanden, merkt die Person nichts, bis sie dich zurück likt. Tut ihr es beide, entsteht ein Match und eine Unterhaltung öffnet sich.",
-  "help.q2": "Was ist der Unterschied zwischen einem Match und einem Freund?",
+    "Entdecken zeigt Leute aus aller Welt, die zu deinen Einstellungen passen — die Geschlechter, die du treffen möchtest, deine Altersspanne und alle, die du nicht blockiert hast. Verbindest du dich mit jemandem, wird er benachrichtigt. Verbindet er sich zurück, könnt ihr schreiben.",
+  "help.q2": "Was ist der Unterschied zwischen einem Kontakt und einem Freund?",
   "help.a2":
-    "Ein Match kommt aus Entdecken und geht ums Daten. Ein Freund ist eine soziale Verbindung: Freunde sehen die Freunde-Beiträge des anderen und können schreiben, ohne je zu swipen. Matches stehen unter Matches, alle Unterhaltungen unter Nachrichten.",
+    "Ein Kontakt kommt aus Entdecken: zwei Leute, die sich gegenseitig gewählt haben und nun reden können. Ein Freund ist jemand, den du schon kennst — Freunde sehen die Beiträge, die nur für Freunde sind. Kontakte stehen unter Kontakte, Freunde unter Freunde, und jedes Gespräch steht unter Nachrichten.",
   "help.q3": "Wer sieht meine Beiträge?",
   "help.a3":
-    "Du entscheidest pro Beitrag: alle, Freunde, Matches oder nur du. Stell es im Auswahlfeld neben dem Posten-Knopf ein, bevor du veröffentlichst.",
+    "Du wählst pro Beitrag: alle, Freunde, Kontakte oder nur du. Ändere es in der Liste neben dem Posten-Knopf, bevor du postest.",
   "help.q4": "Warum sieht niemand mein Profil?",
   "help.a4":
     "Prüfe, ob dein Profil auf sichtbar steht und ob deine Alters- und Entfernungsangaben nicht zu eng sind. Profile ohne Foto bekommen deutlich weniger Aufmerksamkeit.",
   "help.q5": "Jemand belästigt mich. Was tun?",
   "help.a5":
-    "Blockieren und melden. Blockieren versteckt euch voreinander, beendet jedes Match und stoppt alle Nachrichten — die Person erfährt nichts davon. Eine Meldung geht an unsere Moderation. Beide Knöpfe stehen an jedem Profil, Beitrag, Kommentar und in jeder Unterhaltung.",
+    "Blockiere und melde die Person. Blockieren versteckt euch voreinander, beendet jeden Kontakt und stoppt alle Nachrichten — sie erfährt es nie. Eine Meldung geht an einen Moderator.",
   "help.q6": "Wie lösche ich mein Konto?",
   "help.a6":
-    "Einstellungen, dann Mein Konto löschen. Das entfernt Profil, Fotos, Matches, Nachrichten und Beiträge. Vorher kannst du mit Meine Daten herunterladen alles sichern.",
+    "Einstellungen, dann Konto löschen. Das entfernt Profil, Fotos, Kontakte, Nachrichten und Beiträge. Vorher kannst du alles herunterladen.",
   "help.stuck": "Immer noch offen?",
   "help.contact":
     "Schreib uns und erzähl, was passiert ist. Geht es um ein anderes Mitglied, nenn den Namen, damit die Moderation es findet.",
@@ -407,10 +408,10 @@ export const de: Dictionary = {
   "search.clear": "Suche löschen",
   "groups.inviteAnyone": "Jemanden nach Namen einladen",
   "landing.badge": "Weltweit offen",
-  "landing.headline": "Triff Leute in der Nähe.",
-  "landing.headline2": "Bleib wegen der Gemeinschaft.",
+  "landing.headline": "Sprich mit der Welt.",
+  "landing.headline2": "Teile dein Leben mit ihr.",
   "landing.intro":
-    "Eine Dating-App mit echter sozialer Seite — matchen, chatten und teilen, was du machst, mit Leuten, die du wirklich kennst. In deiner Sprache, wo immer du bist.",
+    "Poste, was du machst, schreibe mit allen und tritt Gruppen bei, die passen — eine Gemeinschaft, die die Welt umspannt und deine Sprache spricht.",
   "landing.create": "Konto erstellen",
   "landing.have": "Ich habe schon eins",
   "landing.note":
@@ -419,12 +420,12 @@ export const de: Dictionary = {
   "landing.onGizycko": "Auf Gizycko",
   "landing.follower": "Follower",
   "landing.followers": "Follower",
-  "landing.f1": "Ehrlich matchen",
+  "landing.f1": "Leute finden",
   "landing.f1b":
-    "Vorlieben, Altersspanne und Entfernung, die du wirklich steuerst.",
+    "Entdecken bringt Leute aus aller Welt, nicht nur aus deiner Straße.",
   "landing.f2": "Richtig reden",
   "landing.f2b":
-    "Jedes Match bekommt eine private Unterhaltung. Antworten kostet nichts.",
+    "Jeder Kontakt bekommt ein privates Gespräch. Keine Bezahlschranke zum Antworten.",
   "landing.f3": "Sicher bleiben",
   "landing.f3b":
     "Blockieren und melden aus jedem Profil, Beitrag oder jeder Nachricht.",

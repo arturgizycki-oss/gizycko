@@ -47,7 +47,7 @@ const PROFILE_FIELDS = {
 } as const;
 
 /**
- * Session plus the dating profile. Sends users without a finished profile to
+ * Session plus the member's profile. Sends users without a finished profile to
  * onboarding, so every page behind this can assume a complete profile exists.
  *
  * Cached per request: a page and any component under it share one lookup.

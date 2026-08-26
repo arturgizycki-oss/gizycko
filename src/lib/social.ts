@@ -31,7 +31,7 @@ export const hiddenUserIds = cache(
 );
 
 /**
- * Ids of users `userId` has a live dating match with.
+ * Ids of users `userId` is connected to, from Discover.
  *
  * Only SWIPE conversations count. A Match row is also the container for a chat
  * two friends started, and treating those as matches would hand friends access

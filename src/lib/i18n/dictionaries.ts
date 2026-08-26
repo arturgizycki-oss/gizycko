@@ -20,7 +20,7 @@ export const en = {
   // chrome
   "nav.feed": "Feed",
   "nav.discover": "Discover",
-  "nav.matches": "Matches",
+  "nav.matches": "Connections",
   "nav.messages": "Messages",
   "nav.friends": "Friends",
   "nav.groups": "Groups",
@@ -45,7 +45,7 @@ export const en = {
   "confirm.deleteComment": "Delete this comment?",
   "confirm.deletePhoto": "Delete this photo?",
   "confirm.upload": "Upload this photo?",
-  "confirm.unmatch": "End this match?",
+  "confirm.unmatch": "End this connection?",
   "confirm.removeMember": "Remove this member?",
   "confirm.yes": "Yes, do it",
   "confirm.no": "No, keep it",
@@ -106,7 +106,7 @@ export const en = {
   "danger.body":
     "You can download everything we hold about you, or delete your account permanently.",
   "danger.confirmBody":
-    "This deletes your profile, photos, matches, messages, and posts. It cannot be undone.",
+    "This deletes your profile, photos, connections, messages, and posts. It cannot be undone.",
   "danger.password": "Confirm with your password",
   "danger.deleting": "Deleting…",
   "danger.deletePermanently": "Delete permanently",
@@ -171,7 +171,7 @@ export const en = {
   // feed
   "feed.emptyFiltered": "Nothing matches those filters. Try widening them.",
   "feed.empty":
-    "Nothing here yet. Write the first post, or head to Discover to meet people.",
+    "Nothing here yet. Write the first post, or head to Discover to find people.",
   "feed.attachedSong": "Attached song",
   "feed.comments": "Comments",
   "feed.commentPlaceholder": "Write a comment…",
@@ -183,7 +183,7 @@ export const en = {
   "feed.sortDiscussed": "Most discussed",
   "feed.fromAll": "Everyone",
   "feed.fromFriends": "Friends",
-  "feed.fromMatches": "Matches",
+  "feed.fromMatches": "Connections",
   "feed.fromMine": "Just me",
   "feed.hasAll": "Anything",
   "feed.hasPhotos": "Photos",
@@ -210,23 +210,23 @@ export const en = {
 
   "visibility.public": "Everyone",
   "visibility.friends": "Friends",
-  "visibility.matches": "Matches",
+  "visibility.matches": "Connections",
   "visibility.private": "Only me",
 
   // discover
   "discover.title": "Discover",
   "discover.intro":
-    "New people who match your preferences. Like someone to see if they like you back — if you both do, it becomes a match and you can message.",
+    "New people from around the world. Connect with someone to see if they connect back — if you both do, you can message.",
   "discover.empty":
-    "No one new right now. Check back later, or widen your age and distance preferences in your profile.",
-  "discover.pass": "Pass",
-  "discover.like": "Like",
+    "No one new right now. Check back later, or widen your preferences in your profile.",
+  "discover.pass": "Skip",
+  "discover.like": "Connect",
 
   // matches
-  "matches.title": "Matches",
-  "matches.empty": "No matches yet. Like a few people in Discover.",
-  "matches.sayHello": "You matched. Say hello.",
-  "matches.unmatch": "Unmatch",
+  "matches.title": "Connections",
+  "matches.empty": "No connections yet. Connect with a few people in Discover.",
+  "matches.sayHello": "You are connected. Say hello.",
+  "matches.unmatch": "Disconnect",
 
   // messages
   "messages.title": "Messages",
@@ -239,7 +239,7 @@ export const en = {
   "messages.markRead": "Mark read",
   "messages.markUnread": "Mark unread",
   "messages.empty":
-    "No conversations yet. Match with someone in Discover and you can message them here.",
+    "No conversations yet. Connect with someone in Discover, or add a friend, and you can message them here.",
   "messages.noResults": "Nothing matches that.",
   "messages.ended": "ended",
   "messages.you": "You:",
@@ -367,7 +367,7 @@ export const en = {
   "notifications.title": "Notifications",
   "notifications.empty": "Nothing yet.",
   "notifications.someone": "Someone",
-  "notifications.match": "matched with you",
+  "notifications.match": "connected with you",
   "notifications.message": "sent you a message",
   "notifications.profileLike": "liked your profile",
   "notifications.friendRequest": "sent you a friend request",
@@ -379,24 +379,24 @@ export const en = {
   "help.title": "Help",
   "help.intro":
     "The questions people ask most. If yours is not here, write to us.",
-  "help.q1": "How does matching work?",
+  "help.q1": "How does Discover work?",
   "help.a1":
-    "Discover shows people who match your preferences — the genders you want to meet, your age range, and who has not been blocked. Like someone and nothing happens on their side until they like you back. When you both do, it becomes a match and a conversation opens.",
-  "help.q2": "What is the difference between a match and a friend?",
+    "Discover shows people from around the world who fit your preferences — the genders you want to meet, your age range, and anybody you have not blocked. Connect with someone and they are told. If they connect back, you can message each other.",
+  "help.q2": "What is the difference between a connection and a friend?",
   "help.a2":
-    "A match comes from Discover and is about dating. A friend is a social connection: friends see each other's friends-only posts and can message without ever swiping. Matches appear under Matches, and every conversation of either kind appears under Messages.",
+    "A connection comes from Discover: two people who both chose each other, and can now talk. A friend is somebody you already know — friends see each other's friends-only posts. Connections appear under Connections, friends under Friends, and every conversation of either kind appears under Messages.",
   "help.q3": "Who can see my posts?",
   "help.a3":
-    "You choose per post: everyone, friends, matches, or only you. Change it in the dropdown next to the Post button before you publish.",
+    "You choose per post: everyone, friends, connections, or only you. Change it in the dropdown next to the Post button before you post.",
   "help.q4": "Why can nobody see my profile?",
   "help.a4":
     "Check that your profile is set to visible on your profile page, and that your age and distance preferences are not so narrow that few people qualify. Profiles without a photo also get far less attention.",
   "help.q5": "Someone is bothering me. What do I do?",
   "help.a5":
-    "Block them, and report them. Blocking hides you from each other, ends any match, and stops all messages — they are never told. Reporting sends the details to our moderators. Both buttons are on every profile, post, comment, and conversation.",
+    "Block them, and report them. Blocking hides you from each other, ends any connection, and stops all messages — they are never told. Reporting sends it to a moderator.",
   "help.q6": "How do I delete my account?",
   "help.a6":
-    "Settings, then Delete my account. It removes your profile, photos, matches, messages, and posts. You can download everything first with Download my data.",
+    "Settings, then Delete my account. It removes your profile, photos, connections, messages, and posts. You can download everything first.",
   "help.stuck": "Still stuck?",
   "help.contact":
     "Email us and tell us what happened. If it is about another member, include their name so moderators can find them.",
@@ -433,10 +433,10 @@ export const en = {
   "search.clear": "Clear search",
   "groups.inviteAnyone": "Invite anyone by name",
   "landing.badge": "Open worldwide",
-  "landing.headline": "Meet people nearby.",
-  "landing.headline2": "Stay for the community.",
+  "landing.headline": "Talk to the world.",
+  "landing.headline2": "Share your life with it.",
   "landing.intro":
-    "A dating app with a real social side — match, chat, and share what you are up to with the people you actually know. In your language, wherever you are.",
+    "Post what you are up to, chat with anyone, and join groups that fit — a community that spans the world and speaks your language.",
   "landing.create": "Create an account",
   "landing.have": "I already have one",
   "landing.note": "18+ only. Be kind — every profile is a real person.",
@@ -444,11 +444,12 @@ export const en = {
   "landing.onGizycko": "On Gizycko",
   "landing.follower": "follower",
   "landing.followers": "followers",
-  "landing.f1": "Match honestly",
-  "landing.f1b": "Preferences, age range, and distance you actually control.",
+  "landing.f1": "Find people",
+  "landing.f1b":
+    "Discover brings people from anywhere in the world, not just your street.",
   "landing.f2": "Talk properly",
   "landing.f2b":
-    "Every match gets a private conversation. No paywall to reply.",
+    "Every connection gets a private conversation. No paywall to reply.",
   "landing.f3": "Stay safe",
   "landing.f3b": "Block and report from any profile, post, or message.",
   "auth.linkNotValid": "Link not valid",

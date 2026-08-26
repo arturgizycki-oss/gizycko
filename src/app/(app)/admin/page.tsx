@@ -99,7 +99,7 @@ export default async function AdminOverviewPage() {
         />
         <Stat label="Posts" value={posts} note={`+${newPosts} this week`} />
         <Stat label="Messages" value={messages} />
-        <Stat label="Matches" value={matches} note="dating, still live" />
+        <Stat label="Connections" value={matches} note="still live" />
         <Stat label="Groups" value={groups} />
         <Stat label="Open reports" value={openReports} />
         <Stat label="Banned" value={banned} />

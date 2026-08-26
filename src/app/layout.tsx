@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: "Gizycko", template: "%s - Gizycko" },
   description:
-    "A dating app with a real social side - match, chat, and share what you are up to. Open worldwide, in your language.",
+    "Chat and share with people anywhere in the world, in your own language. Post, message, and join groups.",
 };
 
 /**

@@ -3,7 +3,7 @@ import type { Dictionary } from "../dictionaries";
 export const fr: Dictionary = {
   "nav.feed": "Actualités",
   "nav.discover": "Découvrir",
-  "nav.matches": "Matchs",
+  "nav.matches": "Contacts",
   "nav.messages": "Messages",
   "nav.friends": "Amis",
   "nav.groups": "Groupes",
@@ -27,7 +27,7 @@ export const fr: Dictionary = {
   "confirm.deleteComment": "Supprimer ce commentaire ?",
   "confirm.deletePhoto": "Supprimer cette photo ?",
   "confirm.upload": "Envoyer cette photo ?",
-  "confirm.unmatch": "Mettre fin à ce match ?",
+  "confirm.unmatch": "Mettre fin à ce contact ?",
   "confirm.removeMember": "Retirer ce membre ?",
   "confirm.yes": "Oui, allez-y",
   "confirm.no": "Non, garder",
@@ -87,7 +87,7 @@ export const fr: Dictionary = {
   "danger.body":
     "Vous pouvez télécharger tout ce que nous conservons à votre sujet, ou supprimer définitivement votre compte.",
   "danger.confirmBody":
-    "Cela supprime votre profil, vos photos, vos matchs, vos messages et vos publications. C’est irréversible.",
+    "Cela supprime votre profil, vos photos, contacts, messages et publications. C'est irréversible.",
   "danger.password": "Confirmez avec votre mot de passe",
   "danger.deleting": "Suppression…",
   "danger.deletePermanently": "Supprimer définitivement",
@@ -151,7 +151,7 @@ export const fr: Dictionary = {
   "feed.emptyFiltered":
     "Rien ne correspond à ces filtres. Essayez de les élargir.",
   "feed.empty":
-    "Rien pour l’instant. Écrivez la première publication, ou allez dans Découvrir pour rencontrer du monde.",
+    "Rien ici pour l'instant. Écrivez la première publication, ou allez dans Découvrir pour trouver des gens.",
   "feed.attachedSong": "Morceau joint",
   "feed.comments": "Commentaires",
   "feed.commentPlaceholder": "Écrire un commentaire…",
@@ -163,7 +163,7 @@ export const fr: Dictionary = {
   "feed.sortDiscussed": "Plus commentées",
   "feed.fromAll": "Tout le monde",
   "feed.fromFriends": "Amis",
-  "feed.fromMatches": "Matchs",
+  "feed.fromMatches": "Contacts",
   "feed.fromMine": "Moi seulement",
   "feed.hasAll": "Tout",
   "feed.hasPhotos": "Photos",
@@ -190,22 +190,22 @@ export const fr: Dictionary = {
 
   "visibility.public": "Tout le monde",
   "visibility.friends": "Amis",
-  "visibility.matches": "Matchs",
+  "visibility.matches": "Contacts",
   "visibility.private": "Moi seulement",
 
   "discover.title": "Découvrir",
   "discover.intro":
-    "De nouvelles personnes qui correspondent à vos préférences. Aimez quelqu’un pour voir si c’est réciproque — si oui, cela devient un match et vous pouvez discuter.",
+    "De nouvelles personnes du monde entier. Ajoutez quelqu'un pour voir s'il vous ajoute en retour — si vous le faites tous les deux, vous pouvez discuter.",
   "discover.empty":
-    "Personne de nouveau pour l’instant. Revenez plus tard, ou élargissez l’âge et la distance dans votre profil.",
+    "Personne de nouveau pour l'instant. Revenez plus tard ou élargissez vos préférences dans votre profil.",
   "discover.pass": "Passer",
-  "discover.like": "J’aime",
+  "discover.like": "Ajouter",
 
-  "matches.title": "Matchs",
+  "matches.title": "Contacts",
   "matches.empty":
-    "Aucun match pour l’instant. Aimez quelques personnes dans Découvrir.",
-  "matches.sayHello": "C’est un match. Dites bonjour.",
-  "matches.unmatch": "Annuler le match",
+    "Aucun contact pour l'instant. Ajoutez quelques personnes dans Découvrir.",
+  "matches.sayHello": "Vous êtes en contact. Dites bonjour.",
+  "matches.unmatch": "Retirer le contact",
 
   "messages.title": "Messages",
   "messages.intro":
@@ -217,7 +217,7 @@ export const fr: Dictionary = {
   "messages.markRead": "Marquer comme lu",
   "messages.markUnread": "Marquer comme non lu",
   "messages.empty":
-    "Aucune conversation. Faites un match dans Découvrir et vous pourrez écrire ici.",
+    "Aucune conversation. Ajoutez quelqu'un dans Découvrir ou un ami, et vous pourrez lui écrire ici.",
   "messages.noResults": "Rien ne correspond.",
   "messages.ended": "terminée",
   "messages.you": "Vous :",
@@ -343,7 +343,7 @@ export const fr: Dictionary = {
   "notifications.title": "Notifications",
   "notifications.empty": "Rien pour l’instant.",
   "notifications.someone": "Quelqu’un",
-  "notifications.match": "a matché avec vous",
+  "notifications.match": "est maintenant en contact avec vous",
   "notifications.message": "vous a envoyé un message",
   "notifications.profileLike": "a aimé votre profil",
   "notifications.friendRequest": "vous a envoyé une demande d’ami",
@@ -355,24 +355,24 @@ export const fr: Dictionary = {
   "help.title": "Aide",
   "help.intro":
     "Les questions les plus fréquentes. Si la vôtre n’y est pas, écrivez-nous.",
-  "help.q1": "Comment fonctionnent les matchs ?",
+  "help.q1": "Comment fonctionne Découvrir ?",
   "help.a1":
-    "Découvrir montre des personnes qui correspondent à vos préférences — les genres que vous voulez rencontrer, votre tranche d’âge, et qui n’est pas bloqué. Si vous aimez quelqu’un, rien ne se passe de son côté tant qu’il ne vous aime pas en retour. Quand c’est réciproque, cela devient un match et une conversation s’ouvre.",
-  "help.q2": "Quelle différence entre un match et un ami ?",
+    "Découvrir montre des personnes du monde entier correspondant à vos préférences — les genres que vous souhaitez rencontrer, votre tranche d'âge, et toute personne que vous n'avez pas bloquée. Si vous ajoutez quelqu'un, il en est informé. S'il vous ajoute en retour, vous pouvez vous écrire.",
+  "help.q2": "Quelle est la différence entre un contact et un ami ?",
   "help.a2":
-    "Un match vient de Découvrir et concerne les rencontres. Un ami est un lien social : les amis voient leurs publications réservées aux amis et peuvent s’écrire sans jamais swiper. Les matchs sont dans Matchs, et toutes les conversations dans Messages.",
+    "Un contact vient de Découvrir : deux personnes qui se sont choisies et peuvent maintenant se parler. Un ami est quelqu'un que vous connaissez déjà — les amis voient les publications réservées aux amis. Les contacts sont dans Contacts, les amis dans Amis, et chaque conversation dans Messages.",
   "help.q3": "Qui voit mes publications ?",
   "help.a3":
-    "Vous choisissez pour chaque publication : tout le monde, amis, matchs ou vous seul. Réglez-le dans la liste à côté du bouton Publier avant de publier.",
+    "Vous choisissez pour chaque publication : tout le monde, les amis, les contacts, ou vous seul. Changez-le dans la liste à côté du bouton Publier avant de publier.",
   "help.q4": "Pourquoi personne ne voit mon profil ?",
   "help.a4":
     "Vérifiez que votre profil est visible et que vos préférences d’âge et de distance ne sont pas trop étroites. Les profils sans photo reçoivent beaucoup moins d’attention.",
   "help.q5": "Quelqu’un me harcèle. Que faire ?",
   "help.a5":
-    "Bloquez-le et signalez-le. Le blocage vous rend invisibles l’un à l’autre, met fin au match et coupe les messages — la personne n’en est jamais informée. Le signalement part vers nos modérateurs. Les deux boutons sont sur chaque profil, publication, commentaire et conversation.",
+    "Bloquez-la, et signalez-la. Le blocage vous cache l'un à l'autre, met fin au contact et arrête tous les messages — elle n'en est jamais informée. Le signalement part vers un modérateur.",
   "help.q6": "Comment supprimer mon compte ?",
   "help.a6":
-    "Paramètres, puis Supprimer mon compte. Cela supprime votre profil, vos photos, vos matchs, vos messages et vos publications. Vous pouvez d’abord tout récupérer avec Télécharger mes données.",
+    "Réglages, puis Supprimer mon compte. Cela retire votre profil, vos photos, contacts, messages et publications. Vous pouvez tout télécharger avant.",
   "help.stuck": "Toujours bloqué ?",
   "help.contact":
     "Écrivez-nous en expliquant ce qui s’est passé. S’il s’agit d’un autre membre, donnez son nom pour que les modérateurs le retrouvent.",
@@ -409,10 +409,10 @@ export const fr: Dictionary = {
   "search.clear": "Effacer la recherche",
   "groups.inviteAnyone": "Inviter quelqu’un par son nom",
   "landing.badge": "Ouvert dans le monde entier",
-  "landing.headline": "Rencontrez des gens près de chez vous.",
-  "landing.headline2": "Restez pour la communauté.",
+  "landing.headline": "Parlez au monde.",
+  "landing.headline2": "Partagez votre vie avec lui.",
   "landing.intro":
-    "Une app de rencontre avec un vrai côté social — matchez, discutez et partagez ce que vous faites avec les gens que vous connaissez vraiment. Dans votre langue, où que vous soyez.",
+    "Racontez ce que vous faites, discutez avec n'importe qui et rejoignez les groupes qui vous ressemblent — une communauté qui couvre le monde et parle votre langue.",
   "landing.create": "Créer un compte",
   "landing.have": "J’en ai déjà un",
   "landing.note":
@@ -421,12 +421,12 @@ export const fr: Dictionary = {
   "landing.onGizycko": "Sur Gizycko",
   "landing.follower": "abonné",
   "landing.followers": "abonnés",
-  "landing.f1": "Matcher honnêtement",
+  "landing.f1": "Trouver des gens",
   "landing.f1b":
-    "Préférences, tranche d’âge et distance que vous contrôlez vraiment.",
+    "Découvrir amène des gens du monde entier, pas seulement de votre rue.",
   "landing.f2": "Discuter vraiment",
   "landing.f2b":
-    "Chaque match ouvre une conversation privée. Répondre est gratuit.",
+    "Chaque contact a sa conversation privée. Aucun paiement pour répondre.",
   "landing.f3": "Rester en sécurité",
   "landing.f3b":
     "Bloquer et signaler depuis n’importe quel profil, publication ou message.",

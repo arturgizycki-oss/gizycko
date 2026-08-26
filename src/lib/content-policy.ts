@@ -9,7 +9,7 @@
  * which is why a blocked attempt is also recorded for review.
  *
  * Ambiguous words are deliberately absent. "party", "date", "sexuality" and
- * similar have ordinary meanings on a dating site, and blocking them would
+ * similar have ordinary meanings on a site people talk on, and blocking them would
  * stop far more honest messages than bad ones.
  */
 

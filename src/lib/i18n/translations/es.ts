@@ -3,7 +3,7 @@ import type { Dictionary } from "../dictionaries";
 export const es: Dictionary = {
   "nav.feed": "Novedades",
   "nav.discover": "Descubrir",
-  "nav.matches": "Coincidencias",
+  "nav.matches": "Contactos",
   "nav.messages": "Mensajes",
   "nav.friends": "Amigos",
   "nav.groups": "Grupos",
@@ -27,7 +27,7 @@ export const es: Dictionary = {
   "confirm.deleteComment": "¿Eliminar este comentario?",
   "confirm.deletePhoto": "¿Eliminar esta foto?",
   "confirm.upload": "¿Subir esta foto?",
-  "confirm.unmatch": "¿Deshacer esta coincidencia?",
+  "confirm.unmatch": "¿Terminar este contacto?",
   "confirm.removeMember": "¿Expulsar a este miembro?",
   "confirm.yes": "Sí, hazlo",
   "confirm.no": "No, dejarlo",
@@ -87,7 +87,7 @@ export const es: Dictionary = {
   "danger.body":
     "Puedes descargar todo lo que guardamos sobre ti, o eliminar tu cuenta de forma permanente.",
   "danger.confirmBody":
-    "Esto elimina tu perfil, tus fotos, coincidencias, mensajes y publicaciones. No se puede deshacer.",
+    "Esto elimina tu perfil, fotos, contactos, mensajes y publicaciones. No se puede deshacer.",
   "danger.password": "Confírmalo con tu contraseña",
   "danger.deleting": "Eliminando…",
   "danger.deletePermanently": "Eliminar definitivamente",
@@ -150,7 +150,7 @@ export const es: Dictionary = {
 
   "feed.emptyFiltered": "Nada coincide con esos filtros. Prueba a ampliarlos.",
   "feed.empty":
-    "Aquí no hay nada todavía. Escribe la primera publicación o ve a Descubrir para conocer gente.",
+    "Aquí no hay nada todavía. Escribe la primera publicación o ve a Descubrir para encontrar gente.",
   "feed.attachedSong": "Canción adjunta",
   "feed.comments": "Comentarios",
   "feed.commentPlaceholder": "Escribe un comentario…",
@@ -162,7 +162,7 @@ export const es: Dictionary = {
   "feed.sortDiscussed": "Más comentadas",
   "feed.fromAll": "Todos",
   "feed.fromFriends": "Amigos",
-  "feed.fromMatches": "Coincidencias",
+  "feed.fromMatches": "Contactos",
   "feed.fromMine": "Solo yo",
   "feed.hasAll": "Cualquier cosa",
   "feed.hasPhotos": "Fotos",
@@ -189,22 +189,22 @@ export const es: Dictionary = {
 
   "visibility.public": "Todos",
   "visibility.friends": "Amigos",
-  "visibility.matches": "Coincidencias",
+  "visibility.matches": "Contactos",
   "visibility.private": "Solo yo",
 
   "discover.title": "Descubrir",
   "discover.intro":
-    "Gente nueva que encaja con tus preferencias. Da «me gusta» a alguien para ver si te corresponde: si los dos lo hacéis, hay coincidencia y podéis escribiros.",
+    "Gente nueva de todo el mundo. Conecta con alguien para ver si conecta contigo — si los dos lo hacéis, podéis escribiros.",
   "discover.empty":
-    "Ahora mismo no hay nadie nuevo. Vuelve más tarde o amplía la edad y la distancia en tu perfil.",
-  "discover.pass": "Pasar",
-  "discover.like": "Me gusta",
+    "Nadie nuevo ahora mismo. Vuelve más tarde o amplía tus preferencias en tu perfil.",
+  "discover.pass": "Saltar",
+  "discover.like": "Conectar",
 
-  "matches.title": "Coincidencias",
+  "matches.title": "Contactos",
   "matches.empty":
-    "Aún no hay coincidencias. Da «me gusta» a algunas personas en Descubrir.",
-  "matches.sayHello": "Habéis coincidido. Saluda.",
-  "matches.unmatch": "Deshacer coincidencia",
+    "Aún no hay contactos. Conecta con algunas personas en Descubrir.",
+  "matches.sayHello": "Estáis conectados. Saluda.",
+  "matches.unmatch": "Eliminar contacto",
 
   "messages.title": "Mensajes",
   "messages.intro":
@@ -216,7 +216,7 @@ export const es: Dictionary = {
   "messages.markRead": "Marcar como leído",
   "messages.markUnread": "Marcar como no leído",
   "messages.empty":
-    "Todavía no hay conversaciones. Coincide con alguien en Descubrir y podrás escribirle aquí.",
+    "Aún no hay conversaciones. Conecta con alguien en Descubrir o añade a un amigo y podrás escribirle aquí.",
   "messages.noResults": "No hay coincidencias.",
   "messages.ended": "terminada",
   "messages.you": "Tú:",
@@ -342,7 +342,7 @@ export const es: Dictionary = {
   "notifications.title": "Notificaciones",
   "notifications.empty": "Nada todavía.",
   "notifications.someone": "Alguien",
-  "notifications.match": "ha coincidido contigo",
+  "notifications.match": "ha conectado contigo",
   "notifications.message": "te ha enviado un mensaje",
   "notifications.profileLike": "le ha gustado tu perfil",
   "notifications.friendRequest": "te ha enviado una solicitud de amistad",
@@ -353,24 +353,24 @@ export const es: Dictionary = {
 
   "help.title": "Ayuda",
   "help.intro": "Las preguntas más frecuentes. Si la tuya no está, escríbenos.",
-  "help.q1": "¿Cómo funcionan las coincidencias?",
+  "help.q1": "¿Cómo funciona Descubrir?",
   "help.a1":
-    "Descubrir muestra a personas que encajan con tus preferencias: los géneros que quieres conocer, tu rango de edad y quien no esté bloqueado. Si das «me gusta», la otra persona no ve nada hasta que te corresponde. Cuando ambos lo hacéis, hay coincidencia y se abre una conversación.",
-  "help.q2": "¿Qué diferencia hay entre una coincidencia y un amigo?",
+    "Descubrir muestra gente de todo el mundo que encaja con tus preferencias — los géneros que quieres conocer, tu rango de edad y cualquiera a quien no hayas bloqueado. Si conectas con alguien, se le avisa. Si conecta contigo, podéis escribiros.",
+  "help.q2": "¿Cuál es la diferencia entre un contacto y un amigo?",
   "help.a2":
-    "Una coincidencia viene de Descubrir y va de citas. Un amigo es una conexión social: los amigos ven sus publicaciones para amigos y pueden escribirse sin deslizar. Las coincidencias están en Coincidencias y todas las conversaciones en Mensajes.",
+    "Un contacto viene de Descubrir: dos personas que se han elegido y ya pueden hablar. Un amigo es alguien a quien ya conoces — los amigos ven las publicaciones solo para amigos. Los contactos están en Contactos, los amigos en Amigos, y toda conversación en Mensajes.",
   "help.q3": "¿Quién ve mis publicaciones?",
   "help.a3":
-    "Lo eliges en cada publicación: todos, amigos, coincidencias o solo tú. Cámbialo en la lista junto al botón Publicar antes de publicar.",
+    "Eliges en cada publicación: todos, amigos, contactos o solo tú. Cámbialo en la lista junto al botón Publicar antes de publicar.",
   "help.q4": "¿Por qué nadie ve mi perfil?",
   "help.a4":
     "Comprueba que tu perfil esté visible y que tus preferencias de edad y distancia no sean demasiado estrechas. Los perfiles sin foto reciben mucha menos atención.",
   "help.q5": "Alguien me está molestando. ¿Qué hago?",
   "help.a5":
-    "Bloquéalo y denúncialo. Bloquear os oculta mutuamente, termina la coincidencia y corta los mensajes; nunca se le avisa. La denuncia llega a nuestros moderadores. Ambos botones están en cada perfil, publicación, comentario y conversación.",
+    "Bloquéalos y repórtalos. Bloquear os oculta el uno del otro, termina cualquier contacto y detiene todos los mensajes — nunca se les avisa. El reporte va a un moderador.",
   "help.q6": "¿Cómo elimino mi cuenta?",
   "help.a6":
-    "Ajustes y luego Eliminar mi cuenta. Se borran tu perfil, fotos, coincidencias, mensajes y publicaciones. Antes puedes guardarlo todo con Descargar mis datos.",
+    "Ajustes, y luego Eliminar mi cuenta. Quita tu perfil, fotos, contactos, mensajes y publicaciones. Antes puedes descargarlo todo.",
   "help.stuck": "¿Sigues atascado?",
   "help.contact":
     "Escríbenos y cuéntanos qué ha pasado. Si es sobre otra persona, incluye su nombre para que los moderadores la encuentren.",
@@ -407,10 +407,10 @@ export const es: Dictionary = {
   "search.clear": "Borrar la búsqueda",
   "groups.inviteAnyone": "Invitar a cualquiera por su nombre",
   "landing.badge": "Abierto en todo el mundo",
-  "landing.headline": "Conoce a gente cerca.",
-  "landing.headline2": "Quédate por la comunidad.",
+  "landing.headline": "Habla con el mundo.",
+  "landing.headline2": "Comparte tu vida con él.",
   "landing.intro":
-    "Una app de citas con un lado social de verdad: coincide, charla y comparte lo que haces con la gente que realmente conoces. En tu idioma, estés donde estés.",
+    "Cuenta lo que haces, habla con quien quieras y únete a los grupos que encajen — una comunidad que abarca el mundo y habla tu idioma.",
   "landing.create": "Crear una cuenta",
   "landing.have": "Ya tengo una",
   "landing.note":
@@ -419,11 +419,11 @@ export const es: Dictionary = {
   "landing.onGizycko": "En Gizycko",
   "landing.follower": "seguidor",
   "landing.followers": "seguidores",
-  "landing.f1": "Coincidencias honestas",
-  "landing.f1b": "Preferencias, edad y distancia que controlas de verdad.",
+  "landing.f1": "Encuentra gente",
+  "landing.f1b": "Descubrir trae gente de todo el mundo, no solo de tu calle.",
   "landing.f2": "Habla de verdad",
   "landing.f2b":
-    "Cada coincidencia abre una conversación privada. Responder no cuesta nada.",
+    "Cada contacto tiene su conversación privada. Sin pagar por responder.",
   "landing.f3": "Con seguridad",
   "landing.f3b":
     "Bloquea y denuncia desde cualquier perfil, publicación o mensaje.",

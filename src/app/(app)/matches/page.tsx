@@ -18,7 +18,8 @@ export default async function MatchesPage() {
   const matches = await prisma.match.findMany({
     where: {
       unmatchedAt: null,
-      // Friend conversations live in Messages; this page is for dating matches.
+      // Friend conversations live in Messages; this page is for connections
+      // made through Discover.
       origin: "SWIPE",
       OR: [{ userAId: me }, { userBId: me }],
     },
