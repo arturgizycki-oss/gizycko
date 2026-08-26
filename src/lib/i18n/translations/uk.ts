@@ -498,4 +498,8 @@ export const uk: Dictionary = {
   "settings.notifications": "Сповіщення",
   "chat.sent": "Надіслано",
   "chat.read": "Прочитано",
+  "auth.verifiedTitle": "Вашу пошту підтверджено",
+  "auth.verifiedSignedIn": "Ви увійшли. Створімо ваш профіль.",
+  "auth.verifiedNow": "Адресу підтверджено. Увійдіть, щоб продовжити.",
+  "auth.verifiedContinue": "Створити профіль",
 };

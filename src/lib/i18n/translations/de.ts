@@ -505,4 +505,9 @@ export const de: Dictionary = {
   "settings.notifications": "Benachrichtigungen",
   "chat.sent": "Gesendet",
   "chat.read": "Gelesen",
+  "auth.verifiedTitle": "Deine E-Mail ist bestätigt",
+  "auth.verifiedSignedIn": "Du bist angemeldet. Richten wir dein Profil ein.",
+  "auth.verifiedNow":
+    "Deine Adresse ist bestätigt. Melde dich an, um fortzufahren.",
+  "auth.verifiedContinue": "Profil einrichten",
 };

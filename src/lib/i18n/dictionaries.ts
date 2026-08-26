@@ -527,6 +527,10 @@ export const en = {
   "settings.notifications": "Notifications",
   "chat.sent": "Sent",
   "chat.read": "Read",
+  "auth.verifiedTitle": "Your email is confirmed",
+  "auth.verifiedSignedIn": "You are signed in. Let's set up your profile.",
+  "auth.verifiedNow": "Your address is confirmed. Sign in to continue.",
+  "auth.verifiedContinue": "Set up my profile",
 } as const;
 
 export type MessageKey = keyof typeof en;

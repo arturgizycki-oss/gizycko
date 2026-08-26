@@ -1,7 +1,9 @@
 export type Mail = {
   to: string;
   subject: string;
+  /** Always. Some clients show only this, and spam filters read it. */
   text: string;
+  html?: string;
 };
 
 /**
@@ -30,7 +32,10 @@ export async function sendMail(mail: Mail): Promise<void> {
         from,
         to: mail.to,
         subject: mail.subject,
+        // Both parts. A message with only HTML scores worse with spam filters
+        // and shows as blank in a client set to plain text.
         text: mail.text,
+        ...(mail.html ? { html: mail.html } : {}),
       }),
     });
 

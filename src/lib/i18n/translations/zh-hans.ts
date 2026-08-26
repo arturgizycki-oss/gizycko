@@ -477,4 +477,8 @@ export const zhHans: Dictionary = {
   "settings.notifications": "通知",
   "chat.sent": "已发送",
   "chat.read": "已读",
+  "auth.verifiedTitle": "邮箱已验证",
+  "auth.verifiedSignedIn": "你已登录，来完善资料吧。",
+  "auth.verifiedNow": "地址已验证，请登录以继续。",
+  "auth.verifiedContinue": "完善我的资料",
 };

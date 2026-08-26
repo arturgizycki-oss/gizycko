@@ -497,4 +497,8 @@ export const pl: Dictionary = {
   "settings.notifications": "Powiadomienia",
   "chat.sent": "Wysłane",
   "chat.read": "Przeczytane",
+  "auth.verifiedTitle": "Adres e-mail potwierdzony",
+  "auth.verifiedSignedIn": "Jesteś zalogowany. Uzupełnijmy Twój profil.",
+  "auth.verifiedNow": "Adres potwierdzony. Zaloguj się, aby kontynuować.",
+  "auth.verifiedContinue": "Uzupełnij profil",
 };
