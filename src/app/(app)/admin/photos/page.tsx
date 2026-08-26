@@ -32,7 +32,7 @@ export default async function AdminPhotosPage() {
           here for a second look; rejecting one hides it from everybody else.
         </p>
       ) : (
-        <ul className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-3 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-3">
           {photos.map((photo) => (
             <li key={photo.id} className="gh-box">
               <div
@@ -57,11 +57,15 @@ export default async function AdminPhotosPage() {
                 </Link>
                 <p className="gh-muted">{shortWhen(photo.createdAt)}</p>
 
-                <div className="mt-2 flex gap-1">
-                  <form
-                    action={reviewPhoto.bind(null, photo.id, true)}
-                    className="flex-1"
-                  >
+                {/*
+                    Stacked, not side by side. A .gh-btn will not wrap and will
+                    not shrink below its own text, so two of them across a card
+                    this narrow put Reject through the right-hand edge. Full
+                    width also gives each a bigger target for a decision that
+                    hides somebody's photograph.
+                */}
+                <div className="mt-2 flex flex-col gap-1">
+                  <form action={reviewPhoto.bind(null, photo.id, true)}>
                     <button
                       type="submit"
                       className="gh-btn w-full justify-center"
@@ -69,10 +73,7 @@ export default async function AdminPhotosPage() {
                       Keep
                     </button>
                   </form>
-                  <form
-                    action={reviewPhoto.bind(null, photo.id, false)}
-                    className="flex-1"
-                  >
+                  <form action={reviewPhoto.bind(null, photo.id, false)}>
                     <button
                       type="submit"
                       className="gh-btn gh-btn-danger w-full justify-center"
