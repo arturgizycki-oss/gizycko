@@ -42,8 +42,8 @@ FLASH="fade=t=in:st=0:d=0.10:color=white"
 
 # --- hook: black, two lines, the second landing hard ------------------------
 ffmpeg -y -loglevel error -f lavfi -i "color=c=black:s=1920x1080:d=2.8:r=25" -frames:v 70 \
-  -vf "drawtext=fontfile='${BOLD}':text='Everyone is nearby.':fontcolor=white:fontsize=88:x=(w-text_w)/2:y='(h-text_h)/2-70 + 50*max(0,1-(t-0.15)*10)':alpha='min(1,max(0,(t-0.15)*8))',\
-drawtext=fontfile='${BOLD}':text='Nobody is close.':fontcolor=${BLUE}:fontsize=88:x=(w-text_w)/2:y='(h-text_h)/2+50 + 50*max(0,1-(t-1.05)*10)':alpha='min(1,max(0,(t-1.05)*8))'" \
+  -vf "drawtext=fontfile='${BOLD}':text='Eight billion people.':fontcolor=white:fontsize=88:x=(w-text_w)/2:y='(h-text_h)/2-70 + 50*max(0,1-(t-0.15)*10)':alpha='min(1,max(0,(t-0.15)*8))',\
+drawtext=fontfile='${BOLD}':text='You have met a few hundred.':fontcolor=${BLUE}:fontsize=88:x=(w-text_w)/2:y='(h-text_h)/2+50 + 50*max(0,1-(t-1.05)*10)':alpha='min(1,max(0,(t-1.05)*8))'" \
   -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$OUT/a1.mp4"
 
 # --- turn: the promise, on a hard push in -----------------------------------
@@ -51,7 +51,7 @@ ffmpeg -y -loglevel error -loop 1 -i "$SRC/login_background.png" -frames:v 65 \
   -vf "${FILL},${GRADE},\
 zoompan=z='min(1+0.0026*on,1.17)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=65:s=1920x1080:fps=25,\
 ${WASH},${BARS},\
-drawtext=fontfile='${BOLD}':text='So we built somewhere to start.':fontcolor=white:fontsize=76:x=(w-text_w)/2:y='(h-text_h)/2 + 50*max(0,1-t*10)':${SHADOW}:alpha='min(1,t*8)'" \
+drawtext=fontfile='${BOLD}':text='So we built somewhere for the rest.':fontcolor=white:fontsize=76:x=(w-text_w)/2:y='(h-text_h)/2 + 50*max(0,1-t*10)':${SHADOW}:alpha='min(1,t*8)'" \
   -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$OUT/a2.mp4"
 
 # --- rhythm: one word a beat, alternating direction -------------------------
@@ -75,10 +75,10 @@ drawtext=fontfile='${BOLD}':text='${word}':fontcolor=white:fontsize=150:x=(w-tex
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$out"
 }
 
-beat "$SRC/friend_background.png"    "836:470:0:0"      "$OUT/b1.mp4" "MATCH." in
+beat "$SRC/friend_background.png"    "836:470:0:0"      "$OUT/b1.mp4" "POST."  in
 beat "$SRC/friend_background.png"    "836:470:836:0"    "$OUT/b2.mp4" "TALK."  out
-beat "$SRC/friend_background.png"    "836:470:0:470"    "$OUT/b3.mp4" "MEET."  in
-beat "$SRC/dashboard_background.png" "1254:705:0:118"   "$OUT/b4.mp4" "SHARE." out
+beat "$SRC/friend_background.png"    "836:470:0:470"    "$OUT/b3.mp4" "SHARE." in
+beat "$SRC/dashboard_background.png" "1254:705:0:118"   "$OUT/b4.mp4" "JOIN."  out
 beat "$SRC/friend_background.png"    "836:470:836:470"  "$OUT/b5.mp4" "STAY."  in
 
 # --- proof: what it actually does, still moving ------------------------------
@@ -103,7 +103,7 @@ drawtext=fontfile='${REG}':text='${line2}':fontcolor=white:fontsize=40:x='(w-tex
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$out"
 }
 
-proof "$SRC/landing_background.png"   "$OUT/c1.mp4" "Every match gets a private conversation." "No paywall to reply."                       right
+proof "$SRC/landing_background.png"   "$OUT/c1.mp4" "Every connection gets a private conversation." "No paywall to reply."                       right
 proof "$SRC/dashboard_background.png" "$OUT/c2.mp4" "Share photos, songs, video, voice notes." "The bits of your day worth telling someone." left
 proof "$SRC/group_background.png"     "$OUT/c3.mp4" "Groups worth joining."                    "Find the people you actually get on with."   right
 
@@ -113,7 +113,7 @@ ffmpeg -y -loglevel error -loop 1 -i "$SRC/logo.png" -frames:v 90 \
 [0:v]scale=260:260[logo];\
 [bg][logo]overlay=x=(W-w)/2:y='(H/2)-250 + 40*max(0,1-t*10)':shortest=1,\
 drawtext=fontfile='${BOLD}':text='gizycko.online':fontcolor=${BLUE}:fontsize=110:x=(w-text_w)/2:y='(h-text_h)/2+50 + 40*max(0,1-(t-0.18)*10)':alpha='min(1,max(0,(t-0.18)*8))',\
-drawtext=fontfile='${REG}':text='Meet people nearby. Stay for the community.':fontcolor=0x3A4653:fontsize=42:x=(w-text_w)/2:y=(h-text_h)/2+190:alpha='min(1,max(0,(t-0.5)*8))',\
+drawtext=fontfile='${REG}':text='Talk to the world. Share your life with it.':fontcolor=0x3A4653:fontsize=42:x=(w-text_w)/2:y=(h-text_h)/2+190:alpha='min(1,max(0,(t-0.5)*8))',\
 drawtext=fontfile='${REG}':text='Free to join. 18+':fontcolor=0x8A94A0:fontsize=34:x=(w-text_w)/2:y=(h-text_h)/2+280:alpha='min(1,max(0,(t-0.75)*8))',\
 fade=t=in:st=0:d=0.12:color=white" \
   -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$OUT/d1.mp4"

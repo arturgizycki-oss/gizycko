@@ -24,9 +24,9 @@ drawtext=fontfile='${REG}':text='${line2}':fontcolor=white:fontsize=34:x=(w-text
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$out"
 }
 
-scene "$SRC/landing_background.png"   "$OUT/v1.mp4" "Meet people nearby."     "A dating app with a real social side"     "0.38"
-scene "$SRC/friend_background.png"    "$OUT/v2.mp4" "Match. Chat. Share."     "Every match gets a private conversation"  "0.42"
-scene "$SRC/dashboard_background.png" "$OUT/v3.mp4" "Stay for the community." "Photos, songs, video, voice notes"        "0.42"
+scene "$SRC/landing_background.png"   "$OUT/v1.mp4" "Talk to the world."     "Post, chat, and join groups"     "0.38"
+scene "$SRC/friend_background.png"    "$OUT/v2.mp4" "Post. Talk. Share."     "Every connection gets a private conversation"  "0.42"
+scene "$SRC/dashboard_background.png" "$OUT/v3.mp4" "Share your life with it." "Photos, songs, video, voice notes"        "0.42"
 scene "$SRC/group_background.png"     "$OUT/v4.mp4" "Groups worth joining."   "Find the people you actually get on with" "0.42"
 
 ffmpeg -y -loglevel error -loop 1 -i "$SRC/logo.png" -t 5 \
@@ -34,8 +34,8 @@ ffmpeg -y -loglevel error -loop 1 -i "$SRC/logo.png" -t 5 \
 [0:v]scale=220:220[logo];\
 [bg][logo]overlay=x=(W-w)/2:y=(H/2)-260:shortest=1,\
 drawtext=fontfile='${BOLD}':text='gizycko.online':fontcolor=0x1B7CF0:fontsize=76:x=(w-text_w)/2:y=(h-text_h)/2,\
-drawtext=fontfile='${REG}':text='Meet people nearby.':fontcolor=0x3A4653:fontsize=38:x=(w-text_w)/2:y=(h-text_h)/2+110,\
-drawtext=fontfile='${REG}':text='Stay for the community.':fontcolor=0x3A4653:fontsize=38:x=(w-text_w)/2:y=(h-text_h)/2+170,\
+drawtext=fontfile='${REG}':text='Talk to the world.':fontcolor=0x3A4653:fontsize=38:x=(w-text_w)/2:y=(h-text_h)/2+110,\
+drawtext=fontfile='${REG}':text='Share your life with it.':fontcolor=0x3A4653:fontsize=38:x=(w-text_w)/2:y=(h-text_h)/2+170,\
 drawtext=fontfile='${REG}':text='Free to join. 18+':fontcolor=0x8A94A0:fontsize=32:x=(w-text_w)/2:y=(h-text_h)/2+270,\
 fade=t=in:st=0:d=0.4" \
   -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$OUT/v5.mp4"

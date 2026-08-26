@@ -1,6 +1,8 @@
 # Advertising material
 
-Built from the site's own photographs with ffmpeg. The `.sh` scripts here
+Built from the site's own photographs with ffmpeg. Every cut here presents
+Gizycko as somewhere to post and to talk to people anywhere - it used to sell
+itself as a dating app, which is not what it is. The `.sh` scripts here
 rebuild everything, so changing a headline is an edit and a re-run rather than
 starting again.
 
@@ -62,16 +64,18 @@ characters, descriptions 90.
 
 **Headlines**
 
-- Meet people nearby
-- A dating app with a real side
-- Match, chat, share
+- Talk to the world
+- Post, chat, join groups
+- A community without borders
+- In your language, wherever
 - Free to join. 18+
 - Groups worth joining
 
 **Descriptions**
 
-- A dating app with a real social side. Match, chat, and share what you are up to.
-- Every match gets a private conversation. No paywall to reply. Free to join.
+- Post what you are up to, chat with anyone, and join groups that fit. Free to join.
+- A community that spans the world and speaks your language. 53 languages, no borders.
+- Every connection gets a private conversation. No paywall to reply.
 - Block and report from any profile, post or message. 18+ only.
 
 ## Before you spend money on these
@@ -83,14 +87,16 @@ library, read what you bought. If they were generated, check that service's
 terms on commercial use. This is the one thing here that can cost you real
 money if it is wrong.
 
-**Google restricts dating ads.** Dating advertisers must be certified by Google
-before their ads run, and the policy is specific about what the creative may
-show and promise. Apply first, or the campaign is rejected and the spend does
-nothing. Search for "Google Ads dating certification".
+**Say what this is, and it stays simple.** Google certifies dating advertisers
+before their ads may run, and the policy restricts what the creative can show.
+None of that applies to a social network, and nothing here presents itself as
+dating any more - so keep it that way in the ad copy too. A headline promising
+people to meet would put the campaign back under a rule it does not otherwise
+need to satisfy.
 
 **The legal pages are still drafts.** Terms and Privacy carry `[company name]`
-and `[registered address]`. Google checks the landing page of a dating advert,
-and placeholders there are a plausible reason to be refused.
+and `[registered address]`. Google checks the landing page of any advert, and
+placeholders there are a plausible reason to be refused.
 
 ## Rebuilding
 

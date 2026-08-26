@@ -29,15 +29,15 @@ drawtext=fontfile='${BOLD}':text='${line1}':fontcolor=white:fontsize=92:x=(w-tex
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$out"
 }
 
-scene "$SRC/landing_background.png"   "$OUT/s1.mp4" "Meet people nearby."       "A dating app with a real social side"  "0.38"
-scene "$SRC/friend_background.png"    "$OUT/s2.mp4" "Match. Chat. Share."       "Every match gets a private conversation" "0.42"
-scene "$SRC/dashboard_background.png" "$OUT/s3.mp4" "Stay for the community."   "Photos, songs, video, voice notes"     "0.42"
+scene "$SRC/landing_background.png"   "$OUT/s1.mp4" "Talk to the world."       "Post, chat, and join groups"  "0.38"
+scene "$SRC/friend_background.png"    "$OUT/s2.mp4" "Post. Talk. Share."       "Every connection gets a private conversation" "0.42"
+scene "$SRC/dashboard_background.png" "$OUT/s3.mp4" "Share your life with it."   "Photos, songs, video, voice notes"     "0.42"
 scene "$SRC/group_background.png"     "$OUT/s4.mp4" "Groups worth joining."     "Find the people you actually get on with" "0.42"
 
 # End card. White, not brand blue: the logo file is rgb24 with no alpha, so on
 # any coloured ground it carries a visible white box. On white it simply sits
 # there, which is what a logo should do.
-ffmpeg -y -loglevel error -loop 1 -i "$SRC/logo.png" -t 5   -filter_complex "color=c=white:s=1920x1080:d=5:r=25[bg];[0:v]scale=240:240[logo];[bg][logo]overlay=x=(W-w)/2:y=(H/2)-260:shortest=1,drawtext=fontfile='${BOLD}':text='gizycko.online':fontcolor=0x1B7CF0:fontsize=108:x=(w-text_w)/2:y=(h-text_h)/2+40,drawtext=fontfile='${REG}':text='Meet people nearby. Stay for the community.':fontcolor=0x3A4653:fontsize=44:x=(w-text_w)/2:y=(h-text_h)/2+180,drawtext=fontfile='${REG}':text='Free to join. 18+':fontcolor=0x8A94A0:fontsize=36:x=(w-text_w)/2:y=(h-text_h)/2+280,fade=t=in:st=0:d=0.4"   -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$OUT/s5.mp4"
+ffmpeg -y -loglevel error -loop 1 -i "$SRC/logo.png" -t 5   -filter_complex "color=c=white:s=1920x1080:d=5:r=25[bg];[0:v]scale=240:240[logo];[bg][logo]overlay=x=(W-w)/2:y=(H/2)-260:shortest=1,drawtext=fontfile='${BOLD}':text='gizycko.online':fontcolor=0x1B7CF0:fontsize=108:x=(w-text_w)/2:y=(h-text_h)/2+40,drawtext=fontfile='${REG}':text='Talk to the world. Share your life with it.':fontcolor=0x3A4653:fontsize=44:x=(w-text_w)/2:y=(h-text_h)/2+180,drawtext=fontfile='${REG}':text='Free to join. 18+':fontcolor=0x8A94A0:fontsize=36:x=(w-text_w)/2:y=(h-text_h)/2+280,fade=t=in:st=0:d=0.4"   -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$OUT/s5.mp4"
 
 # Crossfade the five together. Each clip is 4s (the end card 5s) and each
 # transition eats 0.6s, so the offsets step 3.4s at a time.
