@@ -486,4 +486,6 @@ export const ar: Dictionary = {
     "فقط بعد فترة من الغياب، ومرة واحدة في الساعة على الأكثر.",
   "settings.emailSaveFailed": "تعذّر الحفظ. حاول مرة أخرى.",
   "settings.notifications": "الإشعارات",
+  "chat.sent": "أُرسلت",
+  "chat.read": "تمت القراءة",
 };

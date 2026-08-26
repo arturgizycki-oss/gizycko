@@ -496,4 +496,6 @@ export const uk: Dictionary = {
     "Лише коли вас довго немає, і не частіше разу на годину.",
   "settings.emailSaveFailed": "Не вдалося зберегти. Спробуйте ще раз.",
   "settings.notifications": "Сповіщення",
+  "chat.sent": "Надіслано",
+  "chat.read": "Прочитано",
 };

@@ -525,6 +525,8 @@ export const en = {
     "Only when you have been away a while, and at most once an hour.",
   "settings.emailSaveFailed": "Could not save that. Try again.",
   "settings.notifications": "Notifications",
+  "chat.sent": "Sent",
+  "chat.read": "Read",
 } as const;
 
 export type MessageKey = keyof typeof en;

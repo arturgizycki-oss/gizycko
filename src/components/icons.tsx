@@ -8,11 +8,14 @@ type IconProps = { className?: string };
 function Svg({
   children,
   className = "size-5",
-}: IconProps & { children: React.ReactNode }) {
+  // Wider than the 24 grid only where a glyph genuinely needs it - the double
+  // tick is two marks side by side and will not fit a square.
+  viewBox = "0 0 24 24",
+}: IconProps & { children: React.ReactNode; viewBox?: string }) {
   return (
     <svg
       aria-hidden
-      viewBox="0 0 24 24"
+      viewBox={viewBox}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -345,6 +348,22 @@ export function CheckIcon(props: IconProps) {
   return (
     <Svg {...props}>
       <path d="m5 12.5 4.5 4.5L19 7" />
+    </Svg>
+  );
+}
+
+/**
+ * Two ticks, for a message the other person has read.
+ *
+ * The second sits four units right of the first and they overlap, which is what
+ * makes the pair read as one mark rather than as two separate ticks. The
+ * viewBox is widened to fit it, so this is not simply CheckIcon twice.
+ */
+export function DoubleCheckIcon(props: IconProps) {
+  return (
+    <Svg {...props} viewBox="0 0 28 24">
+      <path d="m1 12.5 4.5 4.5L15 7" />
+      <path d="m9 12.5 4.5 4.5L23 7" />
     </Svg>
   );
 }

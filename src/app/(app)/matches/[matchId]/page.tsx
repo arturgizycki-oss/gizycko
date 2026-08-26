@@ -178,6 +178,7 @@ export default async function ChatPage({
           createdAt: message.createdAt.toISOString(),
           editedAt: message.editedAt?.toISOString() ?? null,
           mine: message.senderId === me,
+          read: message.readAt !== null,
           deleted: message.deletedAt !== null,
           replyTo:
             message.replyTo && !message.replyTo.deletedAt

@@ -503,4 +503,6 @@ export const de: Dictionary = {
   "settings.emailSaveFailed":
     "Konnte nicht gespeichert werden. Bitte erneut versuchen.",
   "settings.notifications": "Benachrichtigungen",
+  "chat.sent": "Gesendet",
+  "chat.read": "Gelesen",
 };

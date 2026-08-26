@@ -17,6 +17,7 @@ import { verifyUploaded } from "@/lib/uploads";
 import { isMediaKind } from "@/lib/media-kinds";
 import { emailAboutMessage } from "@/lib/message-email";
 import { pushToUser } from "@/lib/realtime";
+import { worthNotifying } from "@/lib/message-notify";
 
 export type MessageState = { error?: string; submissionId?: string };
 
@@ -30,6 +31,14 @@ async function memberMatch(matchId: string, userId: string) {
   if (!match) return null;
   if (match.userAId !== userId && match.userBId !== userId) return null;
   return match;
+}
+
+/** The other half of a conversation. */
+function otherSide(
+  match: { userAId: string; userBId: string },
+  userId: string,
+): string {
+  return match.userAId === userId ? match.userBId : match.userAId;
 }
 
 const messageSchema = z.object({
@@ -154,8 +163,7 @@ export async function sendMessage(
   const allowed = checkContent(parsed.data.body);
   if (!allowed.ok) return { error: allowed.message };
 
-  const otherId =
-    match.userAId === session.user.id ? match.userBId : match.userAId;
+  const otherId = otherSide(match, session.user.id);
 
   // A block in either direction closes the conversation.
   const blocked = await prisma.block.findFirst({
@@ -211,6 +219,8 @@ export async function sendMessage(
     await putObject(attachment.key, attachment.bytes);
   }
 
+  const announce = await worthNotifying(matchId, session.user.id, otherId);
+
   await prisma.$transaction([
     prisma.message.create({
       data: {
@@ -233,14 +243,18 @@ export async function sendMessage(
      * and the notification about it either both exist or neither does. The
      * push it would otherwise have sent is in the `after` block below.
      */
-    prisma.notification.create({
-      data: {
-        userId: otherId,
-        type: "MESSAGE",
-        actorId: session.user.id,
-        entityId: matchId,
-      },
-    }),
+    ...(announce
+      ? [
+          prisma.notification.create({
+            data: {
+              userId: otherId,
+              type: "MESSAGE",
+              actorId: session.user.id,
+              entityId: matchId,
+            },
+          }),
+        ]
+      : []),
   ]);
 
   revalidatePath(`/matches/${matchId}`);
@@ -331,10 +345,38 @@ export async function markRead(matchId: string) {
   const match = await memberMatch(matchId, session.user.id);
   if (!match) return;
 
-  await prisma.message.updateMany({
-    where: { matchId, senderId: { not: session.user.id }, readAt: null },
-    data: { readAt: new Date() },
-  });
+  const [messages, notifications] = await prisma.$transaction([
+    prisma.message.updateMany({
+      where: { matchId, senderId: { not: session.user.id }, readAt: null },
+      data: { readAt: new Date() },
+    }),
+    /*
+     * Reading the conversation is what clears its notifications.
+     *
+     * They used to survive it, so opening a chat left the bell still claiming
+     * there was something to see, and the only way to clear it was to visit the
+     * notifications page and read a line about a message already read.
+     */
+    prisma.notification.updateMany({
+      where: {
+        userId: session.user.id,
+        type: "MESSAGE",
+        entityId: matchId,
+        readAt: null,
+      },
+      data: { readAt: new Date() },
+    }),
+  ]);
+
+  if (notifications.count > 0) {
+    // The bell is stale until this lands.
+    await pushToUser(session.user.id, "notification");
+  }
+
+  if (messages.count > 0) {
+    // The sender's ticks are stale until this lands.
+    await pushToUser(otherSide(match, session.user.id), "message");
+  }
 }
 
 export async function unmatch(matchId: string) {

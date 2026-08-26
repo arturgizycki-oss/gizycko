@@ -504,4 +504,6 @@ export const fr: Dictionary = {
     "Seulement après une absence, et au plus une fois par heure.",
   "settings.emailSaveFailed": "Enregistrement impossible. Réessayez.",
   "settings.notifications": "Notifications",
+  "chat.sent": "Envoyé",
+  "chat.read": "Lu",
 };

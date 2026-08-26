@@ -21,6 +21,8 @@ import { EmojiPicker } from "@/components/emoji-picker";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 import { useLive } from "@/components/live";
 import {
+  CheckIcon,
+  DoubleCheckIcon,
   ICON_BUTTON,
   MusicIcon,
   PaperclipIcon,
@@ -56,6 +58,8 @@ export type ChatMessage = {
   createdAt: string;
   editedAt: string | null;
   mine: boolean;
+  /** Whether the other person has read it. Only meaningful on your own. */
+  read: boolean;
   deleted: boolean;
   reactions: ChatReaction[];
   media: ChatMedia | null;
@@ -327,20 +331,38 @@ function Bubble({
             <p className="whitespace-pre-wrap">
               {message.deleted ? t("chat.messageDeleted") : message.body}
             </p>
-            <time
-              dateTime={message.createdAt}
+            <span
               className={
                 message.mine && !message.deleted
-                  ? "mt-1 block text-[10px] text-white/70"
-                  : "mt-1 block text-[10px] text-[var(--ink-muted)]"
+                  ? "mt-1 flex items-center justify-end gap-1 text-[10px] text-white/70"
+                  : "mt-1 flex items-center gap-1 text-[10px] text-[var(--ink-muted)]"
               }
             >
-              {new Date(message.createdAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-              {message.editedAt && ` (${t("chat.edited")})`}
-            </time>
+              <time dateTime={message.createdAt}>
+                {new Date(message.createdAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+                {message.editedAt && ` (${t("chat.edited")})`}
+              </time>
+
+              {/*
+                  One tick sent, two ticks read - on your own messages only,
+                  because a tick on somebody else's would be telling them what
+                  they already know. Titled rather than labelled: a screen
+                  reader announcing "read" after every line of a long
+                  conversation is worse than saying nothing.
+              */}
+              {message.mine && !message.deleted && (
+                <span title={message.read ? t("chat.read") : t("chat.sent")}>
+                  {message.read ? (
+                    <DoubleCheckIcon className="size-3.5" />
+                  ) : (
+                    <CheckIcon className="size-3" />
+                  )}
+                </span>
+              )}
+            </span>
           </div>
         ) : null}
 

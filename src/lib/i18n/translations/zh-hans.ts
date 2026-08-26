@@ -475,4 +475,6 @@ export const zhHans: Dictionary = {
   "settings.emailOnMessageHint": "仅在你离开一段时间后发送，且每小时最多一封。",
   "settings.emailSaveFailed": "无法保存，请重试。",
   "settings.notifications": "通知",
+  "chat.sent": "已发送",
+  "chat.read": "已读",
 };

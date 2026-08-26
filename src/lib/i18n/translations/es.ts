@@ -501,4 +501,6 @@ export const es: Dictionary = {
     "Solo si llevas un rato ausente, y como mucho una vez por hora.",
   "settings.emailSaveFailed": "No se ha podido guardar. Inténtalo de nuevo.",
   "settings.notifications": "Notificaciones",
+  "chat.sent": "Enviado",
+  "chat.read": "Leído",
 };

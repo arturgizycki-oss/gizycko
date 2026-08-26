@@ -495,4 +495,6 @@ export const pl: Dictionary = {
     "Tylko gdy dłuższy czas Cię nie było, i najwyżej raz na godzinę.",
   "settings.emailSaveFailed": "Nie udało się zapisać. Spróbuj ponownie.",
   "settings.notifications": "Powiadomienia",
+  "chat.sent": "Wysłane",
+  "chat.read": "Przeczytane",
 };

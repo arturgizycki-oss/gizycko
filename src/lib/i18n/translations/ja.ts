@@ -498,4 +498,6 @@ export const ja: Dictionary = {
     "しばらく離れていたときだけ、1時間に1通までです。",
   "settings.emailSaveFailed": "保存できませんでした。もう一度お試しください。",
   "settings.notifications": "通知",
+  "chat.sent": "送信済み",
+  "chat.read": "既読",
 };
