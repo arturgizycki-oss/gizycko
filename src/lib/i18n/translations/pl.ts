@@ -85,15 +85,10 @@ export const pl: Dictionary = {
 
   "danger.title": "Twoje dane",
   "danger.body":
-    "Możesz pobrać wszystko, co o Tobie przechowujemy, albo trwale usunąć konto.",
-  "danger.confirmBody":
-    "To usuwa Twój profil, zdjęcia, kontakty, wiadomości i posty. Tego nie można cofnąć.",
-  "danger.password": "Potwierdź hasłem",
-  "danger.deleting": "Usuwanie…",
-  "danger.deletePermanently": "Usuń na zawsze",
-  "danger.failed": "Nie udało się usunąć konta.",
+    "W każdej chwili możesz pobrać wszystko, co o Tobie przechowujemy.",
+  "danger.deleteByRequest":
+    "Aby usunąć konto, napisz do nas. W Polityce prywatności znajdziesz kontakt. Usuwamy wszystko: profil, zdjęcia, kontakty, wiadomości i posty.",
   "danger.download": "Pobierz moje dane",
-  "danger.delete": "Usuń moje konto",
 
   "profile.followers": "Obserwujący",
   "profile.followingCount": "Obserwowani",
@@ -366,7 +361,7 @@ export const pl: Dictionary = {
     "Zablokuj i zgłoś. Blokada ukrywa Was przed sobą, kończy kontakt i zatrzymuje wszystkie wiadomości — druga osoba nigdy się o tym nie dowie. Zgłoszenie trafia do moderatora.",
   "help.q6": "Jak usunąć konto?",
   "help.a6":
-    "Ustawienia, potem Usuń konto. Usuwa profil, zdjęcia, kontakty, wiadomości i posty. Najpierw możesz wszystko pobrać.",
+    "Napisz do nas, a usuniemy je: profil, zdjęcia, kontakty, wiadomości i posty. Kontakt znajdziesz w Polityce prywatności. Jeśli chcesz zachować kopię, najpierw pobierz wszystko w Ustawieniach.",
   "help.stuck": "Nadal nie wiesz?",
   "help.contact":
     "Napisz do nas i opisz, co się stało. Jeśli chodzi o innego użytkownika, podaj jego nazwę, żeby moderatorzy mogli go znaleźć.",

@@ -3,7 +3,6 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { sendMail } from "./mail";
 import { renderEmail } from "./email-template";
-import { deleteMemberFiles } from "./member-files";
 
 /**
  * Where somebody lands after confirming.
@@ -90,15 +89,19 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24,
   },
   user: {
-    // GDPR: users must be able to erase their account themselves.
-    deleteUser: {
-      enabled: true,
-      // The row cascades, but nothing in a cascade reaches the bucket. Without
-      // this, "Delete my account" would leave the member's photographs behind.
-      beforeDelete: async (user: { id: string }) => {
-        await deleteMemberFiles(user.id);
-      },
-    },
+    /*
+     * Deleting an account is an admin's job, not a member's.
+     *
+     * With this enabled, better-auth exposes an endpoint any signed-in member
+     * can call, and the button was one password away from erasing everything
+     * they had ever written. Turning it off closes the endpoint as well as
+     * hiding the button - a hidden control is still a working one.
+     *
+     * Erasure itself is unchanged, only who performs it: see deleteMember in
+     * the admin actions, which sweeps the member's files out of the bucket
+     * before the row goes. That sweep used to live here, in beforeDelete.
+     */
+    deleteUser: { enabled: false },
     additionalFields: {
       role: { type: "string", defaultValue: "USER", input: false },
       bannedAt: { type: "date", required: false, input: false },

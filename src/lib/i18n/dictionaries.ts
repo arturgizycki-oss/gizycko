@@ -103,16 +103,10 @@ export const en = {
     "Blocked people cannot see your profile, message you, or find you in Discover.",
 
   "danger.title": "Your data",
-  "danger.body":
-    "You can download everything we hold about you, or delete your account permanently.",
-  "danger.confirmBody":
-    "This deletes your profile, photos, connections, messages, and posts. It cannot be undone.",
-  "danger.password": "Confirm with your password",
-  "danger.deleting": "Deleting…",
-  "danger.deletePermanently": "Delete permanently",
-  "danger.failed": "Could not delete the account.",
+  "danger.body": "You can download everything we hold about you, at any time.",
+  "danger.deleteByRequest":
+    "To have your account deleted, ask us. The Privacy Policy says how to reach us, and we remove everything: your profile, photos, connections, messages and posts.",
   "danger.download": "Download my data",
-  "danger.delete": "Delete my account",
 
   // profile
   "profile.followers": "Followers",
@@ -396,7 +390,7 @@ export const en = {
     "Block them, and report them. Blocking hides you from each other, ends any connection, and stops all messages — they are never told. Reporting sends it to a moderator.",
   "help.q6": "How do I delete my account?",
   "help.a6":
-    "Settings, then Delete my account. It removes your profile, photos, connections, messages, and posts. You can download everything first.",
+    "Ask us, and we delete it: your profile, photos, connections, messages and posts. The Privacy Policy says how to reach us. Download everything first from Settings if you want to keep a copy.",
   "help.stuck": "Still stuck?",
   "help.contact":
     "Email us and tell us what happened. If it is about another member, include their name so moderators can find them.",

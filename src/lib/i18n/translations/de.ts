@@ -85,15 +85,10 @@ export const de: Dictionary = {
 
   "danger.title": "Deine Daten",
   "danger.body":
-    "Du kannst alles herunterladen, was wir über dich gespeichert haben, oder dein Konto dauerhaft löschen.",
-  "danger.confirmBody":
-    "Das löscht dein Profil, deine Fotos, Kontakte, Nachrichten und Beiträge. Es kann nicht rückgängig gemacht werden.",
-  "danger.password": "Mit deinem Passwort bestätigen",
-  "danger.deleting": "Wird gelöscht…",
-  "danger.deletePermanently": "Endgültig löschen",
-  "danger.failed": "Das Konto konnte nicht gelöscht werden.",
+    "Du kannst jederzeit alles herunterladen, was wir über dich gespeichert haben.",
+  "danger.deleteByRequest":
+    "Um dein Konto löschen zu lassen, schreib uns. In der Datenschutzerklärung steht, wie du uns erreichst. Wir entfernen alles: Profil, Fotos, Kontakte, Nachrichten und Beiträge.",
   "danger.download": "Meine Daten herunterladen",
-  "danger.delete": "Mein Konto löschen",
 
   "profile.followers": "Follower",
   "profile.followingCount": "Folgt",
@@ -371,7 +366,7 @@ export const de: Dictionary = {
     "Blockiere und melde die Person. Blockieren versteckt euch voreinander, beendet jeden Kontakt und stoppt alle Nachrichten — sie erfährt es nie. Eine Meldung geht an einen Moderator.",
   "help.q6": "Wie lösche ich mein Konto?",
   "help.a6":
-    "Einstellungen, dann Konto löschen. Das entfernt Profil, Fotos, Kontakte, Nachrichten und Beiträge. Vorher kannst du alles herunterladen.",
+    "Schreib uns, und wir löschen es: Profil, Fotos, Kontakte, Nachrichten und Beiträge. In der Datenschutzerklärung steht, wie du uns erreichst. Lade vorher alles in den Einstellungen herunter, wenn du eine Kopie behalten willst.",
   "help.stuck": "Immer noch offen?",
   "help.contact":
     "Schreib uns und erzähl, was passiert ist. Geht es um ein anderes Mitglied, nenn den Namen, damit die Moderation es findet.",

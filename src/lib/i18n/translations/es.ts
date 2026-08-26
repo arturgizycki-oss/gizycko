@@ -85,15 +85,10 @@ export const es: Dictionary = {
 
   "danger.title": "Tus datos",
   "danger.body":
-    "Puedes descargar todo lo que guardamos sobre ti, o eliminar tu cuenta de forma permanente.",
-  "danger.confirmBody":
-    "Esto elimina tu perfil, fotos, contactos, mensajes y publicaciones. No se puede deshacer.",
-  "danger.password": "Confírmalo con tu contraseña",
-  "danger.deleting": "Eliminando…",
-  "danger.deletePermanently": "Eliminar definitivamente",
-  "danger.failed": "No se pudo eliminar la cuenta.",
+    "Puedes descargar en cualquier momento todo lo que guardamos sobre ti.",
+  "danger.deleteByRequest":
+    "Para eliminar tu cuenta, escríbenos. La Política de privacidad indica cómo contactarnos. Lo quitamos todo: perfil, fotos, contactos, mensajes y publicaciones.",
   "danger.download": "Descargar mis datos",
-  "danger.delete": "Eliminar mi cuenta",
 
   "profile.followers": "Seguidores",
   "profile.followingCount": "Siguiendo",
@@ -370,7 +365,7 @@ export const es: Dictionary = {
     "Bloquéalos y repórtalos. Bloquear os oculta el uno del otro, termina cualquier contacto y detiene todos los mensajes — nunca se les avisa. El reporte va a un moderador.",
   "help.q6": "¿Cómo elimino mi cuenta?",
   "help.a6":
-    "Ajustes, y luego Eliminar mi cuenta. Quita tu perfil, fotos, contactos, mensajes y publicaciones. Antes puedes descargarlo todo.",
+    "Escríbenos y lo eliminamos: perfil, fotos, contactos, mensajes y publicaciones. La Política de privacidad indica cómo contactarnos. Descárgalo todo antes desde Ajustes si quieres guardar una copia.",
   "help.stuck": "¿Sigues atascado?",
   "help.contact":
     "Escríbenos y cuéntanos qué ha pasado. Si es sobre otra persona, incluye su nombre para que los moderadores la encuentren.",

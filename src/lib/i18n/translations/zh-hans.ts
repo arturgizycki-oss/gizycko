@@ -84,15 +84,10 @@ export const zhHans: Dictionary = {
     "被拉黑的人看不到你的资料，无法给你发消息，也无法在“发现”中找到你。",
 
   "danger.title": "你的数据",
-  "danger.body": "你可以下载我们保存的全部数据，或永久删除账号。",
-  "danger.confirmBody":
-    "这会删除你的资料、照片、联系人、消息和帖子，无法撤销。",
-  "danger.password": "输入密码以确认",
-  "danger.deleting": "删除中…",
-  "danger.deletePermanently": "永久删除",
-  "danger.failed": "无法删除该账号。",
+  "danger.body": "你可以随时下载我们保存的关于你的全部内容。",
+  "danger.deleteByRequest":
+    "如需删除账户，请联系我们。隐私政策里写明了联系方式。我们会移除全部内容：资料、照片、联系人、消息和帖子。",
   "danger.download": "下载我的数据",
-  "danger.delete": "删除我的账号",
 
   "profile.followers": "粉丝",
   "profile.followingCount": "关注",
@@ -355,7 +350,7 @@ export const zhHans: Dictionary = {
     "屏蔽并举报。屏蔽会让你们彼此看不见，结束任何联系，并停止所有消息——对方永远不会被告知。举报会送到管理员那里。",
   "help.q6": "如何删除账号？",
   "help.a6":
-    "设置，然后删除我的账户。它会移除你的资料、照片、联系人、消息和帖子。你可以先把所有内容下载下来。",
+    "联系我们，我们会删除：资料、照片、联系人、消息和帖子。隐私政策里写明了联系方式。想留存副本的话，先在设置里把所有内容下载下来。",
   "help.stuck": "还是没解决？",
   "help.contact":
     "给我们写信说明情况。如果涉及其他成员，请附上对方的名字，方便审核人员查找。",

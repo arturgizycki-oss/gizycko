@@ -85,15 +85,10 @@ export const fr: Dictionary = {
 
   "danger.title": "Vos données",
   "danger.body":
-    "Vous pouvez télécharger tout ce que nous conservons à votre sujet, ou supprimer définitivement votre compte.",
-  "danger.confirmBody":
-    "Cela supprime votre profil, vos photos, contacts, messages et publications. C'est irréversible.",
-  "danger.password": "Confirmez avec votre mot de passe",
-  "danger.deleting": "Suppression…",
-  "danger.deletePermanently": "Supprimer définitivement",
-  "danger.failed": "Impossible de supprimer le compte.",
+    "Vous pouvez télécharger à tout moment tout ce que nous conservons sur vous.",
+  "danger.deleteByRequest":
+    "Pour faire supprimer votre compte, écrivez-nous. La Politique de confidentialité indique comment nous joindre. Nous retirons tout : profil, photos, contacts, messages et publications.",
   "danger.download": "Télécharger mes données",
-  "danger.delete": "Supprimer mon compte",
 
   "profile.followers": "Abonnés",
   "profile.followingCount": "Abonnements",
@@ -372,7 +367,7 @@ export const fr: Dictionary = {
     "Bloquez-la, et signalez-la. Le blocage vous cache l'un à l'autre, met fin au contact et arrête tous les messages — elle n'en est jamais informée. Le signalement part vers un modérateur.",
   "help.q6": "Comment supprimer mon compte ?",
   "help.a6":
-    "Réglages, puis Supprimer mon compte. Cela retire votre profil, vos photos, contacts, messages et publications. Vous pouvez tout télécharger avant.",
+    "Écrivez-nous et nous le supprimons : profil, photos, contacts, messages et publications. La Politique de confidentialité indique comment nous joindre. Téléchargez tout depuis les Réglages si vous voulez en garder une copie.",
   "help.stuck": "Toujours bloqué ?",
   "help.contact":
     "Écrivez-nous en expliquant ce qui s’est passé. S’il s’agit d’un autre membre, donnez son nom pour que les modérateurs le retrouvent.",
