@@ -28,7 +28,20 @@ const FILTERS: { key: string; label: string; where: Prisma.UserWhereInput }[] =
     {
       key: "incomplete",
       label: "No profile",
-      where: { profile: { is: { completedAt: null } } },
+      /*
+       * Both halves of "no profile", which is why this is an OR.
+       *
+       * Somebody who signed up and stopped has no profile row at all, and
+       * `profile: { is: ... }` never matches those - it can only test a row
+       * that exists. The filter therefore found nobody while the overview
+       * counted nine and every one of them wore a "no profile" badge.
+       */
+      where: {
+        OR: [
+          { profile: { is: null } },
+          { profile: { is: { completedAt: null } } },
+        ],
+      },
     },
   ];
 
