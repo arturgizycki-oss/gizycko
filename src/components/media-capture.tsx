@@ -10,7 +10,7 @@ import { useToast } from "./toast";
  * with the surrounding form. A server action reads FormData, so a recording or
  * a snapshot has to travel the same way an uploaded file does.
  */
-function fillInput(input: HTMLInputElement | null, file: File | null) {
+export function fillInput(input: HTMLInputElement | null, file: File | null) {
   if (!input) return;
 
   const transfer = new DataTransfer();

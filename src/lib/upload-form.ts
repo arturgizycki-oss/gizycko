@@ -1,6 +1,7 @@
 "use client";
 
 import { uploadDirect } from "./upload-client";
+import { prepareImage } from "./image-client";
 import type { MediaKindName } from "./media-kinds";
 
 /** A file input, the kind of thing in it, and the field its key goes back as. */
@@ -47,12 +48,30 @@ export async function prepareUploads(
     // once only the key is sent.
     if (slot.kind === "audio") data.set("songName", files[0].name);
 
-    for (const file of files) {
+    /*
+     * Redraw the photographs first, and put them back in the form.
+     *
+     * Both roads out of here need the prepared file: the signed upload below,
+     * and the fallback that submits the form itself when signing is not
+     * configured. Preparing inside the upload loop alone would leave the
+     * fallback sending the original - the HEIC the server just refused.
+     */
+    const prepared: File[] = [];
+    for (const original of files) {
+      const ready = await prepareImage(original);
+      if (!ready.ok) return { ok: false, error: ready.error };
+      prepared.push(ready.file);
+    }
+
+    data.delete(slot.input);
+    for (const file of prepared) data.append(slot.input, file);
+
+    for (const file of prepared) {
       const result = await uploadDirect(file, slot.kind);
 
       if (!result.ok) {
-        // No signing available: leave the form untouched and let the files go
-        // through the action, which is correct on a local disk.
+        // No signing available: the prepared files are in the form already, so
+        // they travel with the action, which is correct on a local disk.
         if (result.error === "Direct upload is not configured.")
           return { ok: true, data };
         return { ok: false, error: result.error };
@@ -87,7 +106,11 @@ export async function prepareUploadOne(
 
   if (!(file instanceof File) || file.size === 0) return { ok: true, data };
 
-  const result = await uploadDirect(file, kind);
+  const ready = await prepareImage(file);
+  if (!ready.ok) return { ok: false, error: ready.error };
+  data.set(inputName, ready.file);
+
+  const result = await uploadDirect(ready.file, kind);
 
   if (!result.ok) {
     if (result.error === "Direct upload is not configured.")
@@ -135,7 +158,14 @@ export async function prepareChatUpload(
   const isVoice = voice instanceof File && voice.size > 0;
   const kind: MediaKindName = isVoice ? "voice" : kindOfFile(file);
 
-  const result = await uploadDirect(file, kind);
+  const ready =
+    kind === "image" ? await prepareImage(file) : ({ ok: true, file } as const);
+  if (!ready.ok) return { ok: false, error: ready.error };
+
+  // Back into the form, so the fallback path sends the prepared file too.
+  data.set(isVoice ? "voice" : "attachment", ready.file);
+
+  const result = await uploadDirect(ready.file, kind);
 
   if (!result.ok) {
     if (result.error === "Direct upload is not configured.")
@@ -145,7 +175,7 @@ export async function prepareChatUpload(
 
   data.set("attachmentKey", result.key);
   data.set("attachmentKind", kind);
-  data.set("attachmentName", file.name || "Attachment");
+  data.set("attachmentName", ready.file.name || "Attachment");
   data.delete("attachment");
   data.delete("voice");
 

@@ -15,8 +15,9 @@ import { useToast } from "@/components/toast";
 import { prepareUploadOne } from "@/lib/upload-form";
 import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
+import { PICKER_IMAGE_TYPES } from "@/lib/image-types";
 
-const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ACCEPTED = PICKER_IMAGE_TYPES;
 
 export type PhotoItem = {
   id: string;

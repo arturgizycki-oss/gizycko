@@ -14,8 +14,9 @@ import { MAX_POST_IMAGES } from "@/lib/post-limits";
 import { useT } from "@/lib/i18n/provider";
 import { useErrorToast, useToast } from "@/components/toast";
 import { prepareUploads } from "@/lib/upload-form";
+import { PICKER_IMAGE_TYPES } from "@/lib/image-types";
 
-const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const IMAGE_TYPES = PICKER_IMAGE_TYPES;
 
 export function GroupComposer({ groupId }: { groupId: string }) {
   const toast = useToast();

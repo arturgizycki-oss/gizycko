@@ -6,10 +6,12 @@ import { useT } from "@/lib/i18n/provider";
 import type { MessageKey } from "@/lib/i18n";
 import { useErrorToast, useToast } from "@/components/toast";
 import { prepareUploadOne } from "@/lib/upload-form";
-import { MAX_IMAGE_BYTES } from "@/lib/image";
 import { UserIcon } from "@/components/icons";
+import { PICKER_IMAGE_TYPES } from "@/lib/image-types";
+import { prepareImage } from "@/lib/image-client";
+import { fillInput } from "@/components/media-capture";
 
-const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ACCEPTED = PICKER_IMAGE_TYPES;
 
 /** Gender values as stored, paired with the key that names each one. */
 const GENDER_LABELS: Record<string, MessageKey> = {
@@ -48,21 +50,34 @@ export function OnboardingForm({ defaultName }: { defaultName: string }) {
       return;
     }
 
-    if (!ACCEPTED.includes(file.type)) {
-      toast(t("photos.badType"));
-      event.target.value = "";
-      setPhoto(null);
-      return;
-    }
+    /*
+     * Convert here, not at submit.
+     *
+     * A photo straight off a phone is often HEIC, or larger than the limit, or
+     * both - and this used to refuse it on the spot with "not an image". It is
+     * redrawn as a JPEG instead, and the converted file replaces what the
+     * picker put in the input so the form submits that.
+     *
+     * The preview needs it too: a browser that cannot decode HEIC cannot show
+     * one either, so previewing the original would have left a broken frame
+     * above the button even where the upload would have worked.
+     */
+    void (async () => {
+      const ready = await prepareImage(file);
 
-    if (file.size > MAX_IMAGE_BYTES) {
-      toast(t("photos.tooBig"));
-      event.target.value = "";
-      setPhoto(null);
-      return;
-    }
+      if (!ready.ok) {
+        toast(ready.error);
+        event.target.value = "";
+        setPhoto(null);
+        return;
+      }
 
-    setPhoto({ name: file.name, preview: URL.createObjectURL(file) });
+      fillInput(event.target, ready.file);
+      setPhoto({
+        name: ready.file.name,
+        preview: URL.createObjectURL(ready.file),
+      });
+    })();
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
