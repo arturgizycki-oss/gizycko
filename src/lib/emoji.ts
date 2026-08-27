@@ -486,6 +486,23 @@ function graphemes(text: string): string[] {
 
 const EMOJI_ONLY = /^[\p{Extended_Pictographic}\p{Emoji_Component}️‍]+$/u;
 
+/*
+ * A digit is not an emoji, whatever Unicode says.
+ *
+ * 0-9, # and * are Emoji_Component, because they are the bases of the keycap
+ * emoji - so a message of "1" passed the test above and was drawn as a huge
+ * glyph with no bubble and no timestamp. The keycap itself must still count,
+ * and that is the difference: the real one carries U+20E3, the enclosing
+ * keycap, while a plain digit does not.
+ */
+const PICTOGRAPH = /\p{Extended_Pictographic}/u;
+const KEYCAP = /️?⃣/;
+
+function isEmojiPart(part: string): boolean {
+  if (!EMOJI_ONLY.test(part)) return false;
+  return PICTOGRAPH.test(part) || KEYCAP.test(part);
+}
+
 /**
  * True when a message is nothing but a few emoji, which chat apps render large
  * and without a bubble. Capped so a wall of emoji stays normal size.
@@ -497,7 +514,7 @@ export function isEmojiOnly(text: string, max = 3): boolean {
   const parts = graphemes(trimmed).filter((part) => part.trim().length > 0);
   if (parts.length === 0 || parts.length > max) return false;
 
-  return parts.every((part) => EMOJI_ONLY.test(part));
+  return parts.every(isEmojiPart);
 }
 
 /** The quick reactions offered on a long-press / hover, as in most chat apps. */

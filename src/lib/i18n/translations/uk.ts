@@ -498,4 +498,5 @@ export const uk: Dictionary = {
   "auth.verifiedSignedIn": "Ви увійшли. Створімо ваш профіль.",
   "auth.verifiedNow": "Адресу підтверджено. Увійдіть, щоб продовжити.",
   "auth.verifiedContinue": "Створити профіль",
+  "chat.isTyping": "пише…",
 };

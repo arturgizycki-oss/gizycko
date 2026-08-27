@@ -22,6 +22,8 @@ import Image from "next/image";
 import { EmojiPicker } from "@/components/emoji-picker";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 import { useLive } from "@/components/live";
+import { useChatState, useTypingSignal } from "./use-chat-state";
+import { setTyping } from "./actions";
 import { useUnreadRefresh } from "@/components/unread";
 import {
   CheckIcon,
@@ -73,13 +75,6 @@ export type ChatMessage = {
 type Draft =
   | { mode: "reply"; id: string; author: string; body: string }
   | { mode: "edit"; id: string; body: string };
-
-/*
- * The safety net, not the mechanism. A push refreshes the moment a message
- * is sent, so this only has to catch what a dropped socket missed - which is
- * why it is half a minute now rather than eight seconds.
- */
-const POLL_MS = 30_000;
 
 /*
  * Fetch the conversation again without the board vanishing first.
@@ -140,9 +135,18 @@ export function Chat({
     [messages, echoes, arrived],
   );
 
-  // Sent by the server the moment the other person sends something.
-  useLive("message", () => {
+  /*
+   * Watch this conversation directly rather than re-rendering the route on a
+   * timer. The route is only pulled again when the watcher says something
+   * moved, which is what makes checking every two seconds affordable.
+   */
+  const { typing, check } = useChatState(matchId, () => {
     if (!closed) refreshQuietly(router.refresh);
+  });
+
+  // Where the socket is configured, a push checks at once instead of waiting.
+  useLive("message", () => {
+    void check();
   });
 
   /*
@@ -155,51 +159,9 @@ export function Chat({
     refreshUnread();
   }, [refreshUnread, messages.length]);
 
-  /*
-   * Each tick re-runs the page query on the server, so it only runs while the
-   * tab is actually in front of someone. A backgrounded tab used to keep
-   * polling all day, and a member with four chats open in four tabs was paying
-   * for all four.
-   */
-  useEffect(() => {
-    if (closed) return;
-
-    let timer: ReturnType<typeof setInterval> | undefined;
-
-    function stop() {
-      if (timer !== undefined) {
-        clearInterval(timer);
-        timer = undefined;
-      }
-    }
-
-    function start() {
-      if (timer === undefined)
-        timer = setInterval(() => refreshQuietly(router.refresh), POLL_MS);
-    }
-
-    function onVisibility() {
-      if (document.visibilityState === "visible") {
-        // Catch up on whatever arrived while the tab was away.
-        refreshQuietly(router.refresh);
-        start();
-      } else {
-        stop();
-      }
-    }
-
-    if (document.visibilityState === "visible") start();
-    document.addEventListener("visibilitychange", onVisibility);
-
-    return () => {
-      stop();
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, [router, closed]);
-
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length]);
+  }, [messages.length, typing]);
 
   return (
     <div
@@ -223,6 +185,17 @@ export function Chat({
             onDraft={setDraft}
           />
         ))}
+
+        {typing && (
+          <li className="flex items-center gap-2 pl-1 text-sm text-[var(--ink-muted)]">
+            <span className="flex gap-1" aria-hidden>
+              <Dot delay="0ms" />
+              <Dot delay="150ms" />
+              <Dot delay="300ms" />
+            </span>
+            {otherName} {t("chat.isTyping")}
+          </li>
+        )}
 
         <div ref={bottomRef} />
       </ol>
@@ -258,6 +231,16 @@ export function Chat({
         />
       )}
     </div>
+  );
+}
+
+/** One of the three dots that says somebody is writing. */
+function Dot({ delay }: { delay: string }) {
+  return (
+    <span
+      style={{ animationDelay: delay }}
+      className="size-1.5 animate-bounce rounded-full bg-[var(--ink-muted)]"
+    />
   );
 }
 
@@ -617,6 +600,10 @@ function Composer({
     if (state.submissionId) refreshQuietly(router.refresh);
   }, [state.submissionId, router]);
 
+  const signalTyping = useTypingSignal(() => {
+    void setTyping(matchId);
+  });
+
   // A rejected send arrives as new action state; surface it over the page
   // rather than wedging it into the composer row.
   useEffect(() => {
@@ -791,7 +778,12 @@ function Composer({
           defaultValue={editing?.body ?? ""}
           autoFocus={editing !== null || state.submissionId !== undefined}
           onKeyDown={onKeyDown}
-          onInput={(value) => setHasText(value.trim().length > 0)}
+          onInput={(value) => {
+            setHasText(value.trim().length > 0);
+            // Throttled inside the hook: this fires on every keystroke, and a
+            // write on every keystroke is not a thing to build.
+            if (value.trim().length > 0) signalTyping();
+          }}
         />
 
         <span className="relative">

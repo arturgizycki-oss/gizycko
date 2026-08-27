@@ -500,4 +500,5 @@ export const ja: Dictionary = {
   "auth.verifiedSignedIn": "ログインしました。プロフィールを作りましょう。",
   "auth.verifiedNow": "アドレスを確認しました。ログインして続けてください。",
   "auth.verifiedContinue": "プロフィールを作成",
+  "chat.isTyping": "が入力中…",
 };

@@ -486,4 +486,5 @@ export const ar: Dictionary = {
   "auth.verifiedSignedIn": "لقد سجّلت الدخول. لننشئ ملفك الشخصي.",
   "auth.verifiedNow": "تم تأكيد عنوانك. سجّل الدخول للمتابعة.",
   "auth.verifiedContinue": "إنشاء ملفي الشخصي",
+  "chat.isTyping": "يكتب…",
 };

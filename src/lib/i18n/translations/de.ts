@@ -506,4 +506,5 @@ export const de: Dictionary = {
   "auth.verifiedNow":
     "Deine Adresse ist bestätigt. Melde dich an, um fortzufahren.",
   "auth.verifiedContinue": "Profil einrichten",
+  "chat.isTyping": "schreibt…",
 };

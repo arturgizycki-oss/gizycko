@@ -296,6 +296,31 @@ export async function sendMessage(
 const EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 /**
+ * Say that you are typing, so the other side can show it.
+ *
+ * Written to the match rather than pushed alone, because the socket is not
+ * configured everywhere and the poll has to be able to read it. The client
+ * calls this at most once every few seconds - a write per keystroke would be
+ * a write per keystroke.
+ *
+ * Nothing clears it. Whoever reads it decides how old is too old, which means
+ * a member who closes the tab mid-word stops being "typing" on its own.
+ */
+export async function setTyping(matchId: string) {
+  const session = await requireSession();
+  const match = await memberMatch(matchId, session.user.id);
+  if (!match || match.unmatchedAt) return;
+
+  await prisma.match.update({
+    where: { id: matchId },
+    data: { typingUserId: session.user.id, typingAt: new Date() },
+  });
+
+  // Instant where the socket is on; the poll catches it either way.
+  await pushToUser(otherSide(match, session.user.id), "message");
+}
+
+/**
  * Change the text of your own message.
  *
  * Only your own, only within a day, and only messages that have text: editing

@@ -341,6 +341,17 @@ model Match {
   unmatchedBy   User?     @relation("UnmatchedBy", fields: [unmatchedById], references: [id], onDelete: SetNull)
 
   lastMessageAt DateTime?
+
+  /*
+   * Who is typing, and when they last were.
+   *
+   * One pair of columns rather than one per side: only one person's typing is
+   * ever worth showing, and the reader only needs to know it is not their own.
+   * Stale by design - nothing clears it when somebody stops, so whoever reads
+   * it decides how old is too old.
+   */
+  typingUserId String?
+  typingAt     DateTime?
   messages      Message[]
 
   @@unique([userAId, userBId])

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { ALL_EMOJI, EMOJI_GROUPS, isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
+import {
+  ALL_EMOJI,
+  EMOJI_GROUPS,
+  isEmojiOnly,
+  QUICK_REACTIONS,
+} from "@/lib/emoji";
 
 describe("isEmojiOnly", () => {
   it("accepts a single emoji", () => {
@@ -57,5 +62,22 @@ describe("emoji data", () => {
     for (const emoji of QUICK_REACTIONS) {
       expect(isEmojiOnly(emoji)).toBe(true);
     }
+  });
+
+  /*
+   * A digit is Emoji_Component in Unicode, because it is the base of a keycap
+   * emoji - so "1" was drawn as a huge glyph with no bubble and no timestamp,
+   * which is what somebody sending a one-character message actually saw.
+   */
+  it("does not treat a bare digit, # or * as an emoji", () => {
+    expect(isEmojiOnly("1")).toBe(false);
+    expect(isEmojiOnly("12")).toBe(false);
+    expect(isEmojiOnly("#")).toBe(false);
+    expect(isEmojiOnly("*")).toBe(false);
+  });
+
+  it("still treats a real keycap emoji as one", () => {
+    expect(isEmojiOnly("1️⃣")).toBe(true);
+    expect(isEmojiOnly("#️⃣")).toBe(true);
   });
 });

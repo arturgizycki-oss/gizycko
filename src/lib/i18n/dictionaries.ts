@@ -526,6 +526,7 @@ export const en = {
   "auth.verifiedSignedIn": "You are signed in. Let's set up your profile.",
   "auth.verifiedNow": "Your address is confirmed. Sign in to continue.",
   "auth.verifiedContinue": "Set up my profile",
+  "chat.isTyping": "is typing…",
 } as const;
 
 export type MessageKey = keyof typeof en;

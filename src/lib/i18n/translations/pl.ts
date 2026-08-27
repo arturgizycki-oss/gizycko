@@ -496,4 +496,5 @@ export const pl: Dictionary = {
   "auth.verifiedSignedIn": "Jesteś zalogowany. Uzupełnijmy Twój profil.",
   "auth.verifiedNow": "Adres potwierdzony. Zaloguj się, aby kontynuować.",
   "auth.verifiedContinue": "Uzupełnij profil",
+  "chat.isTyping": "pisze…",
 };

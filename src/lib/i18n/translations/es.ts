@@ -503,4 +503,5 @@ export const es: Dictionary = {
   "auth.verifiedNow":
     "Tu dirección está confirmada. Inicia sesión para continuar.",
   "auth.verifiedContinue": "Crear mi perfil",
+  "chat.isTyping": "está escribiendo…",
 };

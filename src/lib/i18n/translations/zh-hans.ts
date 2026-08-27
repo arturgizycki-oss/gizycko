@@ -477,4 +477,5 @@ export const zhHans: Dictionary = {
   "auth.verifiedSignedIn": "你已登录，来完善资料吧。",
   "auth.verifiedNow": "地址已验证，请登录以继续。",
   "auth.verifiedContinue": "完善我的资料",
+  "chat.isTyping": "正在输入…",
 };
