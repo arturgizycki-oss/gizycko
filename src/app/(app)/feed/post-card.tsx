@@ -7,6 +7,7 @@ import { ChatIcon, HeartIcon, MusicIcon } from "@/components/icons";
 import { getLocale, getTranslator } from "@/lib/i18n";
 import { CopyLink } from "@/components/copy-link";
 import { ConfirmButton } from "@/components/confirm-button";
+import { LocalTime } from "@/components/local-time";
 
 type PostCardProps = {
   post: {
@@ -44,12 +45,11 @@ export async function PostCard({ post, isMine }: PostCardProps) {
             >
               {post.authorName}
             </Link>
-            <time
-              dateTime={post.createdAt.toISOString()}
+            <LocalTime
+              value={post.createdAt.toISOString()}
+              locale={locale}
               className="block text-xs text-neutral-500"
-            >
-              {post.createdAt.toLocaleString(locale)}
-            </time>
+            />
           </div>
         </div>
 

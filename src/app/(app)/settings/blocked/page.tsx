@@ -6,6 +6,7 @@ import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { UnblockButton } from "./unblock-button";
 import { getLocale, getTranslator } from "@/lib/i18n";
 import { ChevronLeftIcon } from "@/components/icons";
+import { LocalTime } from "@/components/local-time";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -59,7 +60,11 @@ export default async function BlockedPage() {
                 </p>
                 <p className="text-xs text-neutral-500">
                   {t("settings.blockedSince")}{" "}
-                  {block.createdAt.toLocaleDateString(locale)}
+                  <LocalTime
+                    value={block.createdAt.toISOString()}
+                    locale={locale}
+                    mode="date"
+                  />
                 </p>
               </div>
               <UnblockButton userId={block.blocked.id} />

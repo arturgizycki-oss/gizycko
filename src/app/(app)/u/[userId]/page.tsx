@@ -23,6 +23,7 @@ import { CollapsibleSection } from "@/components/collapsible-section";
 import { ChatIcon, FilmIcon, HeartIcon, MusicIcon } from "@/components/icons";
 import { openConversation } from "@/lib/actions/conversations";
 import { getLocale, getTranslator } from "@/lib/i18n";
+import { LocalTime } from "@/components/local-time";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -246,10 +247,11 @@ export default async function PublicProfilePage({
           </p>
           <p className="hint mt-3">
             {t("profile.memberSince")}{" "}
-            {user.createdAt.toLocaleDateString(locale, {
-              month: "long",
-              year: "numeric",
-            })}
+            <LocalTime
+              value={user.createdAt.toISOString()}
+              locale={locale}
+              mode="month"
+            />
             {` · ${t("profile.active")} `}
             {timeAgo(user.profile.lastActiveAt)}
           </p>

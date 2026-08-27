@@ -7,6 +7,7 @@ import { getLocale, getTranslator } from "@/lib/i18n";
 import { TRANSLATED_LOCALES } from "@/lib/i18n/dictionaries";
 import { ChevronRightIcon } from "@/components/icons";
 import { EmailToggle } from "@/components/email-toggle";
+import { LocalTime } from "@/components/local-time";
 
 export const metadata = { title: "Settings" };
 
@@ -52,11 +53,16 @@ export default async function SettingsPage() {
           <div className="flex justify-between gap-4">
             <dt className="muted">{t("settings.memberSince")}</dt>
             <dd>
-              {/* Formatted in the member's own language, not the server's. */}
-              {user?.createdAt.toLocaleDateString(locale, {
-                month: "long",
-                year: "numeric",
-              })}
+              {/* In the member's own language and their own clock: the
+                  server's would be UTC, which is a different month for
+                  anybody who joined near the turn of one. */}
+              {user && (
+                <LocalTime
+                  value={user.createdAt.toISOString()}
+                  locale={locale}
+                  mode="month"
+                />
+              )}
             </dd>
           </div>
         </dl>

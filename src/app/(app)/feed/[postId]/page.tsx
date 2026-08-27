@@ -12,6 +12,7 @@ import { CopyLink } from "@/components/copy-link";
 import { getLocale, getTranslator } from "@/lib/i18n";
 import { ChevronLeftIcon } from "@/components/icons";
 import { ConfirmButton } from "@/components/confirm-button";
+import { LocalTime } from "@/components/local-time";
 
 /** How many comments one page loads. */
 const MAX_COMMENTS = 200;
@@ -99,12 +100,11 @@ export default async function PostPage({
             >
               {authorName}
             </Link>
-            <time
-              dateTime={post.createdAt.toISOString()}
+            <LocalTime
+              value={post.createdAt.toISOString()}
+              locale={locale}
               className="block text-xs text-neutral-500"
-            >
-              {post.createdAt.toLocaleString(locale)}
-            </time>
+            />
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <CopyLink path={`/feed/${post.id}`} label={t("action.share")} />
@@ -208,12 +208,11 @@ export default async function PostPage({
                   <p className="mt-1 text-sm whitespace-pre-wrap">
                     {comment.body}
                   </p>
-                  <time
-                    dateTime={comment.createdAt.toISOString()}
+                  <LocalTime
+                    value={comment.createdAt.toISOString()}
+                    locale={locale}
                     className="mt-1 block text-xs text-neutral-500"
-                  >
-                    {comment.createdAt.toLocaleString(locale)}
-                  </time>
+                  />
                 </>
               )}
             </li>

@@ -6,6 +6,7 @@ import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { MarkRead } from "./mark-read";
 import { getLocale, getTranslator } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n";
+import { LocalTime } from "@/components/local-time";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -108,12 +109,11 @@ export default async function NotificationsPage() {
                     <span className="font-medium">{actorName}</span>{" "}
                     {t(TEXT[notification.type] ?? "notifications.other")}
                   </p>
-                  <time
-                    dateTime={notification.createdAt.toISOString()}
+                  <LocalTime
+                    value={notification.createdAt.toISOString()}
+                    locale={locale}
                     className="text-xs text-neutral-500"
-                  >
-                    {notification.createdAt.toLocaleString(locale)}
-                  </time>
+                  />
                 </Link>
               </li>
             );
