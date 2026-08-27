@@ -15,18 +15,36 @@ type Messages = Record<string, string>;
 
 const MessagesContext = createContext<Messages | null>(null);
 
+/*
+ * The language tag as well as the strings.
+ *
+ * A client component that formats a date needs it - the number and date
+ * formats of a locale are not in the dictionary, and a component cannot read
+ * the cookie the server resolved it from.
+ */
+const LocaleContext = createContext<string>("en");
+
 export function LocaleProvider({
   messages,
+  locale,
   children,
 }: {
   messages: Messages;
+  locale: string;
   children: React.ReactNode;
 }) {
   return (
-    <MessagesContext.Provider value={messages}>
-      {children}
-    </MessagesContext.Provider>
+    <LocaleContext.Provider value={locale}>
+      <MessagesContext.Provider value={messages}>
+        {children}
+      </MessagesContext.Provider>
+    </LocaleContext.Provider>
   );
+}
+
+/** The reader's language tag, for formatting a date or a number. */
+export function useLocale(): string {
+  return useContext(LocaleContext);
 }
 
 /**

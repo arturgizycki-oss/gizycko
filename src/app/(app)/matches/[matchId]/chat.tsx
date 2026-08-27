@@ -22,7 +22,7 @@ import { EmojiPicker } from "@/components/emoji-picker";
 import { CameraShot, VoiceRecorder } from "@/components/media-capture";
 import { useLive } from "@/components/live";
 import { useChatState, useTypingSignal } from "./use-chat-state";
-import { setTyping } from "./actions";
+import { markRead, setTyping } from "./actions";
 import { useUnreadRefresh } from "@/components/unread";
 import {
   CheckIcon,
@@ -36,7 +36,8 @@ import {
   PencilIcon,
 } from "@/components/icons";
 import { isEmojiOnly, QUICK_REACTIONS } from "@/lib/emoji";
-import { useT } from "@/lib/i18n/provider";
+import { useT, useLocale } from "@/lib/i18n/provider";
+import { LocalTime } from "@/components/local-time";
 import { useToast } from "@/components/toast";
 import { prepareChatUpload } from "@/lib/upload-form";
 
@@ -106,6 +107,8 @@ export function Chat({
   const [live, setLive] = useState(initial);
   const messages = live;
 
+  const refreshUnread = useUnreadRefresh();
+
   const pull = useCallback(async () => {
     try {
       const response = await fetch(`/api/chat/${matchId}/messages`, {
@@ -113,11 +116,30 @@ export function Chat({
       });
       if (!response.ok) return;
       const body = (await response.json()) as { messages?: ChatMessage[] };
-      if (Array.isArray(body.messages)) setLive(body.messages);
+      if (!Array.isArray(body.messages)) return;
+
+      setLive(body.messages);
+
+      /*
+       * Mark what just arrived as read.
+       *
+       * This used to happen on the server, while rendering the page - and the
+       * page was rendered again on every poll. Now that the conversation
+       * updates as data the page is never rendered again, so a message read
+       * with the chat open stayed unread: the badge sat on Messages while
+       * somebody was looking straight at it.
+       *
+       * Only when there is something to mark, so a quiet conversation is not a
+       * write every couple of seconds.
+       */
+      if (body.messages.some((m) => !m.mine && !m.read)) {
+        await markRead(matchId);
+        refreshUnread();
+      }
     } catch {
       // Offline, or the tab is closing. The watcher asks again shortly.
     }
-  }, [matchId]);
+  }, [matchId, refreshUnread]);
 
   // A navigation to another conversation brings its own messages with it.
   const [seeded, setSeeded] = useState(initial);
@@ -172,10 +194,11 @@ export function Chat({
    * in the same breath and does not know. Ask again once, and again whenever
    * another message lands here while the conversation is open.
    */
-  const refreshUnread = useUnreadRefresh();
+  // The badge is refreshed by `pull` whenever it marks something read, and
+  // once here so opening a conversation clears it even if nothing arrives.
   useEffect(() => {
     refreshUnread();
-  }, [refreshUnread, messages.length]);
+  }, [refreshUnread]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
@@ -277,6 +300,7 @@ function Bubble({
   onDraft: (draft: Draft) => void;
 }) {
   const t = useT();
+  const locale = useLocale();
   const [reporting, setReporting] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -414,13 +438,15 @@ function Bubble({
                   : "mt-1 flex items-center gap-1 text-[10px] text-[var(--ink-muted)]"
               }
             >
-              <time dateTime={message.createdAt}>
-                {new Date(message.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-                {message.editedAt && ` (${t("chat.edited")})`}
-              </time>
+              {/* Formatted in the browser, like every other time on the
+                  site: rendering it here would use the server's clock, which
+                  is UTC, and the reader would watch it correct itself. */}
+              <LocalTime
+                value={message.createdAt}
+                locale={locale}
+                mode="time"
+              />
+              {message.editedAt && ` (${t("chat.edited")})`}
 
               {/*
                   One tick sent, two ticks read - on your own messages only,

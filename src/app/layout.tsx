@@ -45,7 +45,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <LocaleProvider messages={messages}>
+        <LocaleProvider messages={messages} locale={locale}>
           <ToastProvider>{children}</ToastProvider>
         </LocaleProvider>
       </body>
