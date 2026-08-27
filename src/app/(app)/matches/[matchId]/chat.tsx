@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  startTransition,
   useActionState,
   useEffect,
   useMemo,
@@ -80,6 +81,21 @@ type Draft =
  */
 const POLL_MS = 30_000;
 
+/*
+ * Fetch the conversation again without the board vanishing first.
+ *
+ * There is a loading.tsx at /matches, and in the App Router that wraps the
+ * nested conversation too. A plain router.refresh() re-runs the server
+ * component, the segment suspends, and the fallback replaces the chat - so
+ * sending a message made the whole board blink out and come back.
+ *
+ * Inside a transition React keeps what is on screen until the new render is
+ * ready, which is the difference between an update and a reload.
+ */
+function refreshQuietly(refresh: () => void) {
+  startTransition(() => refresh());
+}
+
 export function Chat({
   matchId,
   messages,
@@ -126,7 +142,7 @@ export function Chat({
 
   // Sent by the server the moment the other person sends something.
   useLive("message", () => {
-    if (!closed) router.refresh();
+    if (!closed) refreshQuietly(router.refresh);
   });
 
   /*
@@ -159,13 +175,13 @@ export function Chat({
 
     function start() {
       if (timer === undefined)
-        timer = setInterval(() => router.refresh(), POLL_MS);
+        timer = setInterval(() => refreshQuietly(router.refresh), POLL_MS);
     }
 
     function onVisibility() {
       if (document.visibilityState === "visible") {
         // Catch up on whatever arrived while the tab was away.
-        router.refresh();
+        refreshQuietly(router.refresh);
         start();
       } else {
         stop();
@@ -598,7 +614,7 @@ function Composer({
    */
   const router = useRouter();
   useEffect(() => {
-    if (state.submissionId) router.refresh();
+    if (state.submissionId) refreshQuietly(router.refresh);
   }, [state.submissionId, router]);
 
   // A rejected send arrives as new action state; surface it over the page
