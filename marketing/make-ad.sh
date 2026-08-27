@@ -29,10 +29,10 @@ drawtext=fontfile='${BOLD}':text='${line1}':fontcolor=white:fontsize=92:x=(w-tex
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$out"
 }
 
-scene "$SRC/landing_background.png"   "$OUT/s1.mp4" "Talk to the world."       "Post, chat, and join groups"  "0.38"
-scene "$SRC/friend_background.png"    "$OUT/s2.mp4" "Post. Talk. Share."       "Every connection gets a private conversation" "0.42"
-scene "$SRC/dashboard_background.png" "$OUT/s3.mp4" "Share your life with it."   "Photos, songs, video, voice notes"     "0.42"
-scene "$SRC/group_background.png"     "$OUT/s4.mp4" "Groups worth joining."     "Find the people you actually get on with" "0.42"
+scene "$SRC/landing page.png"   "$OUT/s1.mp4" "Talk to the world."       "Post, chat, and join groups"  "0.38"
+scene "$SRC/friend page.png"    "$OUT/s2.mp4" "Post. Talk. Share."       "Every connection gets a private conversation" "0.42"
+scene "$SRC/dashboard page.png" "$OUT/s3.mp4" "Share your life with it."   "Photos, songs, video, voice notes"     "0.42"
+scene "$SRC/group page.png"     "$OUT/s4.mp4" "Groups worth joining."     "Find the people you actually get on with" "0.42"
 
 # End card. White, not brand blue: the logo file is rgb24 with no alpha, so on
 # any coloured ground it carries a visible white box. On white it simply sits

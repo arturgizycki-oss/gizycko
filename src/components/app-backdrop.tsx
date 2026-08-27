@@ -5,11 +5,13 @@ import { PageBackdrop } from "./page-backdrop";
 import dashboardBackground from "@/assets/dashboard.jpg";
 import friendBackground from "@/assets/friend.jpg";
 import groupBackground from "@/assets/group.jpg";
+import discoverBackground from "@/assets/discover.jpg";
 import matchesBackground from "@/assets/matches.jpg";
 import messageBackground from "@/assets/message.jpg";
 
 /** Sections with a photograph of their own; everything else uses the default. */
 const BY_SECTION = [
+  { path: "/discover", image: discoverBackground },
   { path: "/messages", image: messageBackground },
   { path: "/matches", image: matchesBackground },
   { path: "/groups", image: groupBackground },

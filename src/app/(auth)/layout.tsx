@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Brand } from "@/components/brand";
-import { PageBackdrop } from "@/components/page-backdrop";
-import loginBackground from "@/assets/login.jpg";
+import { AuthBackdrop } from "@/components/auth-backdrop";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 
@@ -15,7 +14,7 @@ export default async function AuthLayout({
 
   return (
     <main className="relative flex min-h-dvh flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-12">
-      <PageBackdrop image={loginBackground} scrim="light" />
+      <AuthBackdrop />
       <Brand href="/" size={44} className="relative mb-8 text-lg" />
 
       <div className="card-glass relative w-full max-w-sm p-6 sm:p-8">

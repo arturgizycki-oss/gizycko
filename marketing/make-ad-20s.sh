@@ -47,7 +47,7 @@ drawtext=fontfile='${BOLD}':text='You have met a few hundred.':fontcolor=${BLUE}
   -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$OUT/a1.mp4"
 
 # --- turn: the promise, on a hard push in -----------------------------------
-ffmpeg -y -loglevel error -loop 1 -i "$SRC/login_background.png" -frames:v 65 \
+ffmpeg -y -loglevel error -loop 1 -i "$SRC/login page.png" -frames:v 65 \
   -vf "${FILL},${GRADE},\
 zoompan=z='min(1+0.0026*on,1.17)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=65:s=1920x1080:fps=25,\
 ${WASH},${BARS},\
@@ -75,11 +75,11 @@ drawtext=fontfile='${BOLD}':text='${word}':fontcolor=white:fontsize=150:x=(w-tex
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$out"
 }
 
-beat "$SRC/friend_background.png"    "836:470:0:0"      "$OUT/b1.mp4" "POST."  in
-beat "$SRC/friend_background.png"    "836:470:836:0"    "$OUT/b2.mp4" "TALK."  out
-beat "$SRC/friend_background.png"    "836:470:0:470"    "$OUT/b3.mp4" "SHARE." in
-beat "$SRC/dashboard_background.png" "1254:705:0:118"   "$OUT/b4.mp4" "JOIN."  out
-beat "$SRC/friend_background.png"    "836:470:836:470"  "$OUT/b5.mp4" "STAY."  in
+beat "$SRC/friend page.png"    "836:470:0:0"      "$OUT/b1.mp4" "POST."  in
+beat "$SRC/friend page.png"    "836:470:836:0"    "$OUT/b2.mp4" "TALK."  out
+beat "$SRC/friend page.png"    "836:470:0:470"    "$OUT/b3.mp4" "SHARE." in
+beat "$SRC/dashboard page.png" "1254:705:0:118"   "$OUT/b4.mp4" "JOIN."  out
+beat "$SRC/friend page.png"    "836:470:836:470"  "$OUT/b5.mp4" "STAY."  in
 
 # --- proof: what it actually does, still moving ------------------------------
 # The type slides in from the left while the frame drifts right, so the two are
@@ -103,9 +103,9 @@ drawtext=fontfile='${REG}':text='${line2}':fontcolor=white:fontsize=40:x='(w-tex
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 25 "$out"
 }
 
-proof "$SRC/landing_background.png"   "$OUT/c1.mp4" "Every connection gets a private conversation." "No paywall to reply."                       right
-proof "$SRC/dashboard_background.png" "$OUT/c2.mp4" "Share photos, songs, video, voice notes." "The bits of your day worth telling someone." left
-proof "$SRC/group_background.png"     "$OUT/c3.mp4" "Groups worth joining."                    "Find the people you actually get on with."   right
+proof "$SRC/landing page.png"   "$OUT/c1.mp4" "Every connection gets a private conversation." "No paywall to reply."                       right
+proof "$SRC/dashboard page.png" "$OUT/c2.mp4" "Share photos, songs, video, voice notes." "The bits of your day worth telling someone." left
+proof "$SRC/group page.png"     "$OUT/c3.mp4" "Groups worth joining."                    "Find the people you actually get on with."   right
 
 # --- close: the mark lands, then the address --------------------------------
 ffmpeg -y -loglevel error -loop 1 -i "$SRC/logo.png" -frames:v 90 \

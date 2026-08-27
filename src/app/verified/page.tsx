@@ -2,9 +2,8 @@ import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { getTranslator } from "@/lib/i18n";
 import { Brand } from "@/components/brand";
-import { PageBackdrop } from "@/components/page-backdrop";
+import { AuthBackdrop } from "@/components/auth-backdrop";
 import { CheckIcon } from "@/components/icons";
-import loginBackground from "@/assets/login.jpg";
 
 export const metadata = { title: "Email confirmed" };
 
@@ -25,7 +24,7 @@ export default async function VerifiedPage() {
 
   return (
     <main className="relative flex min-h-dvh flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-12">
-      <PageBackdrop image={loginBackground} scrim="light" />
+      <AuthBackdrop />
       <Brand href="/" size={44} className="relative mb-8 text-lg" />
 
       <div className="card-glass relative w-full max-w-sm p-6 text-center sm:p-8">
