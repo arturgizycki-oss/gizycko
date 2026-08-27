@@ -10,6 +10,7 @@ import {
 } from "./actions";
 import { useT } from "@/lib/i18n/provider";
 import { useUnreadRefresh } from "@/components/unread";
+import { useTypingList } from "@/components/use-typing-list";
 
 export type InboxItem = {
   matchId: string;
@@ -30,6 +31,7 @@ export function Inbox({ items }: { items: InboxItem[] }) {
   const [query, setQuery] = useState("");
   const [pending, startTransition] = useTransition();
   const refreshUnread = useUnreadRefresh();
+  const typing = useTypingList();
 
   const totalUnread = items.reduce((sum, item) => sum + item.unread, 0);
 
@@ -138,7 +140,14 @@ export function Inbox({ items }: { items: InboxItem[] }) {
                       : "truncate text-sm text-neutral-500"
                   }
                 >
-                  {item.preview}
+                  {/* What they are doing now beats what they said before. */}
+                  {typing.has(item.matchId) ? (
+                    <span className="text-brand-600 dark:text-brand-400">
+                      {t("chat.isTyping")}
+                    </span>
+                  ) : (
+                    item.preview
+                  )}
                 </p>
               </Link>
 

@@ -4,6 +4,7 @@ import { requireProfile } from "@/lib/session";
 import { Avatar } from "@/components/avatar";
 import { PRIMARY_PHOTO_WHERE, photoUrlOf } from "@/lib/avatar";
 import { getTranslator } from "@/lib/i18n";
+import { TypingPreview, TypingProvider } from "@/components/use-typing-list";
 
 const PROFILE_AVATAR = {
   displayName: true,
@@ -45,44 +46,54 @@ export default async function MatchesPage() {
       {matches.length === 0 ? (
         <p className="empty-state">{t("matches.empty")}</p>
       ) : (
-        <ul className="card divide-y divide-[var(--line)] overflow-hidden">
-          {matches.map((match) => {
-            const other = match.userAId === me ? match.userB : match.userA;
-            const preview = match.messages[0];
+        <TypingProvider>
+          <ul className="card divide-y divide-[var(--line)] overflow-hidden">
+            {matches.map((match) => {
+              const other = match.userAId === me ? match.userB : match.userA;
+              const preview = match.messages[0];
 
-            return (
-              <li
-                key={match.id}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
-              >
-                <Link
-                  href={`/u/${other.id}`}
-                  aria-label={`${other.profile?.displayName ?? other.name}'s profile`}
+              return (
+                <li
+                  key={match.id}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
                 >
-                  <Avatar
-                    name={other.profile?.displayName ?? other.name}
-                    src={photoUrlOf(other.profile)}
-                    size={40}
-                  />
-                </Link>
-                <Link href={`/matches/${match.id}`} className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">
-                    {other.profile?.displayName ?? other.name}
-                  </p>
-                  <p className="truncate text-sm text-neutral-500">
-                    {preview ? preview.body : t("matches.sayHello")}
-                  </p>
-                </Link>
-                <Link
-                  href={`/matches/${match.id}`}
-                  className="btn btn-primary btn-sm shrink-0"
-                >
-                  {t("action.message")}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  <Link
+                    href={`/u/${other.id}`}
+                    aria-label={`${other.profile?.displayName ?? other.name}'s profile`}
+                  >
+                    <Avatar
+                      name={other.profile?.displayName ?? other.name}
+                      src={photoUrlOf(other.profile)}
+                      size={40}
+                    />
+                  </Link>
+                  <Link
+                    href={`/matches/${match.id}`}
+                    className="min-w-0 flex-1"
+                  >
+                    <p className="text-sm font-medium">
+                      {other.profile?.displayName ?? other.name}
+                    </p>
+                    <p className="truncate text-sm text-neutral-500">
+                      <TypingPreview
+                        matchId={match.id}
+                        label={t("chat.isTyping")}
+                      >
+                        {preview ? preview.body : t("matches.sayHello")}
+                      </TypingPreview>
+                    </p>
+                  </Link>
+                  <Link
+                    href={`/matches/${match.id}`}
+                    className="btn btn-primary btn-sm shrink-0"
+                  >
+                    {t("action.message")}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </TypingProvider>
       )}
     </div>
   );

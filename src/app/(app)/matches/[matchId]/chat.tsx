@@ -1,15 +1,14 @@
 "use client";
 
 import {
-  startTransition,
   useActionState,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
   useTransition,
 } from "react";
-import { useRouter } from "next/navigation";
 import { editMessage, sendMessage, type MessageState } from "./actions";
 import { deleteMessage, toggleMessageReaction } from "../../messages/actions";
 import {
@@ -76,24 +75,9 @@ type Draft =
   | { mode: "reply"; id: string; author: string; body: string }
   | { mode: "edit"; id: string; body: string };
 
-/*
- * Fetch the conversation again without the board vanishing first.
- *
- * There is a loading.tsx at /matches, and in the App Router that wraps the
- * nested conversation too. A plain router.refresh() re-runs the server
- * component, the segment suspends, and the fallback replaces the chat - so
- * sending a message made the whole board blink out and come back.
- *
- * Inside a transition React keeps what is on screen until the new render is
- * ready, which is the difference between an update and a reload.
- */
-function refreshQuietly(refresh: () => void) {
-  startTransition(() => refresh());
-}
-
 export function Chat({
   matchId,
-  messages,
+  messages: initial,
   closed,
   otherName,
 }: {
@@ -104,9 +88,43 @@ export function Chat({
   otherName: string;
 }) {
   const t = useT();
-  const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
+
+  /*
+   * The conversation, held here rather than re-read from the page.
+   *
+   * Fetching the route again is what made the board blink: there is a
+   * loading.tsx above it, so every refresh swapped the whole thing for a
+   * skeleton and put it back. Replacing a list leaves the board alone -
+   * sending a message adds a message, which is all it should ever have
+   * looked like.
+   *
+   * Seeded from the server so the first paint is complete and needs no
+   * request; `initial` changes only on a real navigation.
+   */
+  const [live, setLive] = useState(initial);
+  const messages = live;
+
+  const pull = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/chat/${matchId}/messages`, {
+        cache: "no-store",
+      });
+      if (!response.ok) return;
+      const body = (await response.json()) as { messages?: ChatMessage[] };
+      if (Array.isArray(body.messages)) setLive(body.messages);
+    } catch {
+      // Offline, or the tab is closing. The watcher asks again shortly.
+    }
+  }, [matchId]);
+
+  // A navigation to another conversation brings its own messages with it.
+  const [seeded, setSeeded] = useState(initial);
+  if (seeded !== initial) {
+    setSeeded(initial);
+    setLive(initial);
+  }
 
   /*
    * What was just sent, shown before the server has said anything.
@@ -141,7 +159,7 @@ export function Chat({
    * moved, which is what makes checking every two seconds affordable.
    */
   const { typing, check } = useChatState(matchId, () => {
-    if (!closed) refreshQuietly(router.refresh);
+    if (!closed) void pull();
   });
 
   // Where the socket is configured, a push checks at once instead of waiting.
@@ -209,6 +227,7 @@ export function Chat({
           matchId={matchId}
           draft={draft}
           onClearDraft={() => setDraft(null)}
+          onLanded={pull}
           onSent={(body) =>
             setEchoes((rest) => [
               // Anything the server has since sent back is dropped here rather
@@ -540,12 +559,15 @@ function Composer({
   draft,
   onClearDraft,
   onSent,
+  onLanded,
 }: {
   matchId: string;
   draft: Draft | null;
   onClearDraft: () => void;
   /** The text just sent, so the conversation can show it straight away. */
   onSent: (body: string) => void;
+  /** The send came back, so the real message can be fetched. */
+  onLanded: () => void;
 }) {
   const t = useT();
   const toast = useToast();
@@ -595,10 +617,12 @@ function Composer({
    * that normally follows revalidatePath does not happen. Without this the
    * message appeared only on the next poll, half a minute later.
    */
-  const router = useRouter();
   useEffect(() => {
-    if (state.submissionId) refreshQuietly(router.refresh);
-  }, [state.submissionId, router]);
+    // The server has it now: pull the real copy, which replaces the echo and
+    // brings the id, the time and the tick with it. No route refresh, so the
+    // board is never unmounted and never blinks.
+    if (state.submissionId) onLanded();
+  }, [state.submissionId, onLanded]);
 
   const signalTyping = useTypingSignal(() => {
     void setTyping(matchId);

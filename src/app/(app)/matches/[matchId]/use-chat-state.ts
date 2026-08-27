@@ -51,8 +51,8 @@ export function useChatState(matchId: string, onChanged: () => void) {
       const before = seen.current;
       seen.current = next;
 
-      // Only pull the conversation again when something about it actually
-      // moved: a new message, or the other side having read the last one.
+      // Only fetch the messages again when something about them actually
+      // moved: a new one, or the other side having read the last one.
       if (
         before &&
         (before.lastId !== next.lastId || before.lastRead !== next.lastRead)

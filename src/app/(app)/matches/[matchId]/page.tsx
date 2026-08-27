@@ -12,30 +12,7 @@ import { markRead, unmatch } from "./actions";
 import { getTranslator } from "@/lib/i18n";
 import { ChevronLeftIcon, HeartOffIcon } from "@/components/icons";
 import { ConfirmButton } from "@/components/confirm-button";
-
-/** Group a message's reactions by emoji, noting which ones are mine. */
-function summariseReactions(
-  reactions: { emoji: string; userId: string }[],
-  me: string,
-) {
-  const byEmoji = new Map<
-    string,
-    { emoji: string; count: number; mine: boolean }
-  >();
-
-  for (const reaction of reactions) {
-    const entry = byEmoji.get(reaction.emoji) ?? {
-      emoji: reaction.emoji,
-      count: 0,
-      mine: false,
-    };
-    entry.count += 1;
-    if (reaction.userId === me) entry.mine = true;
-    byEmoji.set(reaction.emoji, entry);
-  }
-
-  return [...byEmoji.values()].sort((a, b) => b.count - a.count);
-}
+import { shapeMessages } from "@/lib/chat-messages";
 
 /** Just enough of the other person for the chat header. */
 const CHAT_PARTNER = {
@@ -172,36 +149,10 @@ export default async function ChatPage({
         matchId={matchId}
         closed={match.unmatchedAt !== null}
         otherName={other.profile?.displayName ?? other.name}
-        messages={messages.map((message) => ({
-          id: message.id,
-          body: message.body,
-          createdAt: message.createdAt.toISOString(),
-          editedAt: message.editedAt?.toISOString() ?? null,
-          mine: message.senderId === me,
-          read: message.readAt !== null,
-          deleted: message.deletedAt !== null,
-          replyTo:
-            message.replyTo && !message.replyTo.deletedAt
-              ? {
-                  id: message.replyTo.id,
-                  author:
-                    message.replyTo.senderId === me
-                      ? t("chat.you")
-                      : (other.profile?.displayName ?? other.name),
-                  body: message.replyTo.body,
-                  hasMedia: message.replyTo.mediaUrl !== null,
-                }
-              : null,
-          reactions: summariseReactions(message.reactions, me),
-          media:
-            message.mediaUrl && message.mediaKind
-              ? {
-                  url: message.mediaUrl,
-                  kind: message.mediaKind,
-                  name: message.mediaName,
-                }
-              : null,
-        }))}
+        messages={shapeMessages(messages, me, {
+          you: t("chat.you"),
+          other: other.profile?.displayName ?? other.name,
+        })}
       />
     </div>
   );
