@@ -3,6 +3,7 @@
 import {
   useActionState,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useTransition,
@@ -96,6 +97,33 @@ export function Chat({
   const bottomRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
 
+  /*
+   * What was just sent, shown before the server has said anything.
+   *
+   * A message used to appear only when the page was fetched again, so pressing
+   * send left the conversation looking unchanged - and on a slow connection
+   * that reads as the message having been lost, which is when people send it
+   * twice.
+   *
+   * Dropped as soon as the real one arrives: the server's copy has the id, the
+   * time, and the ticks, and keeping both would show the message twice.
+   */
+  const [echoes, setEchoes] = useState<ChatMessage[]>([]);
+
+  /** The text of everything of mine the server has actually come back with. */
+  const arrived = useMemo(
+    () => new Set(messages.filter((m) => m.mine).map((m) => m.body)),
+    [messages],
+  );
+
+  const shown = useMemo(
+    () =>
+      echoes.length === 0
+        ? messages
+        : [...messages, ...echoes.filter((e) => !arrived.has(e.body))],
+    [messages, echoes, arrived],
+  );
+
   // Sent by the server the moment the other person sends something.
   useLive("message", () => {
     if (!closed) router.refresh();
@@ -163,13 +191,13 @@ export function Chat({
       className="card flex h-[65dvh] flex-col overflow-hidden sm:h-[70dvh]"
     >
       <ol className="flex-1 space-y-3 overflow-x-hidden overflow-y-auto p-4">
-        {messages.length === 0 && (
+        {shown.length === 0 && (
           <li className="py-8 text-center text-sm text-[var(--ink-muted)]">
             {t("chat.empty")}
           </li>
         )}
 
-        {messages.map((message) => (
+        {shown.map((message: ChatMessage) => (
           <Bubble
             key={message.id}
             message={message}
@@ -192,6 +220,25 @@ export function Chat({
           matchId={matchId}
           draft={draft}
           onClearDraft={() => setDraft(null)}
+          onSent={(body) =>
+            setEchoes((rest) => [
+              // Anything the server has since sent back is dropped here rather
+              // than in an effect, which would be a second render for nothing.
+              ...rest.filter((e) => !arrived.has(e.body)),
+              {
+                id: `echo-${rest.length}-${body.slice(0, 24)}`,
+                body,
+                createdAt: new Date().toISOString(),
+                editedAt: null,
+                mine: true,
+                read: false,
+                deleted: false,
+                reactions: [],
+                media: null,
+                replyTo: null,
+              },
+            ])
+          }
         />
       )}
     </div>
@@ -493,10 +540,13 @@ function Composer({
   matchId,
   draft,
   onClearDraft,
+  onSent,
 }: {
   matchId: string;
   draft: Draft | null;
   onClearDraft: () => void;
+  /** The text just sent, so the conversation can show it straight away. */
+  onSent: (body: string) => void;
 }) {
   const t = useT();
   const toast = useToast();
@@ -537,6 +587,19 @@ function Composer({
     setHasVoice(false);
     setAttached(null);
   }
+
+  /*
+   * Fetch the conversation again the moment a send lands.
+   *
+   * The action is dispatched from an async handler, after the attachment has
+   * been prepared, so it is not the form submission itself - and the refresh
+   * that normally follows revalidatePath does not happen. Without this the
+   * message appeared only on the next poll, half a minute later.
+   */
+  const router = useRouter();
+  useEffect(() => {
+    if (state.submissionId) router.refresh();
+  }, [state.submissionId, router]);
 
   // A rejected send arrives as new action state; surface it over the page
   // rather than wedging it into the composer row.
@@ -614,6 +677,17 @@ function Composer({
       toast(prepared.error);
       return;
     }
+
+    /*
+     * Show it before sending it.
+     *
+     * Only the plain text case: a message with a photograph on it has nothing
+     * to show until the file is up, and a reply belongs under its quote, so
+     * those wait for the server rather than being drawn twice differently.
+     */
+    const body = String(prepared.data.get("body") ?? "").trim();
+    if (body && !prepared.data.get("attachmentKey") && !draft) onSent(body);
+
     formAction(prepared.data);
   }
 
